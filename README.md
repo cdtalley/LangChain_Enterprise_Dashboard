@@ -513,11 +513,9 @@ async def process_query(query: QueryRequest) -> QueryResponse:
 ---
 
 ## 📞 **Contact & Demo**
-
-🌐 **Live Demo**: [Deploy on cloud platform]  
-📧 **Email**: your.email@example.com  
-💼 **LinkedIn**: [Your LinkedIn Profile]  
-🐙 **GitHub**: [Your GitHub Profile]  
+ 
+💼 **LinkedIn**: https://www.linkedin.com/in/drake-talley/
+🐙 **GitHub**: https://github.com/cdtalley 
 
 ---
 
