@@ -3,6 +3,7 @@ langchain-experimental
 langchain-community
 langchain-openai
 langchain-chroma
+langchain-huggingface
 openai
 streamlit
 faiss-cpu

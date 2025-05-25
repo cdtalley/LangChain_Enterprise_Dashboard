@@ -23,7 +23,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 from transformers import pipeline
-from langchain_community.llms import HuggingFacePipeline
+from langchain_huggingface import HuggingFacePipeline
 import logging
 import time
 from datetime import datetime

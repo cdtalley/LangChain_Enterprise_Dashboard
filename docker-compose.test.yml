@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=test
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - chromadb
+    volumes:
+      - ./tests:/app/tests
+    command: >
+      sh -c "pip install pytest pytest-cov &&
+             python -m pytest tests/ -v --cov=. --cov-report=xml &&
+             uvicorn enterprise_features:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    volumes:
+      - chromadb_data:/chroma/chroma
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  test-runner:
+    build: .
+    depends_on:
+      - app
+      - redis
+      - chromadb
+    environment:
+      - ENVIRONMENT=test
+      - APP_URL=http://app:8000
+      - REDIS_URL=redis://redis:6379
+      - CHROMA_URL=http://chromadb:8000
+    volumes:
+      - ./tests:/app/tests
+      - ./reports:/app/reports
+    command: >
+      sh -c "sleep 30 &&
+             python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=html &&
+             python -m pytest tests/test_enterprise_features.py::TestIntegration -v"
+
+volumes:
+  chromadb_data: 
