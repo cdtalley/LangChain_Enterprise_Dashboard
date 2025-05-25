@@ -1,0 +1,67 @@
+langchain
+langchain-experimental
+langchain-community
+langchain-openai
+langchain-chroma
+openai
+streamlit
+faiss-cpu
+chromadb
+python-dotenv
+serpapi
+plotly
+pandas
+numpy
+matplotlib
+seaborn
+requests
+beautifulsoup4
+youtube-transcript-api
+PyPDF2
+python-docx
+pillow
+sentence-transformers
+tiktoken
+sqlalchemy
+duckdb
+streamlit-chat
+streamlit-agraph
+networkx
+transformers
+torch
+
+# Enterprise Features
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+redis>=5.0.0
+prometheus-client>=0.19.0
+python-multipart>=0.0.6
+psutil>=5.9.0
+
+# Database
+sqlite3
+
+# Monitoring & Logging
+loguru>=0.7.0
+structlog>=23.1.0
+
+# Security
+cryptography>=41.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# Performance
+aiofiles>=23.2.1
+asyncio-mqtt>=0.16.1
+
+# Development & Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Production
+gunicorn>=21.2.0
+supervisor>=4.2.5 
