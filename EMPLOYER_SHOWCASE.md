@@ -1,5 +1,4 @@
 # 🎯 **Enterprise LangChain AI Workbench**
-## **Why This Project Will Get You Hired Instantly**
 
 ---
 
