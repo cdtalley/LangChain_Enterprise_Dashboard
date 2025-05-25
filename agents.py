@@ -36,22 +36,20 @@ class SecureCodeExecutorTool(BaseTool):
     name: str = "secure_python_executor"
     description: str = "Execute Python code safely with security constraints. Use for data analysis, calculations, and visualizations."
     
-    class Config:
-        extra = "allow"  # Allow extra attributes
+    model_config = {"extra": "allow"}  # Pydantic v2 syntax
     
     def __init__(self):
         super().__init__()
-        # Initialize stats after super().__init__()
-        object.__setattr__(self, 'execution_stats', {
+        # Initialize as private attributes to avoid Pydantic validation
+        self.__dict__['execution_stats'] = {
             "total_executions": 0,
             "successful_executions": 0,
             "failed_executions": 0,
             "avg_execution_time": 0,
             "blocked_operations": 0
-        })
+        }
         
-        # Dangerous patterns to block
-        object.__setattr__(self, 'blocked_patterns', [
+        self.__dict__['blocked_patterns'] = [
             r'import\s+os',
             r'import\s+subprocess',
             r'import\s+sys',
@@ -64,7 +62,7 @@ class SecureCodeExecutorTool(BaseTool):
             r'raw_input\s*\(',
             r'exit\s*\(',
             r'quit\s*\(',
-        ])
+        ]
     
     def _is_code_safe(self, code: str) -> tuple[bool, str]:
         """Check if code is safe to execute"""
