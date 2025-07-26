@@ -12,7 +12,7 @@
 
 ---
 
-## ✨ **Key Highlights for Employers**
+## ✨ **Key Highlights**
 
 🎯 **Enterprise Architecture**: Production-ready codebase with Docker, monitoring, and scaling capabilities  
 🤖 **Advanced AI Agents**: Multi-agent system with specialized roles and collaborative workflows  
