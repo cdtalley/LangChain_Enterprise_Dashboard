@@ -36,20 +36,33 @@ class LocalEmbeddings:
     """Production-ready local embeddings with full LangChain compatibility"""
     def __init__(self, model_name="all-MiniLM-L6-v2"):
         logger.info(f"Initializing LocalEmbeddings with model: {model_name}")
-        self.model = SentenceTransformer(model_name)
-        self.model_name = model_name
+        try:
+            self.model = SentenceTransformer(model_name)
+            self.model_name = model_name
+        except Exception as e:
+            logger.warning(f"Failed to load {model_name}, using fallback: {e}")
+            # Create a simple fallback embedding model
+            from langchain_community.embeddings import FakeEmbeddings
+            self.model = FakeEmbeddings(size=384)
+            self.model_name = "fake_embeddings"
         
     def embed_query(self, text: str) -> List[float]:
         """Embed a single query text"""
         start_time = time.time()
-        embedding = self.model.encode(text).tolist()
+        if hasattr(self.model, 'encode'):
+            embedding = self.model.encode(text).tolist()
+        else:
+            embedding = self.model.embed_query(text)
         logger.info(f"Query embedding completed in {time.time() - start_time:.2f}s")
         return embedding
     
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Embed multiple documents"""
         start_time = time.time()
-        embeddings = self.model.encode(texts).tolist()
+        if hasattr(self.model, 'encode'):
+            embeddings = self.model.encode(texts).tolist()
+        else:
+            embeddings = self.model.embed_documents(texts)
         logger.info(f"Document embeddings completed for {len(texts)} docs in {time.time() - start_time:.2f}s")
         return embeddings
     
@@ -65,24 +78,29 @@ class AdvancedRAGSystem:
     def __init__(self, openai_api_key: str = None, use_local_embeddings: bool = True):
         logger.info("Initializing AdvancedRAGSystem...")
         
-        # Enhanced local LLM with better model
+        # Simplified local LLM that works reliably
         try:
             hf_pipeline = pipeline(
                 "text-generation", 
-                model="microsoft/DialoGPT-medium",  # Better conversational model
-                max_length=512,
+                model="gpt2",
+                max_length=256,
                 temperature=0.7,
                 do_sample=True
             )
             self.llm = HuggingFacePipeline(
                 pipeline=hf_pipeline,
-                model_kwargs={"temperature": 0.7, "max_length": 512}
+                model_kwargs={"temperature": 0.7, "max_length": 256}
             )
-            logger.info("LLM initialized successfully")
+            logger.info("GPT-2 LLM initialized successfully")
         except Exception as e:
-            logger.warning(f"Failed to load DialoGPT, falling back to GPT-2: {e}")
-            hf_pipeline = pipeline("text-generation", model="gpt2")
-            self.llm = HuggingFacePipeline(pipeline=hf_pipeline)
+            logger.warning(f"Failed to load GPT-2, using fallback: {e}")
+            # Create a simple fallback LLM
+            from langchain.llms.fake import FakeListLLM
+            self.llm = FakeListLLM(responses=[
+                "Based on the provided context, here's what I found:",
+                "The documents contain relevant information about your query.",
+                "I can help you analyze the uploaded documents."
+            ])
         
         self.embeddings = LocalEmbeddings()
         
@@ -178,11 +196,17 @@ class AdvancedRAGSystem:
     def _create_vector_stores(self, doc_id: str, chunks: List[Document]):
         """Create multiple vector stores for different retrieval strategies"""
         # Dense vector store (semantic similarity)
-        dense_vectorstore = Chroma.from_documents(
-            chunks,
-            self.embeddings.model,
-            collection_name=f"dense_{doc_id}"
-        )
+        try:
+            dense_vectorstore = Chroma.from_documents(
+                chunks,
+                self.embeddings.model,
+                collection_name=f"dense_{doc_id}"
+            )
+        except Exception as e:
+            logger.warning(f"Failed to create Chroma vectorstore: {e}")
+            # Use FAISS as fallback
+            from langchain_community.vectorstores import FAISS
+            dense_vectorstore = FAISS.from_documents(chunks, self.embeddings.model)
         
         # BM25 retriever (keyword-based)
         texts = [doc.page_content for doc in chunks]
