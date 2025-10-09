@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from typing import List, Dict, Any
 from langchain.agents import AgentType, initialize_agent, Tool
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI  # Optional import
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.schema import HumanMessage, AIMessage
 from langchain.tools import BaseTool
@@ -18,7 +18,8 @@ import base64
 import requests
 from bs4 import BeautifulSoup
 from transformers import pipeline
-from langchain_huggingface import HuggingFacePipeline
+# from langchain_huggingface import HuggingFacePipeline  # Optional import
+import torch
 import logging
 import time
 import hashlib
@@ -250,31 +251,60 @@ class MultiAgentSystem:
     def __init__(self, openai_api_key: str = None, serpapi_key: str = None):
         logger.info("Initializing MultiAgentSystem...")
         
-        # Simplified local LLM that works reliably
+        # Enhanced LLM initialization with better model selection
         try:
-            # Use a smaller, more reliable model
+            # Try to use a more capable model first
             hf_pipeline = pipeline(
                 "text-generation", 
-                model="gpt2",
-                max_length=256,
+                model="microsoft/DialoGPT-medium",
+                max_length=512,
                 temperature=0.7,
                 do_sample=True,
-                pad_token_id=50256
+                pad_token_id=50256,
+                device_map="auto" if torch.cuda.is_available() else None
             )
-            self.llm = HuggingFacePipeline(
-                pipeline=hf_pipeline,
-                model_kwargs={"temperature": 0.7, "max_length": 256}
-            )
-            logger.info("GPT-2 LLM loaded successfully")
+            # Use HuggingFace pipeline directly if available
+            try:
+                from langchain_huggingface import HuggingFacePipeline
+                self.llm = HuggingFacePipeline(
+                    pipeline=hf_pipeline,
+                    model_kwargs={"temperature": 0.7, "max_length": 512}
+                )
+            except ImportError:
+                # Fallback to direct pipeline usage
+                self.llm = hf_pipeline
+            logger.info("DialoGPT-medium LLM loaded successfully")
         except Exception as e:
-            logger.warning(f"Failed to load GPT-2, using fallback: {e}")
-            # Create a simple fallback LLM
-            from langchain.llms.fake import FakeListLLM
-            self.llm = FakeListLLM(responses=[
-                "I'm a research agent. Let me help you find information about that topic.",
-                "I'm a coding agent. I can help you write and execute Python code.",
-                "I'm an analysis agent. I can help you analyze data and provide insights."
-            ])
+            logger.warning(f"Failed to load DialoGPT-medium, trying GPT-2: {e}")
+            try:
+                # Fallback to GPT-2
+                hf_pipeline = pipeline(
+                    "text-generation", 
+                    model="gpt2",
+                    max_length=256,
+                    temperature=0.7,
+                    do_sample=True,
+                    pad_token_id=50256
+                )
+                try:
+                    from langchain_huggingface import HuggingFacePipeline
+                    self.llm = HuggingFacePipeline(
+                        pipeline=hf_pipeline,
+                        model_kwargs={"temperature": 0.7, "max_length": 256}
+                    )
+                except ImportError:
+                    # Fallback to direct pipeline usage
+                    self.llm = hf_pipeline
+                logger.info("GPT-2 LLM loaded successfully")
+            except Exception as e2:
+                logger.warning(f"Failed to load GPT-2, using fallback: {e2}")
+                # Create a simple fallback LLM
+                from langchain.llms.fake import FakeListLLM
+                self.llm = FakeListLLM(responses=[
+                    "I'm a research agent. Let me help you find information about that topic.",
+                    "I'm a coding agent. I can help you write and execute Python code.",
+                    "I'm an analysis agent. I can help you analyze data and provide insights."
+                ])
         
         # Initialize enhanced tools
         self.tools = [
@@ -301,6 +331,13 @@ class MultiAgentSystem:
             "avg_response_time": 0,
             "active_sessions": 0
         }
+        
+        # Enhanced conversation memory
+        self.conversation_memory = ConversationBufferWindowMemory(
+            memory_key="chat_history",
+            return_messages=True,
+            k=20  # Keep more conversation context
+        )
         
         # Create specialized agents
         self.agents = self._create_agents()
@@ -411,4 +448,78 @@ class MultiAgentSystem:
     
     def get_agent_list(self) -> List[str]:
         """Get list of available agents"""
-        return list(self.agents.keys()) 
+        return list(self.agents.keys())
+    
+    def intelligent_agent_routing(self, query: str) -> str:
+        """Advanced intelligent routing based on query analysis"""
+        query_lower = query.lower()
+        
+        # Define routing patterns with weights
+        routing_patterns = {
+            "researcher": {
+                "keywords": ["research", "find", "search", "information", "latest", "news", "trends", "study", "investigate"],
+                "questions": ["what", "when", "where", "who", "how many"],
+                "weight": 0
+            },
+            "coder": {
+                "keywords": ["code", "python", "programming", "function", "algorithm", "debug", "optimize", "calculate", "data analysis"],
+                "questions": ["how to", "write", "create", "build", "implement"],
+                "weight": 0
+            },
+            "analyst": {
+                "keywords": ["analyze", "compare", "evaluate", "assess", "strategy", "recommendation", "insight", "pattern"],
+                "questions": ["why", "explain", "compare", "analyze", "evaluate"],
+                "weight": 0
+            }
+        }
+        
+        # Calculate weights for each agent
+        for agent, patterns in routing_patterns.items():
+            # Check keyword matches
+            keyword_matches = sum(1 for keyword in patterns["keywords"] if keyword in query_lower)
+            patterns["weight"] += keyword_matches * 2
+            
+            # Check question type matches
+            question_matches = sum(1 for question in patterns["questions"] if query_lower.startswith(question))
+            patterns["weight"] += question_matches * 3
+            
+            # Check for specific domain indicators
+            if agent == "researcher" and any(word in query_lower for word in ["market", "industry", "competitor", "news"]):
+                patterns["weight"] += 2
+            elif agent == "coder" and any(word in query_lower for word in ["dataframe", "numpy", "pandas", "visualization", "plot"]):
+                patterns["weight"] += 2
+            elif agent == "analyst" and any(word in query_lower for word in ["business", "strategy", "decision", "recommendation"]):
+                patterns["weight"] += 2
+        
+        # Return agent with highest weight
+        best_agent = max(routing_patterns.items(), key=lambda x: x[1]["weight"])
+        
+        # If no clear winner, default to analyst
+        if best_agent[1]["weight"] == 0:
+            return "analyst"
+        
+        logger.info(f"Query routed to {best_agent[0]} (weight: {best_agent[1]['weight']})")
+        return best_agent[0]
+    
+    def get_agent_capabilities(self) -> Dict[str, Dict[str, Any]]:
+        """Get detailed capabilities of each agent"""
+        return {
+            "researcher": {
+                "description": "Specialized in information gathering and research",
+                "strengths": ["Web research", "Data collection", "Fact verification", "Market analysis"],
+                "tools": ["web_search", "web_scraper"],
+                "best_for": ["Research queries", "Information gathering", "Market analysis"]
+            },
+            "coder": {
+                "description": "Expert in programming and data analysis",
+                "strengths": ["Code generation", "Data analysis", "Algorithm implementation", "Debugging"],
+                "tools": ["secure_python_executor", "data_analyzer"],
+                "best_for": ["Programming tasks", "Data analysis", "Code generation"]
+            },
+            "analyst": {
+                "description": "Advanced analysis and strategic thinking",
+                "strengths": ["Strategic analysis", "Pattern recognition", "Synthesis", "Decision support"],
+                "tools": ["all_tools"],
+                "best_for": ["Complex analysis", "Strategic planning", "Decision support"]
+            }
+        } 

@@ -136,15 +136,16 @@ with tab1:
             if st.button("🚀 Execute Task", type="primary") and task:
                 with st.spinner("Agent working..."):
                     if selected_agent == "Auto-Route":
-                        # Intelligent routing based on task content
-                        if any(word in task.lower() for word in ["research", "find", "search", "information"]):
-                            agent_to_use = "researcher"
-                        elif any(word in task.lower() for word in ["code", "python", "analyze", "data", "calculate"]):
-                            agent_to_use = "coder"
-                        else:
-                            agent_to_use = "analyst"
-                        
+                        # Use enhanced intelligent routing
+                        agent_to_use = st.session_state['multi_agent'].intelligent_agent_routing(task)
                         st.info(f"🎯 Auto-routed to: **{agent_to_use.title()} Agent**")
+                        
+                        # Show routing confidence and alternatives
+                        with st.expander("🔍 Routing Details"):
+                            capabilities = st.session_state['multi_agent'].get_agent_capabilities()
+                            st.write(f"**Selected Agent:** {agent_to_use.title()}")
+                            st.write(f"**Description:** {capabilities[agent_to_use]['description']}")
+                            st.write(f"**Strengths:** {', '.join(capabilities[agent_to_use]['strengths'])}")
                     else:
                         agent_to_use = selected_agent
                     
@@ -397,29 +398,95 @@ with tab4:
     )
     st.plotly_chart(fig, use_container_width=True)
     
-    # Agent performance comparison
+    # Enhanced Agent performance comparison
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("🤖 Agent Performance")
-        agent_perf = pd.DataFrame({
-            'Agent': ['Researcher', 'Coder', 'Analyst'],
-            'Success_Rate': [95.2, 91.8, 97.1],
-            'Avg_Time': [2.1, 3.4, 1.9]
-        })
+        st.subheader("🤖 Agent Performance Analysis")
         
-        fig = px.bar(agent_perf, x='Agent', y='Success_Rate', title="Agent Success Rates")
+        # Get real agent capabilities
+        capabilities = st.session_state['multi_agent'].get_agent_capabilities()
+        
+        # Create performance data with real capabilities
+        agent_data = []
+        for agent_name, caps in capabilities.items():
+            agent_data.append({
+                'Agent': agent_name.title(),
+                'Tools_Count': len(caps['tools']),
+                'Strengths_Count': len(caps['strengths']),
+                'Best_For_Count': len(caps['best_for'])
+            })
+        
+        agent_df = pd.DataFrame(agent_data)
+        
+        # Create multi-metric chart
+        fig = px.bar(agent_df, 
+                    x='Agent', 
+                    y=['Tools_Count', 'Strengths_Count', 'Best_For_Count'],
+                    title="Agent Capability Comparison",
+                    barmode='group')
         st.plotly_chart(fig, use_container_width=True)
+        
+        # Show detailed capabilities
+        with st.expander("📋 Detailed Agent Capabilities"):
+            for agent_name, caps in capabilities.items():
+                st.write(f"**{agent_name.title()}:**")
+                st.write(f"- {caps['description']}")
+                st.write(f"- Tools: {', '.join(caps['tools'])}")
+                st.write(f"- Best for: {', '.join(caps['best_for'])}")
+                st.write("---")
     
     with col2:
-        st.subheader("🔍 Query Distribution")
-        query_types = pd.DataFrame({
-            'Type': ['Research', 'Analysis', 'Code Generation', 'Q&A'],
-            'Count': [45, 32, 28, 67]
+        st.subheader("🔍 Query Classification & Routing")
+        
+        # Simulate query classification data
+        query_classification = pd.DataFrame({
+            'Query_Type': ['Factual', 'Conceptual', 'Analytical', 'Research', 'Code'],
+            'Count': [45, 32, 28, 67, 23],
+            'Avg_Response_Time': [1.2, 2.1, 2.8, 1.9, 3.2]
         })
         
-        fig = px.pie(query_types, values='Count', names='Type', title="Query Type Distribution")
+        # Create dual-axis chart
+        fig = go.Figure()
+        
+        # Add bar chart for count
+        fig.add_trace(go.Bar(
+            name='Query Count',
+            x=query_classification['Query_Type'],
+            y=query_classification['Count'],
+            yaxis='y',
+            marker_color='lightblue'
+        ))
+        
+        # Add line chart for response time
+        fig.add_trace(go.Scatter(
+            name='Avg Response Time (s)',
+            x=query_classification['Query_Type'],
+            y=query_classification['Avg_Response_Time'],
+            yaxis='y2',
+            mode='lines+markers',
+            line=dict(color='red', width=3)
+        ))
+        
+        # Update layout
+        fig.update_layout(
+            title="Query Type Distribution & Performance",
+            xaxis_title="Query Type",
+            yaxis=dict(title="Query Count", side="left"),
+            yaxis2=dict(title="Avg Response Time (s)", side="right", overlaying="y"),
+            hovermode='x unified'
+        )
+        
         st.plotly_chart(fig, use_container_width=True)
+        
+        # Show routing insights
+        with st.expander("🧠 Intelligent Routing Insights"):
+            st.write("**Query Classification Patterns:**")
+            st.write("- **Factual queries** → Researcher Agent (fast, accurate)")
+            st.write("- **Conceptual queries** → Analyst Agent (deep analysis)")
+            st.write("- **Code queries** → Coder Agent (technical expertise)")
+            st.write("- **Research queries** → Researcher Agent (web search)")
+            st.write("- **Analytical queries** → Analyst Agent (pattern recognition)")
 
 # --- Enterprise Demo Tab ---
 with tab5:

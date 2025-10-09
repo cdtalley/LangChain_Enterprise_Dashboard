@@ -6,12 +6,12 @@ from langchain.text_splitter import (
     TokenTextSplitter,
     SpacyTextSplitter
 )
-from langchain_openai.embeddings import OpenAIEmbeddings
+# from langchain_openai.embeddings import OpenAIEmbeddings  # Optional import
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain.schema import Document
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI  # Optional import
 from langchain.chains import RetrievalQA
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
@@ -23,7 +23,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 from transformers import pipeline
-from langchain_huggingface import HuggingFacePipeline
+# from langchain_huggingface import HuggingFacePipeline  # Optional import
 import logging
 import time
 from datetime import datetime
@@ -87,10 +87,15 @@ class AdvancedRAGSystem:
                 temperature=0.7,
                 do_sample=True
             )
-            self.llm = HuggingFacePipeline(
-                pipeline=hf_pipeline,
-                model_kwargs={"temperature": 0.7, "max_length": 256}
-            )
+            try:
+                from langchain_huggingface import HuggingFacePipeline
+                self.llm = HuggingFacePipeline(
+                    pipeline=hf_pipeline,
+                    model_kwargs={"temperature": 0.7, "max_length": 256}
+                )
+            except ImportError:
+                # Fallback to direct pipeline usage
+                self.llm = hf_pipeline
             logger.info("GPT-2 LLM initialized successfully")
         except Exception as e:
             logger.warning(f"Failed to load GPT-2, using fallback: {e}")
@@ -331,16 +336,56 @@ class AdvancedRAGSystem:
             return {"error": f"Error querying documents: {str(e)}"}
     
     def _classify_query(self, query: str) -> str:
-        """Classify query type for optimal retrieval strategy"""
-        factual_keywords = ["what", "when", "where", "who", "how many", "list", "define"]
-        conceptual_keywords = ["why", "how", "explain", "compare", "analyze", "describe"]
-        
+        """Enhanced query classification for optimal retrieval strategy"""
         query_lower = query.lower()
         
-        factual_score = sum(1 for keyword in factual_keywords if keyword in query_lower)
-        conceptual_score = sum(1 for keyword in conceptual_keywords if keyword in query_lower)
+        # More comprehensive classification patterns
+        factual_patterns = {
+            "keywords": ["what", "when", "where", "who", "how many", "list", "define", "name", "identify"],
+            "phrases": ["what is", "what are", "when did", "where is", "who is", "how many"],
+            "weight": 0
+        }
         
-        return "factual" if factual_score > conceptual_score else "conceptual"
+        conceptual_patterns = {
+            "keywords": ["why", "how", "explain", "compare", "analyze", "describe", "evaluate", "assess"],
+            "phrases": ["why does", "how does", "explain why", "compare and", "analyze the", "describe how"],
+            "weight": 0
+        }
+        
+        analytical_patterns = {
+            "keywords": ["trend", "pattern", "correlation", "relationship", "impact", "effect", "cause"],
+            "phrases": ["what are the trends", "show me patterns", "what is the impact", "how does this affect"],
+            "weight": 0
+        }
+        
+        # Calculate weights for each pattern type
+        for pattern_type, patterns in [("factual", factual_patterns), ("conceptual", conceptual_patterns), ("analytical", analytical_patterns)]:
+            # Check keyword matches
+            keyword_matches = sum(1 for keyword in patterns["keywords"] if keyword in query_lower)
+            patterns["weight"] += keyword_matches * 2
+            
+            # Check phrase matches (higher weight)
+            phrase_matches = sum(1 for phrase in patterns["phrases"] if phrase in query_lower)
+            patterns["weight"] += phrase_matches * 3
+            
+            # Check for question starters
+            if pattern_type == "factual" and query_lower.startswith(("what", "when", "where", "who")):
+                patterns["weight"] += 2
+            elif pattern_type == "conceptual" and query_lower.startswith(("why", "how", "explain")):
+                patterns["weight"] += 2
+            elif pattern_type == "analytical" and any(word in query_lower for word in ["analyze", "trend", "pattern"]):
+                patterns["weight"] += 2
+        
+        # Return the pattern type with highest weight
+        best_pattern = max([("factual", factual_patterns), ("conceptual", conceptual_patterns), ("analytical", analytical_patterns)], 
+                          key=lambda x: x[1]["weight"])
+        
+        # Default to conceptual if no clear pattern
+        if best_pattern[1]["weight"] == 0:
+            return "conceptual"
+        
+        logger.info(f"Query classified as {best_pattern[0]} (weight: {best_pattern[1]['weight']})")
+        return best_pattern[0]
     
     def _matches_filter(self, metadata: Dict, filter_criteria: Dict) -> bool:
         """Check if document metadata matches filter criteria"""

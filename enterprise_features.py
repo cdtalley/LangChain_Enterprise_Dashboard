@@ -345,6 +345,47 @@ async def list_agents():
         ]
     }
 
+@app.get("/api/v1/agents/capabilities")
+async def get_agent_capabilities():
+    """Get detailed capabilities of each agent"""
+    return multi_agent.get_agent_capabilities()
+
+@app.post("/api/v1/agents/route")
+async def route_query(
+    query: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Intelligently route a query to the best agent"""
+    try:
+        best_agent = multi_agent.intelligent_agent_routing(query)
+        return {
+            "query": query,
+            "recommended_agent": best_agent,
+            "routing_confidence": "high",  # Could be enhanced with actual confidence scores
+            "alternative_agents": [agent for agent in multi_agent.get_agent_list() if agent != best_agent]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Query routing failed: {str(e)}")
+
+@app.get("/api/v1/performance/benchmarks")
+async def get_performance_benchmarks(current_user: dict = Depends(get_current_user)):
+    """Get system performance benchmarks and SLAs"""
+    return {
+        "sla_metrics": {
+            "response_time_p95": "< 3 seconds",
+            "availability": "> 99.5%",
+            "throughput": "> 100 queries/minute",
+            "error_rate": "< 1%"
+        },
+        "current_performance": {
+            "avg_response_time": monitor.metrics["avg_response_time"],
+            "success_rate": (monitor.metrics["successful_queries"] / max(monitor.metrics["total_queries"], 1)) * 100,
+            "total_queries": monitor.metrics["total_queries"],
+            "cache_hit_rate": monitor.metrics["cache_hits"] / max(monitor.metrics["cache_hits"] + monitor.metrics["cache_misses"], 1) * 100
+        },
+        "performance_grade": "A+" if monitor.metrics["avg_response_time"] < 2.0 else "A" if monitor.metrics["avg_response_time"] < 3.0 else "B"
+    }
+
 @app.post("/api/v1/rag/upload")
 async def upload_document(
     file_content: str,
@@ -369,7 +410,7 @@ async def upload_document(
 
 @app.get("/api/v1/analytics/dashboard")
 async def get_dashboard_data(current_user: dict = Depends(get_current_user)):
-    """Get data for analytics dashboard"""
+    """Enhanced analytics dashboard with advanced metrics"""
     try:
         # Query logs from database
         db = SessionLocal()
@@ -387,31 +428,86 @@ async def get_dashboard_data(current_user: dict = Depends(get_current_user)):
         } for q in recent_queries])
         
         if len(df) > 0:
-            # Response time trend
+            # Enhanced response time analysis
             hourly_stats = df.groupby(df['timestamp'].dt.hour).agg({
-                'response_time': 'mean',
+                'response_time': ['mean', 'median', 'std'],
                 'success': lambda x: (x == 'success').sum()
             }).reset_index()
             
-            # Agent usage
-            agent_stats = df['agent'].value_counts().to_dict()
+            # Flatten column names
+            hourly_stats.columns = ['hour', 'avg_response_time', 'median_response_time', 'std_response_time', 'success_count']
+            
+            # Agent performance analysis
+            agent_performance = df.groupby('agent').agg({
+                'response_time': ['mean', 'median', 'count'],
+                'success': lambda x: (x == 'success').mean() * 100
+            }).reset_index()
+            agent_performance.columns = ['agent', 'avg_response_time', 'median_response_time', 'query_count', 'success_rate']
+            
+            # Query complexity analysis (based on response time)
+            df['complexity'] = pd.cut(df['response_time'], 
+                                    bins=[0, 1, 3, 5, float('inf')], 
+                                    labels=['Simple', 'Medium', 'Complex', 'Very Complex'])
+            complexity_stats = df['complexity'].value_counts().to_dict()
+            
+            # Peak usage hours
+            peak_hours = df.groupby(df['timestamp'].dt.hour).size().sort_values(ascending=False).head(3).to_dict()
+            
+            # Error analysis
+            error_queries = df[df['success'] != 'success']
+            error_rate_by_agent = error_queries.groupby('agent').size().to_dict() if len(error_queries) > 0 else {}
             
             return {
-                "total_queries_24h": len(df),
-                "avg_response_time": df['response_time'].mean(),
-                "success_rate": (df['success'] == 'success').mean() * 100,
-                "hourly_trends": hourly_stats.to_dict('records'),
-                "agent_usage": agent_stats,
-                "performance_metrics": monitor.metrics
+                "overview": {
+                    "total_queries_24h": len(df),
+                    "avg_response_time": round(df['response_time'].mean(), 2),
+                    "median_response_time": round(df['response_time'].median(), 2),
+                    "success_rate": round((df['success'] == 'success').mean() * 100, 2),
+                    "peak_hours": peak_hours
+                },
+                "performance_trends": {
+                    "hourly_stats": hourly_stats.to_dict('records'),
+                    "response_time_distribution": {
+                        "p50": round(df['response_time'].quantile(0.5), 2),
+                        "p95": round(df['response_time'].quantile(0.95), 2),
+                        "p99": round(df['response_time'].quantile(0.99), 2)
+                    }
+                },
+                "agent_analytics": {
+                    "performance": agent_performance.to_dict('records'),
+                    "usage_distribution": df['agent'].value_counts().to_dict(),
+                    "error_analysis": error_rate_by_agent
+                },
+                "query_insights": {
+                    "complexity_distribution": complexity_stats,
+                    "avg_queries_per_hour": round(len(df) / 24, 2),
+                    "busiest_hour": df.groupby(df['timestamp'].dt.hour).size().idxmax()
+                },
+                "system_metrics": monitor.metrics
             }
         else:
             return {
-                "total_queries_24h": 0,
-                "avg_response_time": 0,
-                "success_rate": 100,
-                "hourly_trends": [],
-                "agent_usage": {},
-                "performance_metrics": monitor.metrics
+                "overview": {
+                    "total_queries_24h": 0,
+                    "avg_response_time": 0,
+                    "success_rate": 100,
+                    "peak_hours": {}
+                },
+                "performance_trends": {
+                    "hourly_stats": [],
+                    "response_time_distribution": {"p50": 0, "p95": 0, "p99": 0}
+                },
+                "agent_analytics": {
+                    "performance": [],
+                    "usage_distribution": {},
+                    "error_analysis": {}
+                },
+                "query_insights": {
+                    "complexity_distribution": {},
+                    "avg_queries_per_hour": 0,
+                    "busiest_hour": None
+                },
+                "system_metrics": monitor.metrics
             }
             
     except Exception as e:
