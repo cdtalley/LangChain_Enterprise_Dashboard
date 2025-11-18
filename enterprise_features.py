@@ -30,6 +30,9 @@ import plotly.graph_objects as go
 import plotly.express as px
 from agents import MultiAgentSystem
 from advanced_rag import AdvancedRAGSystem
+from model_registry import ModelRegistryManager, ModelType, ModelStage
+from model_monitoring import ModelMonitoring
+from model_serving import create_model_serving_app, PredictionRequest, BatchPredictionRequest
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -218,6 +221,11 @@ class EnterpriseMonitor:
 monitor = EnterpriseMonitor()
 multi_agent = MultiAgentSystem()
 rag_system = AdvancedRAGSystem()
+
+# MLOps components
+model_registry = ModelRegistryManager()
+model_monitoring = ModelMonitoring()
+model_serving_app = create_model_serving_app(model_registry, model_monitoring)
 
 # Authentication dependency (simplified for demo)
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -537,6 +545,36 @@ async def create_background_task(
         "task_id": hashlib.md5(f"{task_type}_{time.time()}".encode()).hexdigest()[:8],
         "status": "queued"
     }
+
+# Mount model serving app
+app.mount("/api/v1/models", model_serving_app)
+
+# Add model management endpoints
+@app.get("/api/v1/models/registry")
+async def list_registered_models():
+    """List all registered models"""
+    models = model_registry.list_models()
+    return {"models": models}
+
+@app.get("/api/v1/models/{model_name}/versions")
+async def list_model_versions(model_name: str):
+    """List versions for a specific model"""
+    models = model_registry.list_models(name=model_name)
+    return {"model_name": model_name, "versions": [m['version'] for m in models]}
+
+@app.get("/api/v1/models/{model_name}/performance")
+async def get_model_performance(model_name: str, days: int = 30):
+    """Get model performance history"""
+    history_df = model_registry.get_model_performance_history(model_name)
+    if history_df.empty:
+        return {"error": "No performance history found"}
+    return {"performance_history": history_df.to_dict('records')}
+
+@app.get("/api/v1/models/{model_name}/monitoring")
+async def get_monitoring_report(model_name: str, version: str, days: int = 7):
+    """Get model monitoring report"""
+    report = model_monitoring.generate_monitoring_report(model_name, version, days)
+    return report
 
 if __name__ == "__main__":
     import uvicorn
