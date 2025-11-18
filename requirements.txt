@@ -69,4 +69,13 @@ locust>=2.17.0
 
 # Production
 gunicorn>=21.2.0
-# supervisor>=4.2.5  # Not available on Windows 
+# supervisor>=4.2.5  # Not available on Windows
+
+# AWS Integration
+boto3>=1.28.0
+botocore>=1.31.0
+
+# Advanced Document Processing
+pdfplumber>=0.10.0
+pytesseract>=0.3.10
+unstructured>=0.10.0 
