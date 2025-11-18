@@ -13,6 +13,11 @@ from model_registry import ModelRegistryManager, ModelType, ModelStage
 from ab_testing import ABTestingFramework, ExperimentConfig, MetricType, ExperimentStatus
 from experiment_tracking import ExperimentTracking
 from model_monitoring import ModelMonitoring
+from datasets.loaders import (
+    load_wine_quality, load_breast_cancer, load_credit_card_fraud,
+    load_housing_prices, load_contract_classification, list_available_datasets
+)
+from datasets.train_models import train_all_models
 
 st.set_page_config(
     page_title="Enterprise LangChain AI Workbench", 
@@ -102,16 +107,17 @@ st.markdown('<h1 class="main-header">🤖 Enterprise LangChain AI Workbench</h1>
 st.caption("**Advanced LLM Orchestration & Multi-Agent Collaboration Platform**")
 
 # --- Tab Navigation ---
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
-    "🤖 Multi-Agent System", 
-    "📊 Advanced RAG", 
-    "🔧 Tool Execution", 
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+    "🤖 Multi-Agent System",
+    "📊 Advanced RAG",
+    "🔧 Tool Execution",
     "📈 Analytics Dashboard",
     "🎯 Enterprise Demo",
     "📦 Model Registry",
     "🧪 A/B Testing",
     "📝 Experiment Tracking",
-    "🔍 Model Monitoring"
+    "🔍 Model Monitoring",
+    "📚 Datasets & Models"
 ])
 
 # --- Multi-Agent System Tab ---
@@ -964,12 +970,153 @@ with tab9:
             else:
                 st.error(report['error'])
 
+# --- Datasets & Models Tab ---
+with tab10:
+    st.markdown('<h2 class="section-header">📚 Datasets & Model Showcase</h2>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader("📊 Available Datasets")
+        datasets_info = list_available_datasets()
+        
+        selected_dataset = st.selectbox(
+            "Select Dataset",
+            options=list(datasets_info.keys()),
+            format_func=lambda x: datasets_info[x]['name']
+        )
+        
+        if selected_dataset:
+            info = datasets_info[selected_dataset]
+            st.markdown(f"""
+            **{info['name']}**
+            - **Type**: {info['type']}
+            - **Samples**: {info['samples']}
+            - **Features**: {info['features']}
+            - **Description**: {info['description']}
+            - **Source**: {info['source']}
+            """)
+            
+            if st.button(f"📥 Load {info['name']} Dataset"):
+                with st.spinner(f"Loading {info['name']}..."):
+                    try:
+                        loader_map = {
+                            'wine_quality': load_wine_quality,
+                            'breast_cancer': load_breast_cancer,
+                            'credit_card_fraud': load_credit_card_fraud,
+                            'housing_prices': load_housing_prices,
+                            'contract_classification': load_contract_classification
+                        }
+                        
+                        X_train, X_test, y_train, y_test = loader_map[selected_dataset]()
+                        
+                        st.success(f"✅ Dataset loaded successfully!")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.subheader("Training Set")
+                            st.dataframe(X_train.head(10))
+                            st.caption(f"Shape: {X_train.shape}")
+                        with col2:
+                            st.subheader("Test Set")
+                            st.dataframe(X_test.head(10))
+                            st.caption(f"Shape: {X_test.shape}")
+                        
+                        st.subheader("📈 Data Statistics")
+                        st.dataframe(X_train.describe())
+                        
+                        st.subheader("📊 Target Distribution")
+                        if info['type'] in ['classification', 'binary_classification', 'multiclass_classification']:
+                            value_counts = y_train.value_counts()
+                            fig = px.bar(
+                                x=value_counts.index.astype(str),
+                                y=value_counts.values,
+                                title="Target Class Distribution",
+                                labels={'x': 'Class', 'y': 'Count'}
+                            )
+                            st.plotly_chart(fig, use_container_width=True)
+                        else:
+                            fig = px.histogram(y_train, title="Target Value Distribution")
+                            st.plotly_chart(fig, use_container_width=True)
+                        
+                        st.session_state[f'{selected_dataset}_data'] = {
+                            'X_train': X_train,
+                            'X_test': X_test,
+                            'y_train': y_train,
+                            'y_test': y_test
+                        }
+                        
+                    except Exception as e:
+                        st.error(f"Error loading dataset: {e}")
+    
+    with col2:
+        st.subheader("🤖 Train Models")
+        st.markdown("""
+        Train models on datasets and register them in the model registry.
+        """)
+        
+        if st.button("🚀 Train All Models", type="primary"):
+            with st.spinner("Training models... This may take a minute."):
+                try:
+                    results = train_all_models()
+                    st.success(f"✅ Trained and registered {len(results)} models!")
+                    st.json(results)
+                except Exception as e:
+                    st.error(f"Error training models: {e}")
+        
+        st.markdown("---")
+        st.subheader("📦 Registered Models")
+        if 'model_registry' in st.session_state:
+            registry = st.session_state['model_registry']
+            models = registry.list_models()
+            
+            if models:
+                for model in models[:5]:
+                    with st.expander(f"📦 {model['name']} v{model['version']}"):
+                        st.json({
+                            'type': model['model_type'],
+                            'stage': model['stage'],
+                            'metrics': model['performance_metrics'],
+                            'created': model['created_at']
+                        })
+            else:
+                st.info("No models registered yet. Train models to see them here.")
+    
+    st.markdown("---")
+    st.subheader("🎯 Dataset Showcase Highlights")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        **🏆 Wine Quality**
+        - Classification task
+        - 11 features
+        - Predict wine quality (0-10)
+        """)
+    
+    with col2:
+        st.markdown("""
+        **🏥 Breast Cancer**
+        - Binary classification
+        - 30 features
+        - Medical diagnosis
+        """)
+    
+    with col3:
+        st.markdown("""
+        **📄 Contract Classification**
+        - Multi-class classification
+        - FinQuery domain
+        - Contract type prediction
+        """)
+
 # --- Footer ---
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #7f8c8d;'>
     <p><strong>Enterprise LangChain AI Workbench</strong> - Advanced LLM Orchestration Platform</p>
     <p>Built with LangChain • OpenAI • Streamlit • Python</p>
-    <p><strong>Now featuring:</strong> Model Registry • A/B Testing • Experiment Tracking • Model Monitoring</p>
+    <p><strong>Now featuring:</strong> Model Registry • A/B Testing • Experiment Tracking • Model Monitoring • Datasets Showcase</p>
 </div>
 """, unsafe_allow_html=True) 

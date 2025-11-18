@@ -220,9 +220,8 @@ class ModelRegistryManager:
                 )
                 db.add(registry_entry)
                 db.commit()
-                model_id = registry_entry.id
-                logger.info(f"Model {name} v{version} registered with ID {model_id}")
-                return str(model_id)
+                logger.debug(f"Registered {name} v{version} (ID: {registry_entry.id})")
+                return str(registry_entry.id)
             finally:
                 db.close()
                 
@@ -230,18 +229,16 @@ class ModelRegistryManager:
             logger.error(f"Failed to register model: {e}", exc_info=True)
             raise
     
-    def _save_model(self, model: Any, path: Path):
-        """Save model using appropriate serialization method"""
+    def _save_model(self, model: Any, path: Path) -> None:
+        """Serialize model with joblib (preferred) or pickle fallback"""
         try:
-            # Try joblib first (better for scikit-learn models)
             if hasattr(model, 'predict') or hasattr(model, 'transform'):
                 joblib.dump(model, path)
             else:
-                # Fallback to pickle
                 with open(path, 'wb') as f:
                     pickle.dump(model, f)
         except Exception as e:
-            logger.warning(f"Joblib failed, using pickle: {e}")
+            logger.debug(f"Joblib serialization failed, using pickle: {e}")
             with open(path, 'wb') as f:
                 pickle.dump(model, f)
     
@@ -290,21 +287,19 @@ class ModelRegistryManager:
             db.close()
     
     def _load_model(self, path: Path) -> Any:
-        """Load model from file"""
+        """Load model with fallback serialization (joblib -> pickle)"""
         if not path.exists():
             raise FileNotFoundError(f"Model file not found: {path}")
         
         try:
             return joblib.load(path)
-        except (joblib.exceptions.UnpicklingError, EOFError, ValueError) as e:
-            logger.warning(f"Joblib load failed, trying pickle: {e}")
+        except (joblib.exceptions.UnpicklingError, EOFError, ValueError):
+            logger.debug(f"Joblib load failed, attempting pickle fallback for {path}")
             try:
                 with open(path, 'rb') as f:
                     return pickle.load(f)
-            except (pickle.UnpicklingError, EOFError, ValueError) as e2:
-                raise ValueError(f"Failed to load model from {path}: {e2}") from e2
-        except Exception as e:
-            raise ValueError(f"Unexpected error loading model from {path}: {e}") from e
+            except (pickle.UnpicklingError, EOFError, ValueError) as e:
+                raise ValueError(f"Failed to deserialize model from {path}") from e
     
     def list_models(
         self,

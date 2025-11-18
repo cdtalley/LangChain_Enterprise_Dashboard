@@ -250,27 +250,19 @@ class ABTestingFramework:
                     'message': 'No data for one or both variants'
                 }
             
-            # Perform statistical test based on metric type
             metric_type = MetricType(experiment.metric_type)
+            test_map = {
+                MetricType.CONTINUOUS: self._test_continuous,
+                MetricType.BINARY: self._test_binary,
+                MetricType.COUNT: self._test_count
+            }
+            results = test_map[metric_type](baseline_values, treatment_values, experiment.significance_level)
             
-            if metric_type == MetricType.CONTINUOUS:
-                results = self._test_continuous(baseline_values, treatment_values, experiment.significance_level)
-            elif metric_type == MetricType.BINARY:
-                results = self._test_binary(baseline_values, treatment_values, experiment.significance_level)
-            else:  # COUNT
-                results = self._test_count(baseline_values, treatment_values, experiment.significance_level)
-            
-            # Calculate effect size
-            baseline_mean = np.mean(baseline_values)
-            treatment_mean = np.mean(treatment_values)
+            baseline_mean, treatment_mean = np.mean(baseline_values), np.mean(treatment_values)
             relative_lift = ((treatment_mean - baseline_mean) / baseline_mean * 100) if baseline_mean != 0 else 0
             
-            # Check if experiment should stop early
             should_stop = self._check_early_stopping(
-                baseline_values,
-                treatment_values,
-                experiment.significance_level,
-                experiment.min_sample_size
+                baseline_values, treatment_values, experiment.significance_level, experiment.min_sample_size
             )
             
             analysis = {

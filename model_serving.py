@@ -113,39 +113,31 @@ class ModelServingAPI:
         model_version: Optional[str] = None,
         return_probabilities: bool = False
     ) -> PredictionResponse:
-        """Make single prediction"""
+        """Single prediction with automatic model loading and performance tracking"""
         start_time = time.time()
         
         try:
-            # Load model
             model, metadata = self.load_model(model_name or "default-model", model_version)
-            
-            # Convert features to model input format
             feature_vector = self._prepare_features(features, metadata)
-            
-            # Make prediction
             prediction = model.predict(feature_vector)
             
-            # Get probabilities if requested
             probabilities = None
             if return_probabilities and hasattr(model, 'predict_proba'):
                 proba = model.predict_proba(feature_vector)[0]
                 class_names = getattr(model, 'classes_', [f"class_{i}" for i in range(len(proba))])
-                probabilities = {str(name): float(prob) for name, prob in zip(class_names, proba)}
+                probabilities = dict(zip(map(str, class_names), map(float, proba)))
             
             inference_time = (time.time() - start_time) * 1000
             
-            # Log performance
             self.monitoring.log_performance(
-                metadata['name'],
-                metadata['version'],
-                "inference_time_ms",
-                inference_time,
-                prediction_count=1
+                metadata['name'], metadata['version'], "inference_time_ms",
+                inference_time, prediction_count=1
             )
             
+            pred_value = float(prediction[0]) if isinstance(prediction, np.ndarray) else prediction
+            
             return PredictionResponse(
-                prediction=float(prediction[0]) if isinstance(prediction, np.ndarray) else prediction,
+                prediction=pred_value,
                 model_name=metadata['name'],
                 model_version=metadata['version'],
                 probabilities=probabilities,
@@ -223,11 +215,10 @@ class ModelServingAPI:
             raise
     
     def _prepare_features(self, features: Dict[str, Any], metadata: Dict) -> np.ndarray:
-        """Prepare features for model input"""
-        # In production, this would use feature store or transformation pipeline
-        # For demo, convert dict to array
-        feature_list = list(features.values())
-        return np.array([feature_list])
+        """Transform features dict to model input format using metadata schema"""
+        feature_order = metadata.get('feature_order', list(features.keys()))
+        feature_vector = np.array([[features.get(k, 0.0) for k in feature_order]], dtype=np.float32)
+        return feature_vector
     
     def get_model_info(self, model_name: str, version: Optional[str] = None) -> Dict[str, Any]:
         """Get model information"""

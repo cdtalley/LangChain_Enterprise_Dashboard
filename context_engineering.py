@@ -81,22 +81,17 @@ class ContextEngineer:
         task_description: str,
         user_input: str
     ) -> str:
-        """Build few-shot learning prompt"""
-        prompt_parts = [task_description, "\n\nExamples:\n"]
-        
-        for i, example in enumerate(examples, 1):
-            prompt_parts.append(f"Example {i}:")
-            prompt_parts.append(f"Input: {example.input}")
-            prompt_parts.append(f"Output: {example.output}")
-            if example.explanation:
-                prompt_parts.append(f"Explanation: {example.explanation}")
-            prompt_parts.append("")
-        
-        prompt_parts.append("Now solve this:")
-        prompt_parts.append(f"Input: {user_input}")
-        prompt_parts.append("Output:")
-        
-        return "\n".join(prompt_parts)
+        """Construct few-shot prompt with structured examples"""
+        parts = [task_description, "\n\nExamples:\n"]
+        for i, ex in enumerate(examples, 1):
+            parts.extend([
+                f"Example {i}:", f"Input: {ex.input}", f"Output: {ex.output}"
+            ])
+            if ex.explanation:
+                parts.append(f"Explanation: {ex.explanation}")
+            parts.append("")
+        parts.extend(["Now solve this:", f"Input: {user_input}", "Output:"])
+        return "\n".join(parts)
     
     def build_chain_of_thought_prompt(
         self,

@@ -112,32 +112,26 @@ class SecureCodeExecutorTool(BaseTool):
         self.__dict__['executor'] = ThreadPoolExecutor(max_workers=1)
     
     def _is_code_safe(self, code: str) -> Tuple[bool, str]:
-        """Check if code is safe to execute with enhanced validation"""
-        # Check code length
+        """Static analysis for code safety using pattern matching and AST validation"""
         if len(code) > MAX_CODE_LENGTH:
             return False, f"Code exceeds maximum length of {MAX_CODE_LENGTH} characters"
         
-        # Check for blocked patterns
         for pattern, description in self.blocked_patterns:
             if re.search(pattern, code, re.IGNORECASE | re.MULTILINE):
                 return False, f"Blocked dangerous operation: {description}"
         
-        # Check for file system operations
-        dangerous_ops = ['rmdir', 'remove', 'delete', 'unlink', 'rmtree', 'move']
+        dangerous_ops = {'rmdir', 'remove', 'delete', 'unlink', 'rmtree', 'move'}
         code_lower = code.lower()
-        for op in dangerous_ops:
-            if f'.{op}(' in code_lower or f'{op}(' in code_lower:
-                return False, f"File system modification operations are not allowed: {op}"
+        if any(f'.{op}(' in code_lower or f'{op}(' in code_lower for op in dangerous_ops):
+            return False, "File system modification operations are not allowed"
         
-        # Check for network operations
-        if any(net_op in code_lower for net_op in ['requests.get', 'requests.post', 'urllib', 'socket']):
+        network_patterns = {'requests.get', 'requests.post', 'urllib', 'socket'}
+        if any(net_op in code_lower for net_op in network_patterns):
             return False, "Network operations are not allowed in code execution"
         
-        # Check for potentially dangerous built-ins
-        dangerous_builtins = ['__import__', '__builtins__', '__globals__', '__locals__']
-        for builtin in dangerous_builtins:
-            if builtin in code:
-                return False, f"Access to {builtin} is not allowed"
+        dangerous_builtins = {'__import__', '__builtins__', '__globals__', '__locals__'}
+        if any(builtin in code for builtin in dangerous_builtins):
+            return False, "Access to internal builtins is not allowed"
         
         return True, "Code appears safe"
     

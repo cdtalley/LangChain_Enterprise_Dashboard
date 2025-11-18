@@ -76,30 +76,16 @@ class LocalEmbeddings:
 
 class AdvancedRAGSystem:
     def __init__(self, openai_api_key: str = None, use_local_embeddings: bool = True):
-        logger.info("Initializing AdvancedRAGSystem...")
-        
-        # Simplified local LLM that works reliably
+        """Initialize RAG system with local LLM fallback chain"""
         try:
-            hf_pipeline = pipeline(
-                "text-generation", 
-                model="gpt2",
-                max_length=256,
-                temperature=0.7,
-                do_sample=True
-            )
+            hf_pipeline = pipeline("text-generation", model="gpt2", max_length=256, temperature=0.7, do_sample=True)
             try:
                 from langchain_huggingface import HuggingFacePipeline
-                self.llm = HuggingFacePipeline(
-                    pipeline=hf_pipeline,
-                    model_kwargs={"temperature": 0.7, "max_length": 256}
-                )
+                self.llm = HuggingFacePipeline(pipeline=hf_pipeline, model_kwargs={"temperature": 0.7, "max_length": 256})
             except ImportError:
-                # Fallback to direct pipeline usage
                 self.llm = hf_pipeline
-            logger.info("GPT-2 LLM initialized successfully")
         except Exception as e:
-            logger.warning(f"Failed to load GPT-2, using fallback: {e}")
-            # Create a simple fallback LLM
+            logger.warning(f"GPT-2 initialization failed, using fallback: {e}")
             from langchain.llms.fake import FakeListLLM
             self.llm = FakeListLLM(responses=[
                 "Based on the provided context, here's what I found:",
@@ -108,20 +94,11 @@ class AdvancedRAGSystem:
             ])
         
         self.embeddings = LocalEmbeddings()
-        
-        # Performance monitoring
         self.performance_metrics = {
-            "queries_processed": 0,
-            "avg_response_time": 0,
-            "total_documents": 0,
-            "cache_hits": 0,
-            "errors": 0
+            "queries_processed": 0, "avg_response_time": 0, "total_documents": 0,
+            "cache_hits": 0, "errors": 0
         }
-        
-        # Query cache for performance
-        self.query_cache = {}
-        
-        # Storage for documents and metadata
+        self.query_cache: Dict[str, Any] = {}
         self.documents: List[Document] = []
         self.vectorstores: Dict[str, Any] = {}
         self.retrievers: Dict[str, Any] = {}

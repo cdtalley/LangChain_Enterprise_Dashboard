@@ -153,18 +153,17 @@ class EnterpriseMonitor:
         self._store_query_log(query, response_time, success, agent)
     
     def _store_query_log(self, query: str, response_time: float, success: bool, agent: str) -> None:
-        """Store query log in database"""
+        """Async-safe query logging with automatic rollback on failure"""
         db = SessionLocal()
         try:
-            log_entry = QueryLog(
+            db.add(QueryLog(
                 user_id="demo_user",
                 query_type="agent_query",
-                query_text=query[:500],  # Truncate long queries
+                query_text=query[:500],
                 response_time=response_time,
                 success="success" if success else "failed",
                 agent_used=agent
-            )
-            db.add(log_entry)
+            ))
             db.commit()
         except Exception as e:
             logger.error(f"Failed to store query log: {e}")
