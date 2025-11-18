@@ -44,7 +44,7 @@ Production-ready dataset loaders and model training scripts for ML showcase.
 ### Load a Dataset
 
 ```python
-from datasets.loaders import load_wine_quality
+from ml_datasets.loaders import load_wine_quality
 
 X_train, X_test, y_train, y_test = load_wine_quality()
 print(f"Training samples: {len(X_train)}")
@@ -54,7 +54,7 @@ print(f"Test samples: {len(X_test)}")
 ### Train Models
 
 ```python
-from datasets.train_models import train_all_models
+from ml_datasets.train_models import train_all_models
 
 # Train all models and register in model registry
 results = train_all_models()
@@ -63,7 +63,7 @@ results = train_all_models()
 ### List Available Datasets
 
 ```python
-from datasets.loaders import list_available_datasets
+from ml_datasets.loaders import list_available_datasets
 
 datasets = list_available_datasets()
 for name, info in datasets.items():

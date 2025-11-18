@@ -15,6 +15,11 @@ from sklearn.model_selection import train_test_split
 import requests
 import io
 
+try:
+    from datasets import Dataset as HFDataset
+except ImportError:
+    HFDataset = None
+
 logger = logging.getLogger(__name__)
 
 DATASETS_DIR = Path(__file__).parent / "data"
