@@ -254,7 +254,7 @@ class FeatureStore:
         entity_id: str,
         features: Dict[str, Any],
         ttl_days: int = 30
-    ):
+    ) -> None:
         """Write features to store"""
         db = self.SessionLocal()
         try:

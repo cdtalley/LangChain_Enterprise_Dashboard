@@ -24,6 +24,10 @@
 🐳 **DevOps Ready**: Docker containers, CI/CD pipelines, and infrastructure as code  
 🧠 **Intelligent Routing**: AI-powered query classification and agent selection  
 ⚡ **Performance Optimized**: Caching, async processing, and resource management  
+📦 **MLOps Platform**: Model registry, A/B testing, experiment tracking, monitoring  
+☁️ **AWS Integration**: Bedrock, SageMaker, S3, Textract for cloud ML  
+📄 **Document Processing**: OCR, table extraction, structured data extraction for contracts/leases  
+🎓 **Advanced Context Engineering**: Prompt templates, few-shot learning, chain-of-thought  
 
 ---
 
@@ -102,6 +106,33 @@ docker-compose scale api=3 frontend=2
 - **Smart Chunking**: Multiple strategies (recursive, token, semantic)
 - **Query Classification**: Routes queries to optimal retrieval strategy
 - **Document Intelligence**: Metadata filtering and re-ranking
+
+### 📦 **MLOps Platform**
+- **Model Registry**: Versioning, lifecycle management, comparison
+- **Model Serving**: Production API with real-time and batch inference
+- **A/B Testing**: Statistical significance testing framework
+- **Experiment Tracking**: MLflow-like tracking system
+- **Model Monitoring**: Performance tracking and drift detection
+- **Feature Store**: Online/offline feature serving
+- **Automated Retraining**: Performance-based triggers
+
+### ☁️ **AWS Cloud Integration**
+- **AWS Bedrock**: Claude, Llama 2 integration for LLM services
+- **SageMaker**: Model deployment and endpoint management
+- **S3**: Model storage and artifact management
+- **Textract**: Advanced document processing and OCR
+
+### 📄 **Advanced Document Processing**
+- **OCR**: Text extraction from scanned documents
+- **Table Extraction**: PDF table extraction with pdfplumber
+- **Structured Extraction**: Contract/lease term extraction using LLMs
+- **Multi-format Support**: PDF, DOCX, TXT, images
+
+### 🎓 **Context Engineering**
+- **Prompt Templates**: Reusable prompt patterns
+- **Few-Shot Learning**: Example-based prompting
+- **Chain-of-Thought**: Step-by-step reasoning prompts
+- **Context Optimization**: Token-efficient context management
 
 ### 🛡️ **Enterprise Security**
 - **Code Sandboxing**: Secure Python execution environment
@@ -495,22 +526,39 @@ async def process_query(query: QueryRequest) -> QueryResponse:
 ### **2. Advanced AI Techniques**
 - Multi-agent collaboration with intelligent task routing
 - Hybrid search combining semantic and keyword approaches
-- Local LLM integration for data privacy and cost control
+- Advanced context engineering (few-shot, chain-of-thought)
+- Document processing with OCR and structured extraction
 
-### **3. Full-Stack Expertise**
-- Frontend (Streamlit) + Backend (FastAPI) + Infrastructure (Docker)
+### **3. Complete MLOps Platform**
+- Model registry with versioning and lifecycle management
+- A/B testing with statistical significance
+- Experiment tracking (MLflow-like)
+- Model monitoring with drift detection
+- Automated retraining pipelines
+
+### **4. AWS Cloud Integration**
+- AWS Bedrock for multi-LLM support (Claude, Llama 2)
+- SageMaker deployment pipeline
+- S3 model storage and versioning
+- Textract for document processing
+
+### **5. Full-Stack Expertise**
+- Frontend (Streamlit) + Backend (FastAPI) + Infrastructure (Docker/K8s)
 - Database design and optimization
 - API design and documentation
+- Feature store for online/offline serving
 
-### **4. DevOps & Deployment**
+### **6. DevOps & Deployment**
 - Container orchestration with Docker Compose
+- Kubernetes deployment with autoscaling
 - CI/CD ready with comprehensive testing
 - Monitoring and observability built-in
 
-### **5. Code Quality**
+### **7. Code Quality**
 - Comprehensive test suite (unit, integration, security, performance)
 - Type hints and documentation throughout
 - Following Python best practices and design patterns
+- Modern project structure with uv support
 
 ---
 

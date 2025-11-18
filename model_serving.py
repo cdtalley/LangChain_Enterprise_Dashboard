@@ -153,9 +153,12 @@ class ModelServingAPI:
                 timestamp=datetime.utcnow().isoformat()
             )
             
+        except ValueError as e:
+            logger.error(f"Invalid input for prediction: {e}")
+            raise
         except Exception as e:
             logger.error(f"Prediction failed: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+            raise
     
     def predict_batch(
         self,
@@ -212,9 +215,12 @@ class ModelServingAPI:
                 timestamp=datetime.utcnow().isoformat()
             )
             
+        except ValueError as e:
+            logger.error(f"Invalid input for batch prediction: {e}")
+            raise
         except Exception as e:
             logger.error(f"Batch prediction failed: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Batch prediction failed: {str(e)}")
+            raise
     
     def _prepare_features(self, features: Dict[str, Any], metadata: Dict) -> np.ndarray:
         """Prepare features for model input"""
@@ -265,37 +271,59 @@ def create_model_serving_app(registry: ModelRegistryManager, monitoring: ModelMo
     serving_api = ModelServingAPI(registry, monitoring)
     
     @app.post("/predict", response_model=PredictionResponse)
-    async def predict(request: PredictionRequest):
+    async def predict(request: PredictionRequest) -> PredictionResponse:
         """Single prediction endpoint"""
-        return serving_api.predict_single(
-            request.features,
-            request.model_name,
-            request.model_version,
-            request.return_probabilities
-        )
+        try:
+            return serving_api.predict_single(
+                request.features,
+                request.model_name,
+                request.model_version,
+                request.return_probabilities
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            logger.error(f"Prediction error: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
     
     @app.post("/predict/batch", response_model=BatchPredictionResponse)
-    async def predict_batch(request: BatchPredictionRequest):
+    async def predict_batch(request: BatchPredictionRequest) -> BatchPredictionResponse:
         """Batch prediction endpoint"""
-        return serving_api.predict_batch(
-            request.instances,
-            request.model_name,
-            request.model_version,
-            request.return_probabilities
-        )
+        try:
+            return serving_api.predict_batch(
+                request.instances,
+                request.model_name,
+                request.model_version,
+                request.return_probabilities
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            logger.error(f"Batch prediction error: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
     
     @app.get("/models")
-    async def list_models():
+    async def list_models() -> Dict[str, Any]:
         """List available models"""
-        return {"models": serving_api.list_available_models()}
+        try:
+            return {"models": serving_api.list_available_models()}
+        except Exception as e:
+            logger.error(f"Error listing models: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
     
     @app.get("/models/{model_name}")
-    async def get_model_info(model_name: str, version: Optional[str] = None):
+    async def get_model_info(model_name: str, version: Optional[str] = None) -> Dict[str, Any]:
         """Get model information"""
-        return serving_api.get_model_info(model_name, version)
+        try:
+            return serving_api.get_model_info(model_name, version)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            logger.error(f"Error getting model info: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
     
     @app.get("/health")
-    async def health_check():
+    async def health_check() -> Dict[str, Any]:
         """Health check endpoint"""
         return {
             "status": "healthy",

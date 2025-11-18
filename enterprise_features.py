@@ -152,10 +152,10 @@ class EnterpriseMonitor:
         # Store in database
         self._store_query_log(query, response_time, success, agent)
     
-    def _store_query_log(self, query: str, response_time: float, success: bool, agent: str):
+    def _store_query_log(self, query: str, response_time: float, success: bool, agent: str) -> None:
         """Store query log in database"""
+        db = SessionLocal()
         try:
-            db = SessionLocal()
             log_entry = QueryLog(
                 user_id="demo_user",
                 query_type="agent_query",
@@ -166,9 +166,11 @@ class EnterpriseMonitor:
             )
             db.add(log_entry)
             db.commit()
-            db.close()
         except Exception as e:
             logger.error(f"Failed to store query log: {e}")
+            db.rollback()
+        finally:
+            db.close()
     
     def get_cache_key(self, query: str, agent: str) -> str:
         """Generate cache key for query"""
@@ -310,10 +312,19 @@ async def process_query(
             }
         )
         
+    except ValueError as e:
+        response_time = time.time() - start_time
+        monitor.log_query(request.query, response_time, False, request.agent_type)
+        raise HTTPException(status_code=400, detail=f"Invalid request: {str(e)}")
+    except TimeoutError as e:
+        response_time = time.time() - start_time
+        monitor.log_query(request.query, response_time, False, request.agent_type)
+        raise HTTPException(status_code=504, detail=f"Query timeout: {str(e)}")
     except Exception as e:
         response_time = time.time() - start_time
         monitor.log_query(request.query, response_time, False, request.agent_type)
-        raise HTTPException(status_code=500, detail=f"Query processing failed: {str(e)}")
+        logger.error(f"Query processing failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/v1/metrics")
 async def get_metrics(current_user: dict = Depends(get_current_user)):
@@ -372,8 +383,11 @@ async def route_query(
             "routing_confidence": "high",  # Could be enhanced with actual confidence scores
             "alternative_agents": [agent for agent in multi_agent.get_agent_list() if agent != best_agent]
         }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid query: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Query routing failed: {str(e)}")
+        logger.error(f"Query routing failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/v1/performance/benchmarks")
 async def get_performance_benchmarks(current_user: dict = Depends(get_current_user)):
@@ -413,19 +427,23 @@ async def upload_document(
             "document_id": hashlib.md5(file_content.encode()).hexdigest()[:8],
             "metadata": metadata or {}
         }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid document: {str(e)}")
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"File not found: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Document upload failed: {str(e)}")
+        logger.error(f"Document upload failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/v1/analytics/dashboard")
 async def get_dashboard_data(current_user: dict = Depends(get_current_user)):
     """Enhanced analytics dashboard with advanced metrics"""
+    db = SessionLocal()
     try:
         # Query logs from database
-        db = SessionLocal()
         recent_queries = db.query(QueryLog).filter(
             QueryLog.timestamp >= datetime.utcnow() - timedelta(hours=24)
         ).all()
-        db.close()
         
         # Create analytics data
         df = pd.DataFrame([{
@@ -517,9 +535,11 @@ async def get_dashboard_data(current_user: dict = Depends(get_current_user)):
                 },
                 "system_metrics": monitor.metrics
             }
-            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Analytics generation failed: {str(e)}")
+        logger.error(f"Analytics generation failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+    finally:
+        db.close()
 
 # Background tasks
 @app.post("/api/v1/background/task")

@@ -291,11 +291,20 @@ class ModelRegistryManager:
     
     def _load_model(self, path: Path) -> Any:
         """Load model from file"""
+        if not path.exists():
+            raise FileNotFoundError(f"Model file not found: {path}")
+        
         try:
             return joblib.load(path)
-        except Exception:
-            with open(path, 'rb') as f:
-                return pickle.load(f)
+        except (joblib.exceptions.UnpicklingError, EOFError, ValueError) as e:
+            logger.warning(f"Joblib load failed, trying pickle: {e}")
+            try:
+                with open(path, 'rb') as f:
+                    return pickle.load(f)
+            except (pickle.UnpicklingError, EOFError, ValueError) as e2:
+                raise ValueError(f"Failed to load model from {path}: {e2}") from e2
+        except Exception as e:
+            raise ValueError(f"Unexpected error loading model from {path}: {e}") from e
     
     def list_models(
         self,
