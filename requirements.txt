@@ -78,4 +78,17 @@ botocore>=1.31.0
 # Advanced Document Processing
 pdfplumber>=0.10.0
 pytesseract>=0.3.10
-unstructured>=0.10.0 
+unstructured>=0.10.0
+
+# LLM Fine-Tuning (LoRA, QLoRA, PEFT)
+peft>=0.7.0
+bitsandbytes>=0.41.0
+accelerate>=0.25.0
+
+# Advanced Agentic AI
+langgraph>=0.0.20
+langchain-openai>=0.0.5
+
+# Multi-Cloud Gen AI
+google-cloud-aiplatform>=1.38.0
+openai>=1.12.0 
