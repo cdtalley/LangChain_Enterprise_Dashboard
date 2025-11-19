@@ -1,16 +1,17 @@
-import os
-import subprocess
-import tempfile
-import signal
-import threading
 from typing import List, Dict, Any, Optional, Tuple
-from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
-from langchain_core.tools import Tool
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.tools import BaseTool
-from langchain.agents import create_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import Tool, BaseTool
+from langchain_core.prompts import ChatPromptTemplate
+
+# Try to import create_agent, fallback to alternative if not available
+try:
+    from langchain.agents import create_agent
+except ImportError:
+    try:
+        from langchain.agents import AgentExecutor, create_react_agent
+        create_agent = None
+    except ImportError:
+        create_agent = None
 from langchain_community.utilities import SerpAPIWrapper
 import pandas as pd
 import numpy as np
@@ -24,15 +25,12 @@ from transformers import pipeline
 import torch
 import logging
 import time
-import hashlib
-import json
-from datetime import datetime, timedelta
+from datetime import datetime
 import re
 from pathlib import Path
 from urllib.robotparser import RobotFileParser
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 from collections import defaultdict
-import asyncio
 
 # Import configuration
 try:
@@ -66,16 +64,15 @@ MAX_CODE_LENGTH = 10000
 MAX_MEMORY_USAGE_MB = 500
 
 class SecureCodeExecutorTool(BaseTool):
-    """Enhanced code executor with security, monitoring, and sandboxing"""
+    """Secure Python code executor with sandboxing and monitoring."""
+    
     name: str = "secure_python_executor"
     description: str = "Execute Python code safely with security constraints. Use for data analysis, calculations, and visualizations."
-    
-    model_config = {"extra": "allow"}  # Pydantic v2 syntax
+    model_config = {"extra": "allow"}
     
     def __init__(self, timeout: int = CODE_EXECUTION_TIMEOUT):
         super().__init__()
         self.timeout = timeout
-        # Initialize as private attributes to avoid Pydantic validation
         self.__dict__['execution_stats'] = {
             "total_executions": 0,
             "successful_executions": 0,
@@ -112,7 +109,7 @@ class SecureCodeExecutorTool(BaseTool):
         self.__dict__['executor'] = ThreadPoolExecutor(max_workers=1)
     
     def _is_code_safe(self, code: str) -> Tuple[bool, str]:
-        """Static analysis for code safety using pattern matching and AST validation"""
+        """Validate code safety using pattern matching."""
         if len(code) > MAX_CODE_LENGTH:
             return False, f"Code exceeds maximum length of {MAX_CODE_LENGTH} characters"
         
@@ -120,8 +117,8 @@ class SecureCodeExecutorTool(BaseTool):
             if re.search(pattern, code, re.IGNORECASE | re.MULTILINE):
                 return False, f"Blocked dangerous operation: {description}"
         
-        dangerous_ops = {'rmdir', 'remove', 'delete', 'unlink', 'rmtree', 'move'}
         code_lower = code.lower()
+        dangerous_ops = {'rmdir', 'remove', 'delete', 'unlink', 'rmtree', 'move'}
         if any(f'.{op}(' in code_lower or f'{op}(' in code_lower for op in dangerous_ops):
             return False, "File system modification operations are not allowed"
         
@@ -136,146 +133,114 @@ class SecureCodeExecutorTool(BaseTool):
         return True, "Code appears safe"
     
     def _execute_code(self, code: str) -> Tuple[str, str, Optional[Exception]]:
-        """Execute code in a restricted environment"""
+        """Execute code in a restricted environment."""
         import sys
         from io import StringIO
         
-        old_stdout = sys.stdout
-        old_stderr = sys.stderr
-        
         stdout_capture = StringIO()
         stderr_capture = StringIO()
+        old_stdout, old_stderr = sys.stdout, sys.stderr
         
         try:
-            sys.stdout = stdout_capture
-            sys.stderr = stderr_capture
+            sys.stdout, sys.stderr = stdout_capture, stderr_capture
             
-            # Create a restricted execution environment
             allowed_modules = {
-                'pandas': pd,
-                'numpy': np,
-                'matplotlib': plt,
-                'seaborn': sns,
-                'math': __import__('math'),
-                'statistics': __import__('statistics'),
-                'datetime': __import__('datetime'),
-                'json': __import__('json'),
-                'csv': __import__('csv'),
-                'io': io,
-                'base64': base64,
-                'random': __import__('random'),
-                'collections': __import__('collections'),
-                'itertools': __import__('itertools'),
-                'functools': __import__('functools'),
-                'operator': __import__('operator'),
-                're': __import__('re'),
+                'pandas': pd, 'numpy': np, 'matplotlib': plt, 'seaborn': sns,
+                'math': __import__('math'), 'statistics': __import__('statistics'),
+                'datetime': __import__('datetime'), 'json': __import__('json'),
+                'csv': __import__('csv'), 'io': io, 'base64': base64,
+                'random': __import__('random'), 'collections': __import__('collections'),
+                'itertools': __import__('itertools'), 'functools': __import__('functools'),
+                'operator': __import__('operator'), 're': __import__('re'),
             }
             
-            # Create restricted globals
             restricted_globals = {
                 "__builtins__": {
-                    'len': len, 'str': str, 'int': int, 'float': float,
-                    'bool': bool, 'list': list, 'dict': dict, 'tuple': tuple,
-                    'set': set, 'range': range, 'enumerate': enumerate,
-                    'zip': zip, 'sum': sum, 'min': min, 'max': max,
-                    'abs': abs, 'round': round, 'print': print,
-                    'type': type, 'isinstance': isinstance, 'hasattr': hasattr,
-                    'getattr': getattr, 'setattr': setattr, 'sorted': sorted,
-                    'reversed': reversed, 'any': any, 'all': all,
+                    'len': len, 'str': str, 'int': int, 'float': float, 'bool': bool,
+                    'list': list, 'dict': dict, 'tuple': tuple, 'set': set,
+                    'range': range, 'enumerate': enumerate, 'zip': zip,
+                    'sum': sum, 'min': min, 'max': max, 'abs': abs, 'round': round,
+                    'print': print, 'type': type, 'isinstance': isinstance,
+                    'hasattr': hasattr, 'getattr': getattr, 'setattr': setattr,
+                    'sorted': sorted, 'reversed': reversed, 'any': any, 'all': all,
                 }
             }
             
             exec(code, restricted_globals, allowed_modules)
-            
-            stdout_value = stdout_capture.getvalue()
-            stderr_value = stderr_capture.getvalue()
-            
-            return stdout_value, stderr_value, None
+            return stdout_capture.getvalue(), stderr_capture.getvalue(), None
             
         except Exception as e:
-            stderr_value = stderr_capture.getvalue()
-            return "", stderr_value or str(e), e
+            return "", stderr_capture.getvalue() or str(e), e
         finally:
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
+            sys.stdout, sys.stderr = old_stdout, old_stderr
     
     def _run(self, code: str) -> str:
-        """Execute code with timeout and proper error handling"""
+        """Execute code with timeout and error handling."""
         start_time = time.time()
         self.execution_stats["total_executions"] += 1
         
+        is_safe, safety_msg = self._is_code_safe(code)
+        if not is_safe:
+            self.execution_stats["blocked_operations"] += 1
+            logger.warning(f"Blocked unsafe code execution: {safety_msg}")
+            return f"🚫 Security Error: {safety_msg}"
+        
         try:
-            # Security check
-            is_safe, safety_msg = self._is_code_safe(code)
-            if not is_safe:
-                self.execution_stats["blocked_operations"] += 1
-                logger.warning(f"Blocked unsafe code execution: {safety_msg}")
-                return f"🚫 Security Error: {safety_msg}"
+            future = self.executor.submit(self._execute_code, code)
+            stdout_value, stderr_value, error = future.result(timeout=self.timeout)
             
-            # Execute code with timeout
-            try:
-                future = self.executor.submit(self._execute_code, code)
-                stdout_value, stderr_value, error = future.result(timeout=self.timeout)
-                
-                if error:
-                    raise error
-                
-                execution_time = time.time() - start_time
-                self._update_stats(execution_time, success=True)
-                
-                result_parts = []
-                if stdout_value:
-                    result_parts.append(f"Output:\n{stdout_value}")
-                if stderr_value:
-                    result_parts.append(f"Warnings:\n{stderr_value}")
-                
-                result_parts.append(f"✅ Execution completed in {execution_time:.2f}s")
-                
-                logger.info(f"Code execution successful in {execution_time:.2f}s")
-                result = "\n".join(result_parts) if result_parts else "✅ Code executed successfully (no output)"
-                return result
-                
-            except FutureTimeoutError:
-                self.execution_stats["timeout_errors"] += 1
-                execution_time = time.time() - start_time
-                self._update_stats(execution_time, success=False)
-                error_msg = f"⏱️ Execution Timeout: Code execution exceeded {self.timeout}s limit"
-                logger.warning(error_msg)
-                return error_msg
-                
-        except MemoryError:
-            self.execution_stats["memory_errors"] += 1
+            if error:
+                raise error
+            
             execution_time = time.time() - start_time
+            self._update_stats(execution_time, success=True)
+            
+            result_parts = [f"Output:\n{stdout_value}"] if stdout_value else []
+            if stderr_value:
+                result_parts.append(f"Warnings:\n{stderr_value}")
+            result_parts.append(f"✅ Execution completed in {execution_time:.2f}s")
+            
+            logger.info(f"Code execution successful in {execution_time:.2f}s")
+            return "\n".join(result_parts) if result_parts else "✅ Code executed successfully (no output)"
+            
+        except FutureTimeoutError:
+            execution_time = time.time() - start_time
+            self.execution_stats["timeout_errors"] += 1
             self._update_stats(execution_time, success=False)
-            error_msg = "💾 Memory Error: Code execution exceeded memory limits"
-            logger.error(error_msg)
-            return error_msg
+            logger.warning(f"Code execution timeout after {execution_time:.2f}s")
+            return f"⏱️ Execution Timeout: Code execution exceeded {self.timeout}s limit"
+            
+        except MemoryError:
+            execution_time = time.time() - start_time
+            self.execution_stats["memory_errors"] += 1
+            self._update_stats(execution_time, success=False)
+            logger.error("Code execution memory error")
+            return "💾 Memory Error: Code execution exceeded memory limits"
             
         except Exception as e:
             execution_time = time.time() - start_time
             self._update_stats(execution_time, success=False)
             error_type = type(e).__name__
-            error_msg = f"❌ Execution Error ({error_type}): {str(e)}"
             logger.error(f"Code execution failed: {error_type} - {str(e)}", exc_info=True)
-            return error_msg
+            return f"❌ Execution Error ({error_type}): {str(e)}"
     
-    def _update_stats(self, execution_time: float, success: bool):
-        """Update execution statistics"""
+    def _update_stats(self, execution_time: float, success: bool) -> None:
+        """Update execution statistics."""
         if success:
             self.execution_stats["successful_executions"] += 1
         else:
             self.execution_stats["failed_executions"] += 1
         
-        # Update average execution time
-        total_time = (self.execution_stats["avg_execution_time"] * 
-                     (self.execution_stats["total_executions"] - 1) + execution_time)
-        self.execution_stats["avg_execution_time"] = total_time / self.execution_stats["total_executions"]
+        total = self.execution_stats["total_executions"]
+        current_avg = self.execution_stats["avg_execution_time"]
+        self.execution_stats["avg_execution_time"] = (current_avg * (total - 1) + execution_time) / total
     
     def get_stats(self) -> Dict[str, Any]:
         """Get execution statistics"""
         return self.execution_stats.copy()
     
     async def _arun(self, code: str) -> str:
+        """Async wrapper for code execution."""
         return self._run(code)
 
 class WebScrapeTool(BaseTool):
@@ -424,22 +389,17 @@ class DataAnalysisTool(BaseTool):
         return self._run(data_description)
 
 class MultiAgentSystem:
-    """Multi-agent system with specialized agents for different tasks"""
+    """Multi-agent system with specialized agents for different tasks."""
     
     def __init__(self, openai_api_key: Optional[str] = None, serpapi_key: Optional[str] = None):
         logger.info("Initializing MultiAgentSystem...")
         
-        # Store API keys
         self.openai_api_key = openai_api_key or getattr(Config, 'OPENAI_API_KEY', None)
         self.serpapi_key = serpapi_key or getattr(Config, 'SERPAPI_KEY', None)
         
-        # Initialize LLM
         self.llm = self._initialize_llm()
-        
-        # Initialize enhanced tools (must be done before creating agents)
         self.tools = self._initialize_tools()
         
-        # Performance monitoring
         self.system_metrics = {
             "total_tasks": 0,
             "successful_tasks": 0,
@@ -449,79 +409,67 @@ class MultiAgentSystem:
             "last_updated": datetime.now().isoformat()
         }
         
-        # Enhanced conversation memory (using simple dict for now)
         memory_size = getattr(Config, 'AGENT_MEMORY_SIZE', 20)
         self.conversation_memory = {"chat_history": []}
         self.memory_size = memory_size
         
-        # Create specialized agents (after tools are initialized)
         self.agents = self._create_agents()
         self.system_metrics["agents_created"] = len(self.agents)
         
         logger.info(f"MultiAgentSystem initialization complete with {len(self.agents)} agents")
     
     def _initialize_llm(self):
-        """Initialize LLM with fallback chain"""
+        """Initialize LLM with fallback chain."""
         max_tokens = getattr(Config, 'MAX_TOKENS', 512)
         temperature = getattr(Config, 'TEMPERATURE', 0.7)
         default_model = getattr(Config, 'DEFAULT_LLM_MODEL', 'microsoft/DialoGPT-medium')
         fallback_model = getattr(Config, 'FALLBACK_LLM_MODEL', 'gpt2')
         
-        # Try to use a more capable model first
-        try:
-            hf_pipeline = pipeline(
-                "text-generation", 
-                model=default_model,
-                max_length=max_tokens,
-                temperature=temperature,
-                do_sample=True,
-                pad_token_id=50256,
-                device_map="auto" if torch.cuda.is_available() else None
-            )
-            # Use HuggingFace pipeline directly if available
+        for model_name, model_max_tokens in [(default_model, max_tokens), (fallback_model, max_tokens // 2)]:
             try:
-                from langchain_huggingface import HuggingFacePipeline
-                llm = HuggingFacePipeline(
-                    pipeline=hf_pipeline,
-                    model_kwargs={"temperature": temperature, "max_length": max_tokens}
-                )
-            except ImportError:
-                # Fallback to direct pipeline usage
-                llm = hf_pipeline
-            logger.info(f"{default_model} LLM loaded successfully")
-            return llm
-        except Exception as e:
-            logger.warning(f"Failed to load {default_model}, trying {fallback_model}: {e}")
-            try:
-                # Fallback to GPT-2
                 hf_pipeline = pipeline(
-                    "text-generation", 
-                    model=fallback_model,
-                    max_length=max_tokens // 2,  # Smaller for fallback
+                    "text-generation",
+                    model=model_name,
+                    max_length=model_max_tokens,
                     temperature=temperature,
                     do_sample=True,
-                    pad_token_id=50256
+                    pad_token_id=50256,
+                    device_map="auto" if torch.cuda.is_available() else None
                 )
                 try:
                     from langchain_huggingface import HuggingFacePipeline
                     llm = HuggingFacePipeline(
                         pipeline=hf_pipeline,
-                        model_kwargs={"temperature": temperature, "max_length": max_tokens // 2}
+                        model_kwargs={"temperature": temperature, "max_length": model_max_tokens}
                     )
                 except ImportError:
-                    # Fallback to direct pipeline usage
                     llm = hf_pipeline
-                logger.info(f"{fallback_model} LLM loaded successfully")
+                logger.info(f"{model_name} LLM loaded successfully")
                 return llm
-            except Exception as e2:
-                logger.warning(f"Failed to load {fallback_model}, using fallback: {e2}")
-                # Create a simple fallback LLM
-                from langchain.llms.fake import FakeListLLM
-                return FakeListLLM(responses=[
-                    "I'm a research agent. Let me help you find information about that topic.",
-                    "I'm a coding agent. I can help you write and execute Python code.",
-                    "I'm an analysis agent. I can help you analyze data and provide insights."
-                ])
+            except Exception as e:
+                logger.warning(f"Failed to load {model_name}: {e}")
+                continue
+        
+        logger.warning("All LLM models failed to load, using mock LLM")
+        try:
+            from langchain_core.language_models.fake import FakeListLLM
+        except ImportError:
+            class FakeListLLM:
+                def __init__(self, responses):
+                    self.responses = responses
+                    self._index = 0
+                def invoke(self, prompt):
+                    response = self.responses[self._index % len(self.responses)]
+                    self._index += 1
+                    return response
+                def __call__(self, prompt):
+                    return self.invoke(prompt)
+        
+        return FakeListLLM(responses=[
+            "I'm a research agent. Let me help you find information about that topic.",
+            "I'm a coding agent. I can help you write and execute Python code.",
+            "I'm an analysis agent. I can help you analyze data and provide insights."
+        ])
     
     def _initialize_tools(self) -> List[BaseTool]:
         """Initialize all available tools"""

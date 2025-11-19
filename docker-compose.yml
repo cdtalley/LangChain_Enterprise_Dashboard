@@ -1,104 +1,68 @@
 version: '3.8'
 
 services:
-  # Main application with API
-  api:
+  app:
     build: .
+    container_name: langchain-workbench
     ports:
+      - "8501:8501"
       - "8000:8000"
     environment:
-      - ENVIRONMENT=production
-      - DATABASE_URL=sqlite:///enterprise_workbench.db
+      - DATABASE_URL=postgresql://workbench:workbench@postgres:5432/workbench
       - REDIS_URL=redis://redis:6379/0
+      - DEBUG=false
+      - LOG_LEVEL=INFO
     volumes:
+      - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
     depends_on:
+      - postgres
       - redis
     restart: unless-stopped
     networks:
-      - langchain-network
+      - workbench-network
 
-  # Streamlit frontend
-  frontend:
-    build: .
-    command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
-    ports:
-      - "8501:8501"
+  postgres:
+    image: postgres:15-alpine
+    container_name: workbench-postgres
     environment:
-      - API_BASE_URL=http://api:8000
-    depends_on:
-      - api
+      - POSTGRES_DB=workbench
+      - POSTGRES_USER=workbench
+      - POSTGRES_PASSWORD=workbench
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     restart: unless-stopped
     networks:
-      - langchain-network
+      - workbench-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbench"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis for caching
   redis:
     image: redis:7-alpine
+    container_name: workbench-redis
     ports:
       - "6379:6379"
     volumes:
-      - redis_data:/data
+      - redis-data:/data
     restart: unless-stopped
     networks:
-      - langchain-network
-
-  # Monitoring with Prometheus (optional)
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    restart: unless-stopped
-    networks:
-      - langchain-network
-
-  # Grafana for dashboards (optional)
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-    networks:
-      - langchain-network
-
-  # Nginx reverse proxy (production)
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/ssl:/etc/nginx/ssl
-    depends_on:
-      - api
-      - frontend
-    restart: unless-stopped
-    networks:
-      - langchain-network
+      - workbench-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  redis_data:
-  prometheus_data:
-  grafana_data:
+  postgres-data:
+  redis-data:
 
 networks:
-  langchain-network:
-    driver: bridge 
+  workbench-network:
+    driver: bridge
