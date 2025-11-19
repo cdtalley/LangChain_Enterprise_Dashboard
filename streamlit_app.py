@@ -193,6 +193,30 @@ st.sidebar.markdown("""
 
 st.sidebar.markdown("---")
 
+# Navigation Helper
+st.sidebar.markdown("### 🧭 Quick Navigation")
+nav_options = {
+    "🏠 Welcome": 0,
+    "🤖 Multi-Agent": 1,
+    "📊 Advanced RAG": 2,
+    "🔧 Tools": 3,
+    "📈 Analytics": 4,
+    "🎯 Enterprise Demo": 5,
+    "📦 Model Registry": 6,
+    "🧪 A/B Testing": 7,
+    "📝 Experiments": 8,
+    "🔍 Monitoring": 9,
+    "🎓 Fine-Tuning": 10,
+    "📚 Datasets": 11
+}
+
+selected_nav = st.sidebar.selectbox("Jump to:", list(nav_options.keys()), key="nav_selector")
+if st.sidebar.button("Go", key="nav_go_btn"):
+    st.session_state['nav_to_tab'] = nav_options[selected_nav]
+    st.rerun()
+
+st.sidebar.markdown("---")
+
 # Remove OpenAI API key input
 # openai_api_key = st.sidebar.text_input("🔑 OpenAI API Key", type="password")
 serpapi_key = st.sidebar.text_input("🔍 SerpAPI Key (Optional)", type="password", key="serpapi_key_input")
@@ -374,6 +398,142 @@ with tab0:
     
     st.markdown("---")
     
+    # Getting Started Section - Enhanced User Flow
+    st.markdown('<h2 class="section-header">🚀 Getting Started</h2>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 2rem; border-radius: 1rem; margin: 1rem 0; border-left: 5px solid #2196F3;">
+        <h3 style="color: #1976d2; margin-top: 0;">Quick Start Guide</h3>
+        <p style="color: #424242; font-size: 1.05rem; line-height: 1.8;">
+            Follow these steps to get the most out of the platform. Each step builds on the previous one, 
+            creating a complete MLOps workflow from data to deployment.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Step-by-step workflow
+    workflow_col1, workflow_col2 = st.columns(2)
+    
+    with workflow_col1:
+        st.markdown("""
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
+            <h4 style="color: #2e7d32; margin-top: 0;">📚 Step 1: Load Your Data</h4>
+            <p style="color: #555; margin-bottom: 0.5rem;">
+                <strong>Go to:</strong> <em>📊 Advanced RAG</em> tab<br>
+                Upload documents (PDF, TXT, DOCX) and explore hybrid search capabilities.
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+                💡 <strong>Tip:</strong> Start with a simple text file to see how semantic search works.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #2196F3;">
+            <h4 style="color: #1976d2; margin-top: 0;">🤖 Step 3: Try Multi-Agent System</h4>
+            <p style="color: #555; margin-bottom: 0.5rem;">
+                <strong>Go to:</strong> <em>🤖 Multi-Agent System</em> tab<br>
+                Ask questions and watch intelligent routing select the right agent automatically.
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+                💡 <strong>Try:</strong> "Research the latest trends in LLM fine-tuning" or "Write Python code to analyze data"
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #9C27B0;">
+            <h4 style="color: #7b1fa2; margin-top: 0;">📦 Step 5: Register Your Models</h4>
+            <p style="color: #555; margin-bottom: 0.5rem;">
+                <strong>Go to:</strong> <em>📦 Model Registry</em> tab<br>
+                Register models with versioning, metadata, and performance metrics.
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+                💡 <strong>Next:</strong> Compare models side-by-side to make deployment decisions.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with workflow_col2:
+        st.markdown("""
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #FF9800;">
+            <h4 style="color: #f57c00; margin-top: 0;">🔧 Step 2: Execute Tools</h4>
+            <p style="color: #555; margin-bottom: 0.5rem;">
+                <strong>Go to:</strong> <em>🔧 Tool Execution</em> tab<br>
+                Run Python code, scrape websites, or analyze data with secure execution.
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+                💡 <strong>Try:</strong> Code execution with data visualization or web scraping.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #E91E63;">
+            <h4 style="color: #c2185b; margin-top: 0;">📝 Step 4: Track Experiments</h4>
+            <p style="color: #555; margin-bottom: 0.5rem;">
+                <strong>Go to:</strong> <em>📝 Experiment Tracking</em> tab<br>
+                Log parameters, metrics, and compare runs - MLflow-like functionality.
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+                💡 <strong>Use:</strong> Track model training runs and compare hyperparameters.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #00BCD4;">
+            <h4 style="color: #0097a7; margin-top: 0;">🔍 Step 6: Monitor Production</h4>
+            <p style="color: #555; margin-bottom: 0.5rem;">
+                <strong>Go to:</strong> <em>🔍 Model Monitoring</em> tab<br>
+                Track performance, detect drift, and generate monitoring reports.
+            </p>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+                💡 <strong>Complete:</strong> Full MLOps lifecycle from training to monitoring.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Quick Actions Section
+    st.markdown("---")
+    st.markdown('<h3 class="section-header">⚡ Quick Actions</h3>', unsafe_allow_html=True)
+    
+    quick_col1, quick_col2, quick_col3, quick_col4 = st.columns(4)
+    
+    with quick_col1:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 0.5rem; color: white;">
+            <strong>🚀 Multi-Agent</strong><br>
+            <small>Click tab above →</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with quick_col2:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 0.5rem; color: white;">
+            <strong>📊 Advanced RAG</strong><br>
+            <small>Click tab above →</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with quick_col3:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 0.5rem; color: white;">
+            <strong>📦 Model Registry</strong><br>
+            <small>Click tab above →</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with quick_col4:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 0.5rem; color: white;">
+            <strong>🎯 Enterprise Demo</strong><br>
+            <small>Click tab above →</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
     # Technology Stack Showcase
     st.markdown('<h2 class="section-header">🛠️ Technology Stack</h2>', unsafe_allow_html=True)
     tech_col1, tech_col2, tech_col3 = st.columns(3)
@@ -496,6 +656,18 @@ with tab0:
 
 # --- Multi-Agent System Tab ---
 with tab1:
+    # User Flow Enhancement: Contextual Help
+    with st.expander("ℹ️ How to Use This Feature", expanded=False):
+        st.markdown("""
+        **Multi-Agent System Guide:**
+        1. **Select an Agent** - Choose Researcher, Coder, or Analyst based on your task
+        2. **Enter Your Query** - Ask questions or request actions
+        3. **Watch Intelligent Routing** - The system automatically selects the best agent
+        4. **Review Results** - See agent reasoning and tool usage
+        
+        **Pro Tip:** Try "Research the latest trends in LLM fine-tuning" to see the Researcher agent in action!
+        """)
+    
     st.markdown('<h2 class="section-header">Multi-Agent Collaboration System</h2>', unsafe_allow_html=True)
     
     col1, col2 = st.columns([2, 1])
@@ -590,6 +762,18 @@ with tab1:
 
 # --- Advanced RAG Tab ---
 with tab2:
+    # User Flow Enhancement: Contextual Help
+    with st.expander("ℹ️ How to Use This Feature", expanded=False):
+        st.markdown("""
+        **RAG System Guide:**
+        1. **Upload Documents** - PDF, TXT, or DOCX files
+        2. **Choose Retrieval Strategy** - Ensemble (recommended), Dense, or BM25
+        3. **Ask Questions** - Query your documents with natural language
+        4. **Review Sources** - See which document chunks were used
+        
+        **Pro Tip:** Start with a simple text file, then try complex PDFs with multiple strategies!
+        """)
+    
     st.markdown('<h2 class="section-header">Advanced Retrieval-Augmented Generation</h2>', unsafe_allow_html=True)
     
     col1, col2 = st.columns([2, 1])
@@ -1010,6 +1194,18 @@ with tab5:
 
 # --- Model Registry Tab ---
 with tab6:
+    # User Flow Enhancement: Contextual Help
+    with st.expander("ℹ️ How to Use This Feature", expanded=False):
+        st.markdown("""
+        **Model Registry Guide:**
+        1. **Register a Model** - Add name, version, type, and performance metrics
+        2. **Set Lifecycle Stage** - Staging, Production, or Archived
+        3. **Compare Models** - Side-by-side comparison of different versions
+        4. **Track Performance** - Monitor accuracy, precision, recall, F1 scores
+        
+        **Pro Tip:** Register multiple model versions to track improvements over time!
+        """)
+    
     st.markdown('<h2 class="section-header">Model Registry & Versioning</h2>', unsafe_allow_html=True)
     
     # Initialize registry

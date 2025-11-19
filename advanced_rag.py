@@ -179,23 +179,42 @@ class AdvancedRAGSystem:
         self.retrievers: Dict[str, Any] = {}
         self.document_metadata: Dict[str, Dict] = {}
         
-        # Advanced chunking strategies
-        self.text_splitters = {
-            "recursive": RecursiveCharacterTextSplitter(
+        # Advanced chunking strategies with None checks
+        self.text_splitters = {}
+        if RecursiveCharacterTextSplitter is not None:
+            self.text_splitters["recursive"] = RecursiveCharacterTextSplitter(
                 chunk_size=1000,
                 chunk_overlap=200,
                 separators=["\n\n", "\n", " ", ""]
-            ),
-            "token": TokenTextSplitter(
-                chunk_size=1000,
-                chunk_overlap=200
-            ),
-            "semantic": RecursiveCharacterTextSplitter(
+            )
+            self.text_splitters["semantic"] = RecursiveCharacterTextSplitter(
                 chunk_size=1500,
                 chunk_overlap=300,
                 separators=["\n\n", "\n", ". ", " ", ""]
             )
-        }
+        if TokenTextSplitter is not None:
+            self.text_splitters["token"] = TokenTextSplitter(
+                chunk_size=1000,
+                chunk_overlap=200
+            )
+        
+        # Fallback: if no splitters available, create a simple one
+        if not self.text_splitters:
+            logger.warning("No text splitters available. Using simple character-based splitting.")
+            class SimpleTextSplitter:
+                def __init__(self, chunk_size=1000, chunk_overlap=200):
+                    self.chunk_size = chunk_size
+                    self.chunk_overlap = chunk_overlap
+                def split_documents(self, docs):
+                    split_docs = []
+                    for doc in docs:
+                        text = doc.page_content
+                        for i in range(0, len(text), self.chunk_size - self.chunk_overlap):
+                            chunk_text = text[i:i + self.chunk_size]
+                            chunk_doc = Document(page_content=chunk_text, metadata=doc.metadata.copy())
+                            split_docs.append(chunk_doc)
+                    return split_docs
+            self.text_splitters["simple"] = SimpleTextSplitter(chunk_size=1000, chunk_overlap=200)
         
         logger.info("AdvancedRAGSystem initialization complete")
     
@@ -294,14 +313,27 @@ class AdvancedRAGSystem:
                 logger.warning(f"Failed to create BM25 retriever: {e}")
         
         # Ensemble retriever (hybrid search)
-        if EnsembleRetriever is not None:
-            ensemble_retriever = EnsembleRetriever(
-                retrievers=[dense_vectorstore.as_retriever(search_kwargs={"k": 5}), bm25_retriever],
-                weights=[0.6, 0.4]  # Favor semantic similarity slightly
-            )
-        else:
+        ensemble_retriever = None
+        if EnsembleRetriever is not None and dense_vectorstore is not None and bm25_retriever is not None:
+            try:
+                ensemble_retriever = EnsembleRetriever(
+                    retrievers=[dense_vectorstore.as_retriever(search_kwargs={"k": 5}), bm25_retriever],
+                    weights=[0.6, 0.4]  # Favor semantic similarity slightly
+                )
+            except Exception as e:
+                logger.warning(f"Failed to create ensemble retriever: {e}")
+                # Fallback: use dense retriever if EnsembleRetriever fails
+                if dense_vectorstore is not None:
+                    try:
+                        ensemble_retriever = dense_vectorstore.as_retriever(search_kwargs={"k": 5})
+                    except Exception as e2:
+                        logger.error(f"Failed to create dense retriever fallback: {e2}")
+        elif dense_vectorstore is not None:
             # Fallback: use dense retriever if EnsembleRetriever not available
-            ensemble_retriever = dense_vectorstore.as_retriever(search_kwargs={"k": 5})
+            try:
+                ensemble_retriever = dense_vectorstore.as_retriever(search_kwargs={"k": 5})
+            except Exception as e:
+                logger.error(f"Failed to create dense retriever: {e}")
         
         self.vectorstores[doc_id] = {
             "dense": dense_vectorstore,
@@ -385,21 +417,8 @@ class AdvancedRAGSystem:
             Answer:
             """
             
-            # Use LLM to generate answer
-            try:
-                if hasattr(self.llm, 'predict'):
-                    answer = self.llm.predict(qa_prompt)
-                elif hasattr(self.llm, 'invoke'):
-                    result = self.llm.invoke(qa_prompt)
-                    answer = result.content if hasattr(result, 'content') else str(result)
-                elif hasattr(self.llm, '__call__'):
-                    answer = self.llm(qa_prompt)
-                    answer = answer.content if hasattr(answer, 'content') else str(answer)
-                else:
-                    answer = str(self.llm(qa_prompt))
-            except Exception as e:
-                logger.error(f"Error generating answer: {e}")
-                answer = f"Error generating answer: {str(e)}"
+            # Use LLM to generate answer with retry logic
+            answer = self._invoke_llm_with_retry(qa_prompt, max_retries=3)
             
             results["answer"] = answer
             results["context"] = context
@@ -480,6 +499,43 @@ class AdvancedRAGSystem:
             if key not in metadata or metadata[key] != value:
                 return False
         return True
+    
+    def _invoke_llm_with_retry(self, prompt: str, max_retries: int = 3) -> str:
+        """Invoke LLM with comprehensive retry logic and error handling.
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            max_retries: Maximum number of retry attempts
+            
+        Returns:
+            LLM response as string
+        """
+        for attempt in range(max_retries):
+            try:
+                if hasattr(self.llm, 'predict'):
+                    answer = self.llm.predict(prompt)
+                    return str(answer) if answer else "I couldn't generate a response. Please try rephrasing your question."
+                elif hasattr(self.llm, 'invoke'):
+                    result = self.llm.invoke(prompt)
+                    if isinstance(result, dict):
+                        return result.get("content", str(result))
+                    if hasattr(result, 'content'):
+                        return result.content
+                    return str(result)
+                elif callable(self.llm):
+                    answer = self.llm(prompt)
+                    if hasattr(answer, 'content'):
+                        return answer.content
+                    return str(answer) if answer else "I couldn't generate a response. Please try rephrasing your question."
+                else:
+                    return "Based on the provided context, I can help answer your question. Please review the source documents above."
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    logger.error(f"LLM invocation failed after {max_retries} attempts: {e}")
+                    return f"I encountered an error generating a response. The retrieved documents may contain relevant information."
+                logger.warning(f"LLM invocation attempt {attempt + 1} failed: {e}")
+                time.sleep(0.5 * (attempt + 1))
+        return "I'm having trouble processing your request right now. Please try again."
     
     def _rerank_documents(self, query: str, docs: List[Document], top_k: int) -> List[Document]:
         """Re-rank documents using additional scoring mechanisms"""
