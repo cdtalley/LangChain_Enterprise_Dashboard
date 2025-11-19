@@ -28,9 +28,39 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional styling
+# Custom CSS for professional styling with MIND-BLOWING animations
 st.markdown("""
 <style>
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+}
+@keyframes slideInUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(102, 126, 234, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.8), 0 0 30px rgba(102, 126, 234, 0.6); }
+}
+
 .main-header {
     font-size: 3rem;
     color: #1f77b4;
@@ -38,6 +68,7 @@ st.markdown("""
     margin-bottom: 1rem;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: fadeIn 1s ease-in;
 }
 .section-header {
     font-size: 1.5rem;
@@ -46,6 +77,19 @@ st.markdown("""
     padding-bottom: 0.5rem;
     margin-top: 2rem;
     font-weight: 600;
+    animation: slideInUp 0.6s ease-out;
+    position: relative;
+}
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    animation: slideInUp 0.8s ease-out forwards;
+    animation-delay: 0.2s;
 }
 .metric-card {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -53,11 +97,28 @@ st.markdown("""
     border-radius: 0.75rem;
     border-left: 4px solid #3498db;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideInUp 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+.metric-card:hover::before {
+    left: 100%;
 }
 .metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+    border-left-width: 6px;
 }
 .agent-result {
     background: linear-gradient(135deg, #e8f4fd 0%, #d1e9fc 100%);
@@ -66,6 +127,23 @@ st.markdown("""
     margin: 0.5rem 0;
     border-left: 4px solid #2196F3;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    animation: slideInUp 0.4s ease-out;
+    transition: all 0.3s ease;
+    position: relative;
+}
+.agent-result:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+.agent-result::before {
+    content: '🤖';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    opacity: 0.2;
+    animation: float 3s ease-in-out infinite;
 }
 .tool-result {
     background: linear-gradient(135deg, #f0f8e8 0%, #e8f5e9 100%);
@@ -74,6 +152,12 @@ st.markdown("""
     margin: 0.5rem 0;
     border-left: 4px solid #4CAF50;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    animation: slideInUp 0.4s ease-out;
+    transition: all 0.3s ease;
+}
+.tool-result:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 .feature-card {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -81,9 +165,25 @@ st.markdown("""
     border-radius: 0.75rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     margin: 1rem 0;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid #e0e0e0;
     color: #2c3e50 !important;
+    animation: slideInUp 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+.feature-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.6s;
+}
+.feature-card:hover::after {
+    left: 100%;
 }
 .feature-card h3 {
     color: #1f77b4 !important;
@@ -91,6 +191,11 @@ st.markdown("""
     font-weight: 700 !important;
     margin-bottom: 0.75rem !important;
     margin-top: 0 !important;
+    transition: all 0.3s ease;
+}
+.feature-card:hover h3 {
+    color: #667eea !important;
+    transform: translateX(5px);
 }
 .feature-card p {
     color: #34495e !important;
@@ -100,9 +205,10 @@ st.markdown("""
     opacity: 1 !important;
 }
 .feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    border-color: #3498db;
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.25);
+    border-color: #667eea;
+    border-width: 2px;
 }
 .status-indicator {
     display: inline-block;
@@ -110,22 +216,48 @@ st.markdown("""
     height: 12px;
     border-radius: 50%;
     margin-right: 8px;
+    animation: pulse 2s ease-in-out infinite;
 }
 .status-online {
     background-color: #4CAF50;
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+    animation: pulse 2s ease-in-out infinite, glow 2s ease-in-out infinite;
 }
 .status-offline {
     background-color: #f44336;
 }
 .welcome-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-size: 200% 200%;
     padding: 3rem;
     border-radius: 1rem;
     color: white;
     text-align: center;
     margin-bottom: 2rem;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    animation: gradient 8s ease infinite, fadeIn 1s ease-in;
+    position: relative;
+    overflow: hidden;
+}
+.welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+.welcome-hero h1 {
+    position: relative;
+    z-index: 1;
+    animation: slideInUp 0.8s ease-out;
+}
+.welcome-hero p {
+    position: relative;
+    z-index: 1;
+    animation: slideInUp 1s ease-out;
 }
 .stats-grid {
     display: grid;
@@ -133,6 +265,34 @@ st.markdown("""
     gap: 1rem;
     margin: 2rem 0;
 }
+.workflow-step {
+    animation: slideInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+.workflow-step:nth-child(1) { animation-delay: 0.1s; }
+.workflow-step:nth-child(2) { animation-delay: 0.2s; }
+.workflow-step:nth-child(3) { animation-delay: 0.3s; }
+.workflow-step:nth-child(4) { animation-delay: 0.4s; }
+.workflow-step:nth-child(5) { animation-delay: 0.5s; }
+.workflow-step:nth-child(6) { animation-delay: 0.6s; }
+
+/* Impressive button effects */
+.stButton>button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+}
+.stButton>button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 12px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
 /* Ensure proper text rendering in feature cards */
 div[data-testid="stMarkdownContainer"] .feature-card {
     color: #2c3e50 !important;
@@ -148,6 +308,32 @@ div[data-testid="stMarkdownContainer"] .feature-card * {
 .main .feature-card p {
     color: #34495e !important;
     opacity: 1 !important;
+}
+
+/* Loading animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+/* Particle effect background */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -283,20 +469,25 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.ta
 
 # --- Welcome Tab ---
 with tab0:
-    # Hero Section with Animation
+    # Hero Section with MIND-BLOWING Animation
     st.markdown("""
     <div class="welcome-hero">
-        <h1 style="font-size: 4rem; margin-bottom: 1rem; font-weight: 800; text-shadow: 3px 3px 6px rgba(0,0,0,0.3);">
+        <h1 style="font-size: 4rem; margin-bottom: 1rem; font-weight: 800; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); letter-spacing: -1px;">
             🚀 Enterprise LangChain AI Workbench
         </h1>
-        <p style="font-size: 1.8rem; opacity: 0.98; margin-bottom: 0.5rem; font-weight: 300;">
+        <p style="font-size: 1.8rem; opacity: 0.98; margin-bottom: 0.5rem; font-weight: 300; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
             Production-Ready Multi-Agent AI System
         </p>
-        <p style="font-size: 1.2rem; opacity: 0.9; font-weight: 300;">
+        <p style="font-size: 1.2rem; opacity: 0.9; font-weight: 300; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
             Advanced MLOps • Real-Time Analytics • Enterprise Architecture
         </p>
-        <div style="margin-top: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem;">
-            <p style="margin: 0; font-size: 1rem;">✨ <strong>Showcasing:</strong> Multi-Agent Collaboration • Advanced RAG • Model Registry • A/B Testing • Fine-Tuning</p>
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(255,255,255,0.15); border-radius: 0.5rem; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+            <p style="margin: 0; font-size: 1rem; font-weight: 500;">✨ <strong>Showcasing:</strong> Multi-Agent Collaboration • Advanced RAG • Model Registry • A/B Testing • Fine-Tuning</p>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite;">⚡ Real-Time Processing</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite 0.3s;">🧠 AI-Powered</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite 0.6s;">🚀 Enterprise-Grade</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -416,13 +607,16 @@ with tab0:
     
     with workflow_col1:
         st.markdown("""
-        <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
-            <h4 style="color: #2e7d32; margin-top: 0;">📚 Step 1: Load Your Data</h4>
-            <p style="color: #555; margin-bottom: 0.5rem;">
+        <div class="workflow-step" style="background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 0.5rem 0; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15); border-left: 5px solid #4CAF50; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateX(5px) scale(1.02)'" onmouseout="this.style.transform='translateX(0) scale(1)'">
+            <h4 style="color: #2e7d32; margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="background: #4CAF50; color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold;">1</span>
+                📚 Step 1: Load Your Data
+            </h4>
+            <p style="color: #555; margin-bottom: 0.5rem; line-height: 1.6;">
                 <strong>Go to:</strong> <em>📊 Advanced RAG</em> tab<br>
                 Upload documents (PDF, TXT, DOCX) and explore hybrid search capabilities.
             </p>
-            <p style="color: #888; font-size: 0.9rem; margin: 0;">
+            <p style="color: #888; font-size: 0.9rem; margin: 0; padding-top: 0.5rem; border-top: 1px solid rgba(76, 175, 80, 0.2);">
                 💡 <strong>Tip:</strong> Start with a simple text file to see how semantic search works.
             </p>
         </div>
