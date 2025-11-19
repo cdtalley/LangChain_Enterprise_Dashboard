@@ -76,16 +76,33 @@ st.markdown("""
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .feature-card {
-    background: white;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     padding: 1.5rem;
     border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     margin: 1rem 0;
     transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    color: #2c3e50 !important;
+}
+.feature-card h3 {
+    color: #1f77b4 !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.75rem !important;
+    margin-top: 0 !important;
+}
+.feature-card p {
+    color: #34495e !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+    opacity: 1 !important;
 }
 .feature-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    border-color: #3498db;
 }
 .status-indicator {
     display: inline-block;
@@ -115,6 +132,22 @@ st.markdown("""
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin: 2rem 0;
+}
+/* Ensure proper text rendering in feature cards */
+div[data-testid="stMarkdownContainer"] .feature-card {
+    color: #2c3e50 !important;
+}
+div[data-testid="stMarkdownContainer"] .feature-card * {
+    color: inherit !important;
+}
+/* Override Streamlit's default text color for better visibility */
+.main .feature-card h3 {
+    color: #1f77b4 !important;
+    opacity: 1 !important;
+}
+.main .feature-card p {
+    color: #34495e !important;
+    opacity: 1 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -162,7 +195,7 @@ st.sidebar.markdown("---")
 
 # Remove OpenAI API key input
 # openai_api_key = st.sidebar.text_input("🔑 OpenAI API Key", type="password")
-serpapi_key = st.sidebar.text_input("🔍 SerpAPI Key (Optional)", type="password")
+serpapi_key = st.sidebar.text_input("🔍 SerpAPI Key (Optional)", type="password", key="serpapi_key_input")
 
 # Helper functions for safe session_state access
 def get_multi_agent():
@@ -191,7 +224,7 @@ get_multi_agent()
 get_advanced_rag()
 
 # Clear state button
-if st.sidebar.button("🗑️ Clear All State"):
+if st.sidebar.button("🗑️ Clear All State", key="clear_state_btn"):
     # Keep system objects, clear everything else
     multi_agent_backup = st.session_state.get('multi_agent')
     advanced_rag_backup = st.session_state.get('advanced_rag')
@@ -284,58 +317,58 @@ with tab0:
     with feat_col1:
         st.markdown("""
         <div class="feature-card">
-            <h3>🤖 Multi-Agent AI System</h3>
-            <p>Specialized agents (Researcher, Coder, Analyst) with intelligent routing and collaborative workflows</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">🤖 Multi-Agent AI System</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Specialized agents (Researcher, Coder, Analyst) with intelligent routing and collaborative workflows</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
-            <h3>📊 Advanced RAG</h3>
-            <p>Hybrid search combining semantic and keyword matching with smart chunking strategies</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">📊 Advanced RAG</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Hybrid search combining semantic and keyword matching with smart chunking strategies</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
-            <h3>🎓 LLM Fine-Tuning</h3>
-            <p>LoRA, QLoRA, and PEFT fine-tuning for production-ready model customization</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">🎓 LLM Fine-Tuning</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">LoRA, QLoRA, and PEFT fine-tuning for production-ready model customization</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
-            <h3>📦 Model Registry</h3>
-            <p>Versioning, lifecycle management, and model comparison with performance tracking</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">📦 Model Registry</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Versioning, lifecycle management, and model comparison with performance tracking</p>
         </div>
         """, unsafe_allow_html=True)
     
     with feat_col2:
         st.markdown("""
         <div class="feature-card">
-            <h3>🧪 A/B Testing</h3>
-            <p>Statistical significance testing with sample size calculation and traffic splitting</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">🧪 A/B Testing</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Statistical significance testing with sample size calculation and traffic splitting</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
-            <h3>📝 Experiment Tracking</h3>
-            <p>MLflow-like tracking system with parameter logging and run comparison</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">📝 Experiment Tracking</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">MLflow-like tracking system with parameter logging and run comparison</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
-            <h3>🔍 Model Monitoring</h3>
-            <p>Performance tracking, drift detection, and anomaly detection with real-time alerts</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">🔍 Model Monitoring</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Performance tracking, drift detection, and anomaly detection with real-time alerts</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-card">
-            <h3>📚 Datasets & Models</h3>
-            <p>Pre-loaded datasets with automated model training and evaluation</p>
+            <h3 style="color: #1f77b4; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; margin-top: 0;">📚 Datasets & Models</h3>
+            <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Pre-loaded datasets with automated model training and evaluation</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -567,7 +600,8 @@ with tab2:
         uploaded_files = st.file_uploader(
             "Upload documents (PDF, TXT, DOCX):",
             type=["pdf", "txt", "docx"],
-            accept_multiple_files=True
+            accept_multiple_files=True,
+            key="rag_file_uploader"
         )
         
         if uploaded_files:
@@ -683,7 +717,8 @@ with tab3:
     # Tool selector
     tool_type = st.selectbox(
         "Select Tool Type:",
-        ["Python Code Executor", "Web Scraper", "Data Analyzer", "Web Search"]
+        ["Python Code Executor", "Web Scraper", "Data Analyzer", "Web Search"],
+        key="tool_type_select"
     )
     
     if tool_type == "Python Code Executor":
@@ -691,6 +726,7 @@ with tab3:
         
         code = st.text_area(
             "Enter Python code:",
+            key="code_executor_input",
             value="""import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -714,7 +750,7 @@ print("Analysis complete!")""",
             height=200
         )
         
-        if st.button("▶️ Execute Code"):
+        if st.button("▶️ Execute Code", key="execute_code_btn"):
             with st.spinner("Executing code..."):
                 from agents import CodeExecutorTool
                 executor = CodeExecutorTool()
@@ -724,9 +760,9 @@ print("Analysis complete!")""",
     elif tool_type == "Web Scraper":
         st.subheader("🌐 Web Content Scraper")
         
-        url = st.text_input("Enter URL to scrape:", placeholder="https://example.com")
+        url = st.text_input("Enter URL to scrape:", placeholder="https://example.com", key="web_scraper_url")
         
-        if st.button("🔍 Scrape Content") and url:
+        if st.button("🔍 Scrape Content", key="scrape_content_btn") and url:
             with st.spinner("Scraping content..."):
                 from agents import WebScrapeTool
                 scraper = WebScrapeTool()
@@ -738,10 +774,11 @@ print("Analysis complete!")""",
         
         data_desc = st.text_area(
             "Describe your dataset or paste CSV data:",
-            placeholder="Sales data from Q1 2024 with columns: date, product, revenue, region"
+            placeholder="Sales data from Q1 2024 with columns: date, product, revenue, region",
+            key="data_analyzer_input"
         )
         
-        if st.button("📈 Analyze Data") and data_desc:
+        if st.button("📈 Analyze Data", key="analyze_data_btn") and data_desc:
             with st.spinner("Analyzing data..."):
                 from agents import DataAnalysisTool
                 analyzer = DataAnalysisTool()
@@ -896,13 +933,14 @@ with tab5:
             "🔬 Research & Development",
             "📈 Market Analysis & Strategy",
             "🏗️ Technical Documentation Review"
-        ]
+        ],
+        key="demo_scenario_select"
     )
     
     if demo_scenario == "📊 Business Intelligence Analysis":
         st.subheader("Business Intelligence Analysis Workflow")
         
-        if st.button("🚀 Run Complete BI Analysis"):
+        if st.button("🚀 Run Complete BI Analysis", key="run_bi_demo_btn"):
             with st.spinner("Executing enterprise BI workflow..."):
                 # Simulate a complete BI workflow
                 st.info("**Step 1:** Research Agent gathering market data...")
@@ -992,21 +1030,21 @@ with tab6:
     with col1:
         st.subheader("📦 Register New Model")
         
-        model_name = st.text_input("Model Name", placeholder="e.g., sentiment-classifier")
-        model_version = st.text_input("Version", placeholder="e.g., 1.0.0")
-        model_type = st.selectbox("Model Type", [mt.value for mt in ModelType])
-        stage = st.selectbox("Stage", [ms.value for ms in ModelStage])
-        description = st.text_area("Description", height=100)
-        author = st.text_input("Author", value="Data Scientist")
+        model_name = st.text_input("Model Name", placeholder="e.g., sentiment-classifier", key="reg_model_name_input")
+        model_version = st.text_input("Version", placeholder="e.g., 1.0.0", key="reg_model_version_input")
+        model_type = st.selectbox("Model Type", [mt.value for mt in ModelType], key="reg_model_type_select")
+        stage = st.selectbox("Stage", [ms.value for ms in ModelStage], key="reg_model_stage_select")
+        description = st.text_area("Description", height=100, key="reg_model_desc")
+        author = st.text_input("Author", value="Data Scientist", key="reg_model_author_input")
         
         st.subheader("Performance Metrics")
         metric_col1, metric_col2 = st.columns(2)
         with metric_col1:
-            accuracy = st.number_input("Accuracy", 0.0, 1.0, 0.85, 0.01)
-            precision = st.number_input("Precision", 0.0, 1.0, 0.82, 0.01)
+            accuracy = st.number_input("Accuracy", 0.0, 1.0, 0.85, 0.01, key="reg_accuracy")
+            precision = st.number_input("Precision", 0.0, 1.0, 0.82, 0.01, key="reg_precision")
         with metric_col2:
-            recall = st.number_input("Recall", 0.0, 1.0, 0.88, 0.01)
-            f1_score = st.number_input("F1 Score", 0.0, 1.0, 0.85, 0.01)
+            recall = st.number_input("Recall", 0.0, 1.0, 0.88, 0.01, key="reg_recall")
+            f1_score = st.number_input("F1 Score", 0.0, 1.0, 0.85, 0.01, key="reg_f1_score")
         
         performance_metrics = {
             "accuracy": accuracy,
@@ -1016,12 +1054,12 @@ with tab6:
         }
         
         hyperparameters = {
-            "learning_rate": st.number_input("Learning Rate", 0.0001, 1.0, 0.001, 0.0001),
-            "batch_size": st.number_input("Batch Size", 16, 512, 32, 16),
-            "epochs": st.number_input("Epochs", 1, 100, 10, 1)
+            "learning_rate": st.number_input("Learning Rate", 0.0001, 1.0, 0.001, 0.0001, key="reg_learning_rate"),
+            "batch_size": st.number_input("Batch Size", 16, 512, 32, 16, key="reg_batch_size"),
+            "epochs": st.number_input("Epochs", 1, 100, 10, 1, key="reg_epochs")
         }
         
-        if st.button("📝 Register Model", type="primary"):
+        if st.button("📝 Register Model", type="primary", key="register_model_btn"):
             # Create a dummy model for demo
             from sklearn.linear_model import LogisticRegression
             dummy_model = LogisticRegression()
@@ -1049,9 +1087,9 @@ with tab6:
         # Filter options
         filter_col1, filter_col2 = st.columns(2)
         with filter_col1:
-            filter_name = st.text_input("Filter by Name", "")
+            filter_name = st.text_input("Filter by Name", "", key="filter_model_name")
         with filter_col2:
-            filter_stage = st.selectbox("Filter by Stage", ["All"] + [ms.value for ms in ModelStage])
+            filter_stage = st.selectbox("Filter by Stage", ["All"] + [ms.value for ms in ModelStage], key="filter_model_stage")
         
         # List models
         filters = {}
@@ -1074,15 +1112,15 @@ with tab6:
                 st.subheader("🔍 Compare Models")
                 compare_col1, compare_col2 = st.columns(2)
                 with compare_col1:
-                    model1_name = st.selectbox("Model 1", [m['name'] for m in models])
+                    model1_name = st.selectbox("Model 1", [m['name'] for m in models], key="compare_model1_name")
                     model1_version = st.selectbox("Version 1", 
-                        [m['version'] for m in models if m['name'] == model1_name])
+                        [m['version'] for m in models if m['name'] == model1_name], key="compare_model1_version")
                 with compare_col2:
-                    model2_name = st.selectbox("Model 2", [m['name'] for m in models])
+                    model2_name = st.selectbox("Model 2", [m['name'] for m in models], key="compare_model2_name")
                     model2_version = st.selectbox("Version 2",
-                        [m['version'] for m in models if m['name'] == model2_name])
+                        [m['version'] for m in models if m['name'] == model2_name], key="compare_model2_version")
                 
-                if st.button("Compare"):
+                if st.button("Compare", key="compare_models_btn"):
                     comparison = registry.compare_models(model1_name, model1_version, model2_version)
                     st.json(comparison)
         else:
@@ -1103,22 +1141,22 @@ with tab7:
     with col1:
         st.subheader("🧪 Create Experiment")
         
-        exp_name = st.text_input("Experiment Name", placeholder="e.g., model-v2-test")
-        exp_description = st.text_area("Description", height=80)
-        hypothesis = st.text_area("Hypothesis", placeholder="Treatment model will improve accuracy by 5%")
+        exp_name = st.text_input("Experiment Name", placeholder="e.g., model-v2-test", key="ab_exp_name")
+        exp_description = st.text_area("Description", height=80, key="ab_exp_description")
+        hypothesis = st.text_area("Hypothesis", placeholder="Treatment model will improve accuracy by 5%", key="ab_hypothesis")
         
-        metric_name = st.text_input("Metric Name", value="accuracy")
-        metric_type = st.selectbox("Metric Type", [mt.value for mt in MetricType])
+        metric_name = st.text_input("Metric Name", value="accuracy", key="ab_metric_name")
+        metric_type = st.selectbox("Metric Type", [mt.value for mt in MetricType], key="ab_metric_type")
         
-        baseline_model = st.text_input("Baseline Model", placeholder="model-v1")
-        treatment_model = st.text_input("Treatment Model", placeholder="model-v2")
+        baseline_model = st.text_input("Baseline Model", placeholder="model-v1", key="ab_baseline_model")
+        treatment_model = st.text_input("Treatment Model", placeholder="model-v2", key="ab_treatment_model")
         
-        traffic_split = st.slider("Traffic Split (%)", 0, 100, 50) / 100.0
-        min_sample_size = st.number_input("Min Sample Size", 100, 100000, 1000, 100)
-        max_duration_days = st.number_input("Max Duration (days)", 1, 90, 7, 1)
-        significance_level = st.number_input("Significance Level (α)", 0.01, 0.10, 0.05, 0.01)
+        traffic_split = st.slider("Traffic Split (%)", 0, 100, 50, key="ab_traffic_split") / 100.0
+        min_sample_size = st.number_input("Min Sample Size", 100, 100000, 1000, 100, key="ab_min_sample_size")
+        max_duration_days = st.number_input("Max Duration (days)", 1, 90, 7, 1, key="ab_max_duration")
+        significance_level = st.number_input("Significance Level (α)", 0.01, 0.10, 0.05, 0.01, key="ab_significance")
         
-        if st.button("🚀 Create Experiment", type="primary"):
+        if st.button("🚀 Create Experiment", type="primary", key="create_ab_experiment_btn"):
             config = ExperimentConfig(
                 name=exp_name,
                 description=exp_description,
@@ -1140,10 +1178,10 @@ with tab7:
                 st.error(f"Error: {str(e)}")
         
         st.subheader("📊 Sample Size Calculator")
-        baseline_rate = st.number_input("Baseline Rate", 0.0, 1.0, 0.5, 0.01)
-        mde = st.number_input("Minimum Detectable Effect (%)", 1, 50, 5, 1) / 100.0
+        baseline_rate = st.number_input("Baseline Rate", 0.0, 1.0, 0.5, 0.01, key="ab_baseline_rate")
+        mde = st.number_input("Minimum Detectable Effect (%)", 1, 50, 5, 1, key="ab_mde") / 100.0
         
-        if st.button("Calculate"):
+        if st.button("Calculate", key="calculate_sample_size_btn"):
             sample_size = ab_framework.calculate_sample_size(baseline_rate, mde)
             st.info(f"Required sample size per variant: **{sample_size}**")
     
@@ -1169,10 +1207,10 @@ with tab7:
         
         # Simulate experiment data
         st.subheader("🎲 Simulate Experiment Data")
-        sim_exp_id = st.number_input("Experiment ID", 1, 100, 1)
-        num_events = st.number_input("Number of Events", 10, 10000, 100, 10)
+        sim_exp_id = st.number_input("Experiment ID", 1, 100, 1, key="sim_exp_id")
+        num_events = st.number_input("Number of Events", 10, 10000, 100, 10, key="sim_num_events")
         
-        if st.button("Generate Simulated Data"):
+        if st.button("Generate Simulated Data", key="generate_sim_data_btn"):
             np.random.seed(42)
             for i in range(num_events):
                 # Simulate slightly better treatment
@@ -1199,10 +1237,10 @@ with tab8:
     with col1:
         st.subheader("📝 Start New Run")
         
-        exp_name = st.text_input("Experiment Name", value="model-training")
-        run_name = st.text_input("Run Name (optional)", placeholder="Auto-generated if empty")
+        exp_name = st.text_input("Experiment Name", value="model-training", key="track_exp_name")
+        run_name = st.text_input("Run Name (optional)", placeholder="Auto-generated if empty", key="track_run_name")
         
-        if st.button("▶️ Start Run", type="primary"):
+        if st.button("▶️ Start Run", type="primary", key="start_tracking_run_btn"):
             run_id = tracking.start_run(exp_name, run_name if run_name else None)
             st.session_state['current_run_id'] = run_id
             st.success(f"✅ Run started with ID: {run_id}")
@@ -1211,17 +1249,17 @@ with tab8:
             st.info(f"Current Run ID: {st.session_state['current_run_id']}")
             
             st.subheader("Log Parameters")
-            param_name = st.text_input("Parameter Name")
-            param_value = st.text_input("Parameter Value")
-            if st.button("Add Parameter"):
+            param_name = st.text_input("Parameter Name", key="track_param_name")
+            param_value = st.text_input("Parameter Value", key="track_param_value")
+            if st.button("Add Parameter", key="add_track_param_btn"):
                 tracking.log_params(st.session_state['current_run_id'], {param_name: param_value})
                 st.success("Parameter logged")
             
             st.subheader("Log Metrics")
-            metric_name = st.text_input("Metric Name")
-            metric_value = st.number_input("Metric Value", 0.0, 1.0, 0.85, 0.01)
-            step = st.number_input("Step (optional)", 0, 1000, 0, 1)
-            if st.button("Add Metric"):
+            metric_name = st.text_input("Metric Name", key="track_metric_name")
+            metric_value = st.number_input("Metric Value", 0.0, 1.0, 0.85, 0.01, key="track_metric_value")
+            step = st.number_input("Step (optional)", 0, 1000, 0, 1, key="track_metric_step")
+            if st.button("Add Metric", key="add_track_metric_btn"):
                 tracking.log_metrics(
                     st.session_state['current_run_id'],
                     {metric_name: metric_value},
@@ -1229,7 +1267,7 @@ with tab8:
                 )
                 st.success("Metric logged")
             
-            if st.button("✅ End Run"):
+            if st.button("✅ End Run", key="end_tracking_run_btn"):
                 tracking.end_run(st.session_state['current_run_id'])
                 st.success("Run completed")
                 del st.session_state['current_run_id']
@@ -1237,7 +1275,7 @@ with tab8:
     with col2:
         st.subheader("📊 Experiment Runs")
         
-        search_exp_name = st.text_input("Search by Experiment Name", "")
+        search_exp_name = st.text_input("Search by Experiment Name", "", key="search_track_exp_name")
         runs = tracking.search_runs(experiment_name=search_exp_name if search_exp_name else None)
         
         if runs:
@@ -1253,8 +1291,8 @@ with tab8:
             # Compare runs
             if len(runs) >= 2:
                 st.subheader("🔍 Compare Runs")
-                run_ids = st.multiselect("Select Runs to Compare", [r['id'] for r in runs])
-                if run_ids and st.button("Compare"):
+                run_ids = st.multiselect("Select Runs to Compare", [r['id'] for r in runs], key="compare_track_runs")
+                if run_ids and st.button("Compare", key="compare_track_runs_btn"):
                     comparison_df = tracking.compare_runs(run_ids)
                     st.dataframe(comparison_df, use_container_width=True)
         else:
@@ -1275,25 +1313,25 @@ with tab9:
     with col1:
         st.subheader("📊 Log Performance")
         
-        model_name = st.text_input("Model Name", value="sentiment-classifier")
-        model_version = st.text_input("Version", value="1.0.0")
-        metric_name = st.text_input("Metric Name", value="accuracy")
-        metric_value = st.number_input("Metric Value", 0.0, 1.0, 0.85, 0.01)
-        prediction_count = st.number_input("Prediction Count", 1, 100000, 100, 1)
+        model_name = st.text_input("Model Name", value="sentiment-classifier", key="monitor_model_name")
+        model_version = st.text_input("Version", value="1.0.0", key="monitor_model_version")
+        metric_name = st.text_input("Metric Name", value="accuracy", key="monitor_metric_name")
+        metric_value = st.number_input("Metric Value", 0.0, 1.0, 0.85, 0.01, key="monitor_metric_value")
+        prediction_count = st.number_input("Prediction Count", 1, 100000, 100, 1, key="monitor_prediction_count")
         
-        if st.button("📝 Log Performance", type="primary"):
+        if st.button("📝 Log Performance", type="primary", key="log_performance_btn"):
             monitoring.log_performance(
                 model_name, model_version, metric_name, metric_value, prediction_count
             )
             st.success("Performance logged")
         
         st.subheader("🔍 Check for Drift")
-        check_model = st.text_input("Model Name (for drift)", value="sentiment-classifier")
-        check_version = st.text_input("Version (for drift)", value="1.0.0")
-        check_metric = st.text_input("Metric Name (for drift)", value="accuracy")
-        lookback_days = st.number_input("Lookback Days", 1, 30, 7, 1)
+        check_model = st.text_input("Model Name (for drift)", value="sentiment-classifier", key="drift_model_name")
+        check_version = st.text_input("Version (for drift)", value="1.0.0", key="drift_model_version")
+        check_metric = st.text_input("Metric Name (for drift)", value="accuracy", key="drift_metric_name")
+        lookback_days = st.number_input("Lookback Days", 1, 30, 7, 1, key="drift_lookback_days")
         
-        if st.button("🔍 Detect Drift"):
+        if st.button("🔍 Detect Drift", key="detect_drift_btn"):
             drift_results = monitoring.detect_performance_drift(
                 check_model, check_version, check_metric, lookback_days
             )
@@ -1302,12 +1340,12 @@ with tab9:
     with col2:
         st.subheader("📈 Performance Trends")
         
-        trend_model = st.text_input("Model Name (for trends)", value="sentiment-classifier")
-        trend_version = st.text_input("Version (for trends)", value="1.0.0")
-        trend_metric = st.text_input("Metric Name (for trends)", value="accuracy")
-        trend_days = st.number_input("Days to Show", 1, 90, 30, 1)
+        trend_model = st.text_input("Model Name (for trends)", value="sentiment-classifier", key="trend_model_name")
+        trend_version = st.text_input("Version (for trends)", value="1.0.0", key="trend_model_version")
+        trend_metric = st.text_input("Metric Name (for trends)", value="accuracy", key="trend_metric_name")
+        trend_days = st.number_input("Days to Show", 1, 90, 30, 1, key="trend_days")
         
-        if st.button("📊 Generate Report"):
+        if st.button("📊 Generate Report", key="generate_trend_report_btn"):
             report = monitoring.generate_monitoring_report(trend_model, trend_version, trend_days)
             
             if 'error' not in report:
@@ -1372,14 +1410,16 @@ with tab10:
         model_name = st.text_input(
             "Base Model",
             value="microsoft/DialoGPT-medium",
-            help="HuggingFace model identifier (e.g., microsoft/DialoGPT-medium, gpt2)"
+            help="HuggingFace model identifier (e.g., microsoft/DialoGPT-medium, gpt2)",
+            key="finetune_model_name"
         )
         
         # Fine-tuning method
         method = st.selectbox(
             "Fine-Tuning Method",
             options=["lora", "qlora", "peft", "full"],
-            help="LoRA: Low-Rank Adaptation (memory efficient)\nQLoRA: Quantized LoRA (4-bit quantization)\nPEFT: Parameter-Efficient Fine-Tuning\nFull: Full model fine-tuning"
+            help="LoRA: Low-Rank Adaptation (memory efficient)\nQLoRA: Quantized LoRA (4-bit quantization)\nPEFT: Parameter-Efficient Fine-Tuning\nFull: Full model fine-tuning",
+            key="finetune_method"
         )
         
         # Training parameters
@@ -1387,13 +1427,13 @@ with tab10:
         
         param_col1, param_col2 = st.columns(2)
         with param_col1:
-            num_epochs = st.number_input("Epochs", 1, 20, 3, 1)
-            batch_size = st.number_input("Batch Size", 1, 32, 4, 1)
-            learning_rate = st.number_input("Learning Rate", 1e-6, 1e-2, 2e-4, 1e-6, format="%.6f")
+            num_epochs = st.number_input("Epochs", 1, 20, 3, 1, key="finetune_epochs")
+            batch_size = st.number_input("Batch Size", 1, 32, 4, 1, key="finetune_batch_size")
+            learning_rate = st.number_input("Learning Rate", 1e-6, 1e-2, 2e-4, 1e-6, format="%.6f", key="finetune_lr")
         
         with param_col2:
-            max_length = st.number_input("Max Sequence Length", 128, 2048, 512, 128)
-            use_4bit = st.checkbox("Use 4-bit Quantization", value=(method == "qlora"))
+            max_length = st.number_input("Max Sequence Length", 128, 2048, 512, 128, key="finetune_max_length")
+            use_4bit = st.checkbox("Use 4-bit Quantization", value=(method == "qlora"), key="finetune_4bit")
         
         # LoRA-specific parameters
         lora_r, lora_alpha, lora_dropout = 16, 32, 0.1  # Default values
@@ -1402,14 +1442,14 @@ with tab10:
             
             lora_col1, lora_col2, lora_col3 = st.columns(3)
             with lora_col1:
-                lora_r = st.number_input("LoRA Rank (r)", 4, 128, 16, 4)
+                lora_r = st.number_input("LoRA Rank (r)", 4, 128, 16, 4, key="lora_r")
             with lora_col2:
-                lora_alpha = st.number_input("LoRA Alpha", 4, 256, 32, 4)
+                lora_alpha = st.number_input("LoRA Alpha", 4, 256, 32, 4, key="lora_alpha")
             with lora_col3:
-                lora_dropout = st.number_input("LoRA Dropout", 0.0, 0.5, 0.1, 0.05)
+                lora_dropout = st.number_input("LoRA Dropout", 0.0, 0.5, 0.1, 0.05, key="lora_dropout")
         
         # Output directory
-        output_dir = st.text_input("Output Directory", value="./finetuned_models")
+        output_dir = st.text_input("Output Directory", value="./finetuned_models", key="finetune_output_dir")
         
         # Initialize fine-tuner
         if 'fine_tuner' not in st.session_state:
@@ -1424,7 +1464,8 @@ with tab10:
         data_input_method = st.radio(
             "Data Input Method",
             ["Text Input", "File Upload"],
-            help="Enter training texts directly or upload a file"
+            help="Enter training texts directly or upload a file",
+            key="finetune_data_method"
         )
         
         training_texts = []
@@ -1444,7 +1485,8 @@ with tab10:
             uploaded_file = st.file_uploader(
                 "Upload Training Data",
                 type=["txt", "json"],
-                help="Upload a text file (one example per line) or JSON file"
+                help="Upload a text file (one example per line) or JSON file",
+                key="finetune_upload_file"
             )
             
             if uploaded_file:
@@ -1471,7 +1513,7 @@ with tab10:
         action_col1, action_col2 = st.columns(2)
         
         with action_col1:
-            if st.button("🎯 Create Config", type="primary", use_container_width=True):
+            if st.button("🎯 Create Config", type="primary", use_container_width=True, key="create_finetune_config_btn"):
                 try:
                     config = FineTuningConfig(
                         model_name=model_name,
@@ -1492,7 +1534,7 @@ with tab10:
                     st.error(f"Error creating config: {e}")
         
         with action_col2:
-            if st.button("▶️ Start Training", type="primary", use_container_width=True, disabled=not training_texts):
+            if st.button("▶️ Start Training", type="primary", use_container_width=True, disabled=not training_texts, key="start_finetune_training_btn"):
                 if not training_texts:
                     st.warning("Please provide training data first")
                 elif st.session_state.get('fine_tuning_config') is None:
@@ -1545,15 +1587,15 @@ with tab10:
         if st.session_state.get('fine_tuner'):
             st.subheader("💬 Generate Text")
             
-            prompt = st.text_input("Enter prompt:", placeholder="Hello, how are you?")
+            prompt = st.text_input("Enter prompt:", placeholder="Hello, how are you?", key="finetune_prompt_input")
             
             gen_col1, gen_col2, gen_col3 = st.columns(3)
             with gen_col1:
-                max_tokens = st.number_input("Max Tokens", 10, 500, 100, 10)
+                max_tokens = st.number_input("Max Tokens", 10, 500, 100, 10, key="finetune_max_tokens")
             with gen_col2:
-                temperature = st.number_input("Temperature", 0.1, 2.0, 0.7, 0.1)
+                temperature = st.number_input("Temperature", 0.1, 2.0, 0.7, 0.1, key="finetune_temperature")
             
-            if st.button("✨ Generate", type="primary"):
+            if st.button("✨ Generate", type="primary", key="finetune_generate_btn"):
                 try:
                     fine_tuner = st.session_state['fine_tuner']
                     generated = fine_tuner.generate(prompt, max_new_tokens=max_tokens, temperature=temperature)
@@ -1612,7 +1654,8 @@ with tab11:
         selected_dataset = st.selectbox(
             "Select Dataset",
             options=list(datasets_info.keys()),
-            format_func=lambda x: datasets_info[x]['name']
+            format_func=lambda x: datasets_info[x]['name'],
+            key="dataset_selector"
         )
         
         if selected_dataset:
@@ -1626,7 +1669,7 @@ with tab11:
             - **Source**: {info['source']}
             """)
             
-            if st.button(f"📥 Load {info['name']} Dataset"):
+            if st.button(f"📥 Load {info['name']} Dataset", key=f"load_dataset_{selected_dataset}_btn"):
                 with st.spinner(f"Loading {info['name']}..."):
                     try:
                         loader_map = {
@@ -1684,7 +1727,7 @@ with tab11:
         Train models on datasets and register them in the model registry.
         """)
         
-        if st.button("🚀 Train All Models", type="primary"):
+        if st.button("🚀 Train All Models", type="primary", key="train_all_models_btn"):
             with st.spinner("Training models... This may take a minute."):
                 try:
                     results = train_all_models()
@@ -1748,4 +1791,4 @@ st.markdown("""
     <p>Built with LangChain • OpenAI • Streamlit • Python</p>
     <p><strong>Now featuring:</strong> Model Registry • A/B Testing • Experiment Tracking • Model Monitoring • LLM Fine-Tuning • Datasets Showcase</p>
 </div>
-"
+""", unsafe_allow_html=True) 

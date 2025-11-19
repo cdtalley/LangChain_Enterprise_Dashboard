@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from langchain_core.tools import Tool, BaseTool
 from langchain_core.prompts import ChatPromptTemplate
 
-# Try to import create_agent, fallback to alternative if not available
+# Robust agent imports with fallbacks for LangChain version compatibility
 try:
     from langchain.agents import create_agent
 except ImportError:
@@ -11,8 +11,22 @@ except ImportError:
         from langchain.agents import AgentExecutor, create_react_agent
         create_agent = None
     except ImportError:
-        create_agent = None
-from langchain_community.utilities import SerpAPIWrapper
+        try:
+            from langchain_core.agents import AgentExecutor
+            from langchain.agents import create_react_agent
+            create_agent = None
+        except ImportError:
+            create_agent = None
+            AgentExecutor = None
+            create_react_agent = None
+
+try:
+    from langchain_community.utilities import SerpAPIWrapper
+except ImportError:
+    try:
+        from langchain.utilities import SerpAPIWrapper
+    except ImportError:
+        SerpAPIWrapper = None
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

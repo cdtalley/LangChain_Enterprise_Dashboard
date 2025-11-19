@@ -1,18 +1,71 @@
 import os
 from typing import List, Dict, Any, Optional, Tuple
-from langchain_community.document_loaders import PyPDFLoader, TextLoader, UnstructuredWordDocumentLoader
-from langchain_text_splitters import (
-    RecursiveCharacterTextSplitter, 
-    TokenTextSplitter,
-    SpacyTextSplitter
-)
-# from langchain_openai.embeddings import OpenAIEmbeddings  # Optional import
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-# from langchain_openai import ChatOpenAI  # Optional import
-from langchain_community.retrievers import BM25Retriever
+
+# Robust LangChain imports with fallbacks for version compatibility
+try:
+    from langchain_community.document_loaders import PyPDFLoader, TextLoader, UnstructuredWordDocumentLoader
+except ImportError:
+    try:
+        from langchain.document_loaders import PyPDFLoader, TextLoader
+        UnstructuredWordDocumentLoader = None
+    except ImportError:
+        PyPDFLoader = TextLoader = UnstructuredWordDocumentLoader = None
+
+try:
+    from langchain_text_splitters import (
+        RecursiveCharacterTextSplitter, 
+        TokenTextSplitter,
+        SpacyTextSplitter
+    )
+except ImportError:
+    try:
+        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        TokenTextSplitter = SpacyTextSplitter = None
+    except ImportError:
+        RecursiveCharacterTextSplitter = TokenTextSplitter = SpacyTextSplitter = None
+
+try:
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+except ImportError:
+    try:
+        from langchain.embeddings import HuggingFaceEmbeddings
+    except ImportError:
+        HuggingFaceEmbeddings = None
+
+try:
+    from langchain_chroma import Chroma
+except ImportError:
+    Chroma = None
+
+try:
+    from langchain_community.vectorstores import FAISS
+except ImportError:
+    try:
+        from langchain.vectorstores import FAISS
+    except ImportError:
+        FAISS = None
+
+# Document import - handle both old and new LangChain versions
+try:
+    from langchain_core.documents import Document
+except ImportError:
+    try:
+        from langchain.schema import Document
+    except ImportError:
+        try:
+            from langchain.documents import Document
+        except ImportError:
+            # Fallback: create a simple Document class
+            class Document:
+                def __init__(self, page_content: str, metadata: Optional[Dict] = None):
+                    self.page_content = page_content
+                    self.metadata = metadata or {}
+
+try:
+    from langchain_community.retrievers import BM25Retriever
+except ImportError:
+    BM25Retriever = None
+
 # EnsembleRetriever moved in LangChain 1.0+ - using fallback implementation
 try:
     from langchain.retrievers import EnsembleRetriever
@@ -20,8 +73,11 @@ except ImportError:
     try:
         from langchain_core.retrievers import EnsembleRetriever
     except ImportError:
-        # Fallback: create simple ensemble retriever
-        EnsembleRetriever = None
+        try:
+            from langchain_community.retrievers import EnsembleRetriever
+        except ImportError:
+            # Fallback: create simple ensemble retriever
+            EnsembleRetriever = None
 import tempfile
 import hashlib
 import json
@@ -149,15 +205,25 @@ class AdvancedRAGSystem:
             # Generate unique document ID
             doc_id = hashlib.md5(f"{file_path}_{file_type}".encode()).hexdigest()
             
-            # Load document based on type
+            # Load document based on type with None checks
+            loader = None
             if file_type == "pdf":
+                if PyPDFLoader is None:
+                    return "Error: PyPDFLoader not available. Please install langchain-community."
                 loader = PyPDFLoader(file_path)
             elif file_type == "txt":
+                if TextLoader is None:
+                    return "Error: TextLoader not available. Please install langchain-community."
                 loader = TextLoader(file_path)
             elif file_type == "docx":
+                if UnstructuredWordDocumentLoader is None:
+                    return "Error: UnstructuredWordDocumentLoader not available. Please install langchain-community and unstructured."
                 loader = UnstructuredWordDocumentLoader(file_path)
             else:
                 return f"Unsupported file type: {file_type}"
+            
+            if loader is None:
+                return f"Failed to create loader for file type: {file_type}"
             
             # Load and split documents
             raw_docs = loader.load()
@@ -197,22 +263,35 @@ class AdvancedRAGSystem:
     def _create_vector_stores(self, doc_id: str, chunks: List[Document]):
         """Create multiple vector stores for different retrieval strategies"""
         # Dense vector store (semantic similarity)
+        dense_vectorstore = None
         try:
-            dense_vectorstore = Chroma.from_documents(
-                chunks,
-                self.embeddings.model,
-                collection_name=f"dense_{doc_id}"
-            )
+            if Chroma is not None:
+                dense_vectorstore = Chroma.from_documents(
+                    chunks,
+                    self.embeddings.model,
+                    collection_name=f"dense_{doc_id}"
+                )
+            elif FAISS is not None:
+                dense_vectorstore = FAISS.from_documents(chunks, self.embeddings.model)
+            else:
+                logger.warning("Neither Chroma nor FAISS available. Vector store creation skipped.")
         except Exception as e:
-            logger.warning(f"Failed to create Chroma vectorstore: {e}")
-            # Use FAISS as fallback
-            from langchain_community.vectorstores import FAISS
-            dense_vectorstore = FAISS.from_documents(chunks, self.embeddings.model)
+            logger.warning(f"Failed to create vectorstore: {e}")
+            if FAISS is not None:
+                try:
+                    dense_vectorstore = FAISS.from_documents(chunks, self.embeddings.model)
+                except Exception as e2:
+                    logger.error(f"Failed to create FAISS fallback: {e2}")
         
         # BM25 retriever (keyword-based)
-        texts = [doc.page_content for doc in chunks]
-        bm25_retriever = BM25Retriever.from_texts(texts)
-        bm25_retriever.k = 5
+        bm25_retriever = None
+        if BM25Retriever is not None:
+            try:
+                texts = [doc.page_content for doc in chunks]
+                bm25_retriever = BM25Retriever.from_texts(texts)
+                bm25_retriever.k = 5
+            except Exception as e:
+                logger.warning(f"Failed to create BM25 retriever: {e}")
         
         # Ensemble retriever (hybrid search)
         if EnsembleRetriever is not None:
