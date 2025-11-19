@@ -5,7 +5,6 @@ Demonstrates LoRA, QLoRA, and PEFT fine-tuning.
 """
 
 from llm_fine_tuning import LLMFineTuner, FineTuningConfig, FineTuningMethod
-from datasets import Dataset
 
 def example_lora_finetuning():
     """Example of LoRA fine-tuning"""

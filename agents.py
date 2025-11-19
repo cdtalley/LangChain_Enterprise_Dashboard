@@ -1,5 +1,4 @@
 import os
-import sys
 import subprocess
 import tempfile
 import signal
@@ -7,10 +6,11 @@ import threading
 from typing import List, Dict, Any, Optional, Tuple
 from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
-from langchain.agents import AgentType, initialize_agent, Tool
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.schema import HumanMessage, AIMessage
-from langchain.tools import BaseTool
+from langchain_core.tools import Tool
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.tools import BaseTool
+from langchain.agents import create_agent
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.utilities import SerpAPIWrapper
 import pandas as pd
 import numpy as np
@@ -449,13 +449,10 @@ class MultiAgentSystem:
             "last_updated": datetime.now().isoformat()
         }
         
-        # Enhanced conversation memory
+        # Enhanced conversation memory (using simple dict for now)
         memory_size = getattr(Config, 'AGENT_MEMORY_SIZE', 20)
-        self.conversation_memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            return_messages=True,
-            k=memory_size
-        )
+        self.conversation_memory = {"chat_history": []}
+        self.memory_size = memory_size
         
         # Create specialized agents (after tools are initialized)
         self.agents = self._create_agents()
@@ -554,90 +551,62 @@ class MultiAgentSystem:
     def _create_agents(self) -> Dict[str, Any]:
         """Create specialized agents with appropriate tools and memory"""
         agents = {}
-        memory_size = getattr(Config, 'AGENT_MEMORY_SIZE', 20) // 2  # Smaller per-agent memory
         
         # Research Agent
-        research_memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            return_messages=True,
-            k=memory_size
-        )
         research_tools = [tool for tool in self.tools if tool.name in ["web_search", "web_scraper"]]
         if research_tools:
             try:
-                agents["researcher"] = initialize_agent(
-                    tools=research_tools,
-                    llm=self.llm,
-                    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-                    memory=research_memory,
-                    verbose=False,  # Reduce verbosity in production
-                    agent_kwargs={
-                        "system_message": """You are a Research Agent specialized in gathering and analyzing information.
-                        Your role is to:
-                        - Conduct thorough web searches and research
-                        - Scrape and analyze web content
-                        - Provide comprehensive, factual information
-                        - Cite sources and verify information accuracy
-                        Always be thorough and provide well-researched responses."""
-                    }
-                )
+                prompt = ChatPromptTemplate.from_messages([
+                    ("system", """You are a Research Agent specialized in gathering and analyzing information.
+Your role is to:
+- Conduct thorough web searches and research
+- Scrape and analyze web content
+- Provide comprehensive, factual information
+- Cite sources and verify information accuracy
+Always be thorough and provide well-researched responses."""),
+                    ("human", "{input}"),
+                ])
+                agent = create_agent(self.llm, research_tools, prompt)
+                agents["researcher"] = agent
                 logger.info("Research agent created successfully")
             except Exception as e:
                 logger.error(f"Failed to create research agent: {e}")
         
         # Code Agent
-        code_memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            return_messages=True,
-            k=memory_size
-        )
         code_tools = [tool for tool in self.tools if tool.name in ["secure_python_executor", "data_analyzer"]]
         if code_tools:
             try:
-                agents["coder"] = initialize_agent(
-                    tools=code_tools,
-                    llm=self.llm,
-                    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-                    memory=code_memory,
-                    verbose=False,
-                    agent_kwargs={
-                        "system_message": """You are a Code Agent specialized in programming and data analysis.
-                        Your role is to:
-                        - Write and execute Python code
-                        - Perform data analysis and visualization
-                        - Solve computational problems
-                        - Debug and optimize code
-                        Always write clean, efficient, and well-documented code."""
-                    }
-                )
+                prompt = ChatPromptTemplate.from_messages([
+                    ("system", """You are a Code Agent specialized in programming and data analysis.
+Your role is to:
+- Write and execute Python code
+- Perform data analysis and visualization
+- Solve computational problems
+- Debug and optimize code
+Always write clean, efficient, and well-documented code."""),
+                    ("human", "{input}"),
+                ])
+                agent = create_agent(self.llm, code_tools, prompt)
+                agents["coder"] = agent
                 logger.info("Code agent created successfully")
             except Exception as e:
                 logger.error(f"Failed to create code agent: {e}")
         
         # Analysis Agent
-        analysis_memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            return_messages=True,
-            k=memory_size
-        )
         if self.tools:
             try:
-                agents["analyst"] = initialize_agent(
-                    tools=self.tools,
-                    llm=self.llm,
-                    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-                    memory=analysis_memory,
-                    verbose=False,
-                    agent_kwargs={
-                        "system_message": """You are an Analysis Agent specialized in critical thinking and synthesis.
-                        Your role is to:
-                        - Analyze complex problems from multiple angles
-                        - Synthesize information from various sources
-                        - Provide strategic insights and recommendations
-                        - Identify patterns and trends
-                        Always provide thoughtful, well-reasoned analysis."""
-                    }
-                )
+                prompt = ChatPromptTemplate.from_messages([
+                    ("system", """You are an Analysis Agent specialized in critical thinking and synthesis.
+Your role is to:
+- Analyze complex problems from multiple angles
+- Synthesize information from various sources
+- Provide strategic insights and recommendations
+- Identify patterns and trends
+Always provide thoughtful, well-reasoned analysis."""),
+                    ("human", "{input}"),
+                ])
+                agent = create_agent(self.llm, self.tools, prompt)
+                agents["analyst"] = agent
                 logger.info("Analysis agent created successfully")
             except Exception as e:
                 logger.error(f"Failed to create analysis agent: {e}")
@@ -660,7 +629,16 @@ class MultiAgentSystem:
         self.system_metrics["total_tasks"] += 1
         
         try:
-            result = self.agents[agent_name].run(query)
+            # Use invoke for LangChain 1.0+ agents
+            result = self.agents[agent_name].invoke({"input": query})
+            if isinstance(result, dict) and "output" in result:
+                result = result["output"]
+            elif isinstance(result, dict) and "messages" in result:
+                # Extract last message if result is a dict with messages
+                messages = result["messages"]
+                if messages:
+                    result = messages[-1].content if hasattr(messages[-1], 'content') else str(messages[-1])
+            result = str(result)
             execution_time = time.time() - start_time
             
             # Update metrics

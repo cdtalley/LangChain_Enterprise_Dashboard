@@ -1,59 +1,70 @@
-# Python 3.13 Compatibility Note
+# Python Version Requirements
 
-## Known Issue
+## ⚠️ Important: Use Python 3.12 (Recommended)
 
-Python 3.13 has stricter typing checks that cause compatibility issues with SQLAlchemy and some other libraries.
+**This project requires Python 3.11 or 3.12. Python 3.13 is NOT supported** due to typing strictness issues with Pydantic, SQLAlchemy, and LangChain.
 
-**Error**: `AssertionError: Class <class 'sqlalchemy.sql.elements.SQLCoreOperations'> directly inherits TypingOnly but has additional attributes`
+## 🔧 Installation
 
-## Solutions
-
-### Option 1: Use Python 3.11 or 3.12 (Recommended)
-
-For production use, Python 3.11 or 3.12 is more stable:
+### Check Your Python Version
 
 ```bash
-# Install Python 3.12
-# Then create virtual environment
-python3.12 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python --version
+# Should show: Python 3.11.x or Python 3.12.x
+```
+
+### Install Python 3.12
+
+**Windows:**
+- Download from [python.org](https://www.python.org/downloads/)
+- Select Python 3.12.x
+- During installation, check "Add Python to PATH"
+
+**macOS:**
+```bash
+brew install python@3.12
+```
+
+**Linux:**
+```bash
+sudo apt update
+sudo apt install python3.12 python3.12-venv python3.12-pip
+```
+
+### Create Virtual Environment with Python 3.12
+
+```bash
+# Windows
+python3.12 -m venv venv312
+venv312\Scripts\activate
+
+# macOS/Linux
+python3.12 -m venv venv312
+source venv312/bin/activate
+```
+
+### Install Dependencies
+
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Option 2: Wait for Library Updates
-
-SQLAlchemy and other libraries are working on Python 3.13 compatibility. Check for updates:
+## ✅ Verification
 
 ```bash
-pip install --upgrade sqlalchemy
+# Verify Python version
+python --version  # Should be 3.11.x or 3.12.x
+
+# Test imports
+python -c "from agents import MultiAgentSystem; print('✅ Success')"
+
+# Run Streamlit app
+streamlit run streamlit_app.py
 ```
 
-### Option 3: Use Docker (Recommended for Production)
+## 📝 Notes
 
-Docker ensures consistent Python version:
-
-```bash
-docker-compose up --build
-```
-
-The Dockerfile uses Python 3.11 for stability.
-
-## Current Status
-
-- ✅ Code is Python 3.13 compatible (with workarounds)
-- ⚠️ Some libraries (SQLAlchemy, NumPy) have Python 3.13 issues
-- ✅ Workarounds implemented in `sqlalchemy_python313_fix.py`
-- 📝 For production: Use Python 3.11 or 3.12
-
-## For Job Interviews
-
-**If asked about Python 3.13 compatibility:**
-
-"I'm aware of Python 3.13's stricter typing checks. For production, I recommend Python 3.11 or 3.12 for better library compatibility. I've implemented workarounds, but the best practice is to use stable Python versions in production."
-
-This shows:
-- ✅ Awareness of compatibility issues
-- ✅ Production mindset (stability over latest)
-- ✅ Problem-solving (workarounds implemented)
-- ✅ Best practices knowledge
-
+- Python 3.13 has stricter typing that breaks compatibility with many libraries
+- Python 3.12 is the recommended version for this project
+- All dependencies are tested and work with Python 3.11 and 3.12

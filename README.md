@@ -2,7 +2,7 @@
 
 > **Production-Ready Multi-Agent AI Platform with Advanced RAG & Real-Time Analytics**
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2F3.12-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![LangChain](https://img.shields.io/badge/LangChain-Latest-orange.svg)](https://python.langchain.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -55,11 +55,66 @@ graph TB
 
 ## 🚀 **Quick Start**
 
+### ⚠️ **Python Version Requirements**
+
+**Required: Python 3.11 or 3.12 (Python 3.13 NOT supported)**
+
+Python 3.13 has stricter typing checks that cause compatibility issues with Pydantic, SQLAlchemy, and LangChain. **You must use Python 3.11 or 3.12.**
+
+```bash
+# Check Python version
+python --version  # Should be 3.11.x or 3.12.x
+
+# If you have Python 3.13, install Python 3.12:
+# Windows: Download from python.org
+# macOS: brew install python@3.12
+# Linux: sudo apt install python3.12
+```
+
+See [PYTHON313_COMPATIBILITY.md](PYTHON313_COMPATIBILITY.md) for installation instructions.
+
 ### Local Development
+
+#### Quick Setup (Recommended)
+
+**Windows:**
+```bash
+# Run the setup script
+setup.bat
+```
+
+**macOS/Linux:**
+```bash
+# Make script executable (first time only)
+chmod +x setup.sh
+
+# Run the setup script
+./setup.sh
+```
+
+**Or use Python setup script (all platforms):**
+```bash
+python setup.py
+```
+
+#### Manual Setup
+
 ```bash
 # Clone repository
 git clone <repository-url>
 cd langchain-enterprise-workbench
+
+# Create virtual environment with Python 3.11 or 3.12
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
+# Upgrade pip
+pip install --upgrade pip
 
 # Install dependencies
 pip install -r requirements.txt
@@ -444,7 +499,7 @@ async def process_query(query: QueryRequest) -> QueryResponse:
 ## 🛠️ **Technology Stack**
 
 ### **Core Technologies**
-- **🐍 Python 3.11+**: Modern Python with type hints
+- **🐍 Python 3.11/3.12**: Modern Python with type hints (3.13 has compatibility issues)
 - **🦜 LangChain**: Advanced LLM orchestration
 - **⚡ FastAPI**: High-performance async API framework
 - **🎨 Streamlit**: Interactive data application framework

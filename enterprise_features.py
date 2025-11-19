@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 import hashlib
 import redis
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Float
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import plotly.graph_objects as go

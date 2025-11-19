@@ -18,7 +18,7 @@ from enum import Enum
 import logging
 from scipy import stats
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, JSON, Boolean
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 logging.basicConfig(level=logging.INFO)
@@ -66,7 +66,7 @@ class ModelPerformance(Base):
     metric_name = Column(String, index=True)
     metric_value = Column(Float)
     prediction_count = Column(Integer)
-    metadata = Column(JSON)
+    extra_metadata = Column(JSON, name='metadata')  # Use name='metadata' to keep DB column name
 
 
 class ModelMonitoring:
@@ -106,7 +106,7 @@ class ModelMonitoring:
                 metric_name=metric_name,
                 metric_value=metric_value,
                 prediction_count=prediction_count,
-                metadata=metadata or {}
+                extra_metadata=metadata or {}
             )
             db.add(performance)
             db.commit()

@@ -34,7 +34,7 @@ except ImportError:
     UNSTRUCTURED_AVAILABLE = False
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
-from langchain.schema import Document
+from langchain_core.documents import Document
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -20,7 +20,10 @@ try:
         BitsAndBytesConfig, DataCollatorForLanguageModeling
     )
     from peft import LoraConfig, get_peft_model, TaskType, PeftModel
-    from datasets import Dataset
+    try:
+        from datasets import Dataset as HFDataset
+    except ImportError:
+        HFDataset = None
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     TRANSFORMERS_AVAILABLE = False
@@ -144,8 +147,11 @@ class LLMFineTuner:
         else:
             return ["query", "value", "key", "dense"]
     
-    def prepare_dataset(self, texts: List[str], max_length: Optional[int] = None) -> Dataset:
+    def prepare_dataset(self, texts: List[str], max_length: Optional[int] = None):
         """Prepare dataset for training"""
+        if HFDataset is None:
+            raise ImportError("HuggingFace datasets package required. Install with: pip install datasets")
+        
         max_len = max_length or self.config.max_length
         
         def tokenize_function(examples):
@@ -156,15 +162,15 @@ class LLMFineTuner:
                 padding="max_length"
             )
         
-        dataset = Dataset.from_dict({"text": texts})
+        dataset = HFDataset.from_dict({"text": texts})
         tokenized_dataset = dataset.map(tokenize_function, batched=True)
         
         return tokenized_dataset
     
     def train(
         self,
-        train_dataset: Dataset,
-        eval_dataset: Optional[Dataset] = None
+        train_dataset,
+        eval_dataset = None
     ) -> Dict[str, Any]:
         """Train the model"""
         if self.model is None:

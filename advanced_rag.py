@@ -1,7 +1,7 @@
 import os
 from typing import List, Dict, Any, Optional, Tuple
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, UnstructuredWordDocumentLoader
-from langchain.text_splitter import (
+from langchain_text_splitters import (
     RecursiveCharacterTextSplitter, 
     TokenTextSplitter,
     SpacyTextSplitter
@@ -10,12 +10,18 @@ from langchain.text_splitter import (
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
-from langchain.schema import Document
+from langchain_core.documents import Document
 # from langchain_openai import ChatOpenAI  # Optional import
-from langchain.chains import RetrievalQA
 from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import EnsembleRetriever
-from langchain.memory import ConversationSummaryBufferMemory
+# EnsembleRetriever moved in LangChain 1.0+ - using fallback implementation
+try:
+    from langchain.retrievers import EnsembleRetriever
+except ImportError:
+    try:
+        from langchain_core.retrievers import EnsembleRetriever
+    except ImportError:
+        # Fallback: create simple ensemble retriever
+        EnsembleRetriever = None
 import tempfile
 import hashlib
 import json
@@ -86,7 +92,20 @@ class AdvancedRAGSystem:
                 self.llm = hf_pipeline
         except Exception as e:
             logger.warning(f"GPT-2 initialization failed, using fallback: {e}")
-            from langchain.llms.fake import FakeListLLM
+            try:
+                from langchain_core.language_models.fake import FakeListLLM
+            except ImportError:
+                # Fallback: create a simple mock LLM
+                class FakeListLLM:
+                    def __init__(self, responses):
+                        self.responses = responses
+                        self._index = 0
+                    def invoke(self, prompt):
+                        response = self.responses[self._index % len(self.responses)]
+                        self._index += 1
+                        return response
+                    def __call__(self, prompt):
+                        return self.invoke(prompt)
             self.llm = FakeListLLM(responses=[
                 "Based on the provided context, here's what I found:",
                 "The documents contain relevant information about your query.",
@@ -196,10 +215,14 @@ class AdvancedRAGSystem:
         bm25_retriever.k = 5
         
         # Ensemble retriever (hybrid search)
-        ensemble_retriever = EnsembleRetriever(
-            retrievers=[dense_vectorstore.as_retriever(search_kwargs={"k": 5}), bm25_retriever],
-            weights=[0.6, 0.4]  # Favor semantic similarity slightly
-        )
+        if EnsembleRetriever is not None:
+            ensemble_retriever = EnsembleRetriever(
+                retrievers=[dense_vectorstore.as_retriever(search_kwargs={"k": 5}), bm25_retriever],
+                weights=[0.6, 0.4]  # Favor semantic similarity slightly
+            )
+        else:
+            # Fallback: use dense retriever if EnsembleRetriever not available
+            ensemble_retriever = dense_vectorstore.as_retriever(search_kwargs={"k": 5})
         
         self.vectorstores[doc_id] = {
             "dense": dense_vectorstore,
@@ -270,13 +293,7 @@ class AdvancedRAGSystem:
             # Generate answer using retrieved context
             context = "\n\n".join([doc.page_content for doc in final_docs])
             
-            # Create QA chain with memory
-            memory = ConversationSummaryBufferMemory(
-                llm=self.llm,
-                memory_key="chat_history",
-                return_messages=True
-            )
-            
+            # Create QA prompt
             qa_prompt = f"""
             Based on the following context, answer the question as accurately as possible.
             If the answer cannot be found in the context, say so clearly.
@@ -289,7 +306,21 @@ class AdvancedRAGSystem:
             Answer:
             """
             
-            answer = self.llm.predict(qa_prompt)
+            # Use LLM to generate answer
+            try:
+                if hasattr(self.llm, 'predict'):
+                    answer = self.llm.predict(qa_prompt)
+                elif hasattr(self.llm, 'invoke'):
+                    result = self.llm.invoke(qa_prompt)
+                    answer = result.content if hasattr(result, 'content') else str(result)
+                elif hasattr(self.llm, '__call__'):
+                    answer = self.llm(qa_prompt)
+                    answer = answer.content if hasattr(answer, 'content') else str(answer)
+                else:
+                    answer = str(self.llm(qa_prompt))
+            except Exception as e:
+                logger.error(f"Error generating answer: {e}")
+                answer = f"Error generating answer: {str(e)}"
             
             results["answer"] = answer
             results["context"] = context

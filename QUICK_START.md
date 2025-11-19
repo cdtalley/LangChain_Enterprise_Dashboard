@@ -1,203 +1,67 @@
-# 🚀 Quick Start Guide
+# Quick Start Guide - IMPORTANT
 
-## Getting Started
+## ⚠️ CRITICAL: Always Use Venv Python
 
-### 1. Installation
+**DO NOT** run the app with system Python (3.13). Always use the venv Python (3.12).
 
+## Correct Way to Start the App
+
+### Option 1: Use the Launcher (Recommended)
 ```bash
-# Clone the repository
-git clone https://github.com/cdtalley/LangChain_Enterprise_Dashboard.git
-cd LangChain_Enterprise_Dashboard
-
-# Install dependencies (using pip)
-pip install -r requirements.txt
-
-# OR install using uv (recommended)
-uv pip install -r requirements.txt
+venv\Scripts\python.exe launch_app.py
 ```
 
-### 2. Start the Application
-
-#### Option A: Streamlit UI (Recommended for demos)
+### Option 2: Direct Streamlit Command
 ```bash
+venv\Scripts\python.exe -m streamlit run streamlit_app.py --server.port 8501
+```
+
+### Option 3: Activate Venv First
+```bash
+# Windows PowerShell
+venv\Scripts\Activate.ps1
+
+# Then run
 streamlit run streamlit_app.py
 ```
-Access at: http://localhost:8501
 
-#### Option B: FastAPI Backend
-```bash
-uvicorn enterprise_features:app --reload --port 8000
-```
-API docs at: http://localhost:8000/docs
-
-#### Option C: Docker Compose (Full stack)
-```bash
-docker-compose up --build
-```
-
-### 3. Key Features to Try
-
-#### 🤖 Multi-Agent System
-- Navigate to "Multi-Agent System" tab
-- Try: "Research the latest trends in AI"
-- Try: "Write Python code to analyze sales data"
-
-#### 📊 Advanced RAG
-- Upload a PDF document
-- Ask questions about the document
-- Try different retrieval strategies
-
-#### 📦 Model Registry
-- Register a new model
-- Compare model versions
-- View performance history
-
-#### 🧪 A/B Testing
-- Create an experiment
-- Simulate experiment data
-- Analyze results with statistical tests
-
-#### 🔍 Model Monitoring
-- Log performance metrics
-- Detect data drift
-- Generate monitoring reports
-
----
-
-## Example Workflows
-
-### Workflow 1: Document Processing Pipeline
-
-```python
-from document_processing import AdvancedDocumentProcessor
-
-processor = AdvancedDocumentProcessor()
-
-# Process a contract
-result = processor.process_contract_document("lease.pdf")
-
-# Extract structured data
-structured_data = result['structured_data']
-tables = result['tables']
-```
-
-### Workflow 2: AWS Bedrock Integration
-
-```python
-from aws_integration import AWSBedrockClient
-
-bedrock = AWSBedrockClient(region_name="us-east-1")
-
-# Use Claude for document analysis
-response = bedrock.invoke_claude(
-    prompt="Extract key terms from this contract...",
-    model_id="anthropic.claude-v2"
-)
-```
-
-### Workflow 3: Model Serving
-
-```python
-import requests
-
-# Single prediction
-response = requests.post(
-    "http://localhost:8000/api/v1/models/predict",
-    json={
-        "features": {"feature1": 0.5, "feature2": 0.3},
-        "model_name": "sentiment-classifier"
-    }
-)
-```
-
-### Workflow 4: A/B Testing
-
-```python
-from ab_testing import ABTestingFramework, ExperimentConfig, MetricType
-
-ab = ABTestingFramework()
-
-# Create experiment
-config = ExperimentConfig(
-    name="model-v2-test",
-    metric_name="accuracy",
-    metric_type=MetricType.CONTINUOUS,
-    baseline_model="model-v1",
-    treatment_model="model-v2",
-    traffic_split=0.5,
-    min_sample_size=1000
-)
-
-exp_id = ab.create_experiment(config)
-ab.start_experiment(exp_id)
-
-# Record events
-ab.record_event(exp_id, "user_123", 0.85)
-
-# Analyze
-results = ab.analyze_experiment(exp_id)
-```
-
----
-
-## Configuration
-
-### Environment Variables
-
-Create a `.env` file:
+## ❌ WRONG Ways (Will Cause Python 3.13 Errors)
 
 ```bash
-# AWS Configuration (optional)
-AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=your_key
-AWS_SECRET_ACCESS_KEY=your_secret
-
-# API Keys (optional)
-OPENAI_API_KEY=your_key
-SERPAPI_KEY=your_key
-
-# Database
-DATABASE_URL=sqlite:///enterprise_workbench.db
-REDIS_URL=redis://localhost:6379/0
+# DON'T DO THIS - Uses system Python 3.13
+python streamlit_app.py
+python -m streamlit run streamlit_app.py
+streamlit run streamlit_app.py  # If venv not activated
 ```
 
----
+## Verify You're Using Correct Python
+
+Before running, check:
+```bash
+venv\Scripts\python.exe --version
+# Should show: Python 3.12.x
+```
 
 ## Troubleshooting
 
-### Common Issues
+If you see `TypeError: <class 'langchain_core.runnables.base.RunnableSerializable'> is not a generic class`:
 
-1. **Import Errors**
-   - Make sure all dependencies are installed: `pip install -r requirements.txt`
-   - Check Python version: `python --version` (should be 3.11+)
+1. **Stop all Python processes**
+2. **Use venv Python**: `venv\Scripts\python.exe launch_app.py`
+3. **Verify**: Check that the Python path in the error message shows `venv\Scripts\python.exe`, not `Python313`
 
-2. **AWS Errors**
-   - AWS features require credentials
-   - Set up AWS credentials: `aws configure`
-   - Or use environment variables
+## Why This Matters
 
-3. **Docker Build Fails**
-   - Check Dockerfile exists
-   - Verify all dependencies in requirements.txt
+- Python 3.13 has breaking changes with LangChain/Pydantic
+- Your venv was created with Python 3.12 (compatible)
+- System Python 3.13 will cause import errors
 
-4. **Tests Fail**
-   - Some tests may fail if optional dependencies are missing
-   - Check the test output for specific errors
+## Quick Fix Script
 
----
+Create `start.bat`:
+```batch
+@echo off
+venv\Scripts\python.exe launch_app.py
+```
 
-## Next Steps
-
-1. **Explore Examples**: Check `examples/` directory
-2. **Read Documentation**: See `README.md` and feature docs
-3. **Try Integrations**: AWS, document processing, model serving
-4. **Customize**: Modify configs for your use case
-
----
-
-## Support
-
-- **Documentation**: See `README.md`, `MLOPS_FEATURES.md`
-- **Examples**: Check `examples/` directory
-- **Issues**: GitHub Issues
-
+Then just run: `start.bat`

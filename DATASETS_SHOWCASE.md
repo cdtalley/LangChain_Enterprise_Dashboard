@@ -101,8 +101,8 @@ Added comprehensive dataset loaders and model training capabilities to showcase 
 
 ### **Programmatically**
 ```python
-from datasets.loaders import load_contract_classification
-from datasets.train_models import train_contract_classification_model
+from ml_datasets.loaders import load_contract_classification
+from ml_datasets.train_models import train_contract_classification_model
 
 # Load dataset
 X_train, X_test, y_train, y_test = load_contract_classification()

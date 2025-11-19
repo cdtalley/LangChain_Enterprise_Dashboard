@@ -19,8 +19,7 @@ from enum import Enum
 import logging
 from scipy import stats
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Float, Boolean, JSON
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -107,7 +106,7 @@ class ExperimentEvent(Base):
     variant = Column(String)  # "baseline" or "treatment"
     metric_value = Column(Float)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    metadata = Column(JSON)
+    extra_metadata = Column(JSON, name='metadata')  # Use name='metadata' to keep DB column name
 
 
 class ABTestingFramework:
@@ -209,7 +208,7 @@ class ABTestingFramework:
                 user_id=user_id,
                 variant=variant,
                 metric_value=metric_value,
-                metadata=metadata or {}
+                extra_metadata=metadata or {}
             )
             db.add(event)
             db.commit()

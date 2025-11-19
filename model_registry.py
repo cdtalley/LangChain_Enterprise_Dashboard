@@ -23,8 +23,7 @@ import logging
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Float, Boolean, JSON
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 import joblib
 
 logging.basicConfig(level=logging.INFO)
