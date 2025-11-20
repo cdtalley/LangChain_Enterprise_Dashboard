@@ -51,7 +51,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional styling with MIND-BLOWING animations
 st.markdown("""
 <style>
 @keyframes pulse {

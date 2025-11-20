@@ -1,14 +1,4 @@
-"""
-A/B Testing Framework
-=====================
-Enterprise-grade A/B testing system with statistical significance testing.
-Demonstrates advanced Python skills in:
-- Statistical hypothesis testing
-- Experiment design and management
-- Traffic splitting and randomization
-- Performance analysis
-- Early stopping logic
-"""
+"""A/B testing framework with statistical significance testing."""
 
 import numpy as np
 import pandas as pd
@@ -110,23 +100,12 @@ class ExperimentEvent(Base):
 
 
 class ABTestingFramework:
-    """
-    Enterprise A/B Testing Framework
-    
-    Features:
-    - Statistical significance testing (t-test, chi-square, etc.)
-    - Traffic splitting and randomization
-    - Sample size calculation
-    - Early stopping logic
-    - Experiment tracking and analysis
-    """
+    """Statistical A/B testing with significance testing and traffic splitting."""
     
     def __init__(self, db_url: str = "sqlite:///ab_testing.db"):
         self.engine = create_engine(db_url)
         Base.metadata.create_all(bind=self.engine)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-        
-        logger.info("A/B Testing Framework initialized")
     
     def create_experiment(self, config: ExperimentConfig) -> int:
         """Create a new A/B test experiment"""
@@ -150,7 +129,7 @@ class ABTestingFramework:
             db.add(experiment)
             db.commit()
             db.refresh(experiment)
-            logger.info(f"Experiment '{config.name}' created with ID {experiment.id}")
+            logger.debug(f"Experiment '{config.name}' created with ID {experiment.id}")
             return experiment.id
         finally:
             db.close()
@@ -166,7 +145,7 @@ class ABTestingFramework:
             experiment.status = ExperimentStatus.RUNNING.value
             experiment.started_at = datetime.utcnow()
             db.commit()
-            logger.info(f"Experiment {experiment_id} started")
+            logger.debug(f"Experiment {experiment_id} started")
         finally:
             db.close()
     
@@ -228,7 +207,6 @@ class ABTestingFramework:
             if not experiment:
                 raise ValueError(f"Experiment {experiment_id} not found")
             
-            # Get all events for this experiment
             events = db.query(ExperimentEvent).filter(
                 ExperimentEvent.experiment_id == experiment_id
             ).all()
@@ -294,7 +272,6 @@ class ABTestingFramework:
                 'recommendation': self._get_recommendation(results, relative_lift, should_stop)
             }
             
-            # Update experiment with results
             experiment.results = analysis
             db.commit()
             
@@ -317,7 +294,6 @@ class ABTestingFramework:
     
     def _test_binary(self, baseline: List[float], treatment: List[float], alpha: float) -> Dict[str, Any]:
         """Perform chi-square test for binary metrics"""
-        # Convert to binary outcomes
         baseline_success = sum(baseline)
         baseline_total = len(baseline)
         treatment_success = sum(treatment)
@@ -376,7 +352,6 @@ class ABTestingFramework:
         if len(baseline) < min_sample_size or len(treatment) < min_sample_size:
             return False
         
-        # Check for clear winner with high confidence
         baseline_mean = np.mean(baseline)
         treatment_mean = np.mean(treatment)
         
@@ -387,7 +362,6 @@ class ABTestingFramework:
         if p_value < alpha / 2:
             return True
         
-        # Check for futility (very small effect size)
         effect_size = abs(treatment_mean - baseline_mean) / (np.std(baseline) + 1e-10)
         if effect_size < 0.1:  # Very small effect
             return True
@@ -488,7 +462,6 @@ class ABTestingFramework:
             if not experiment:
                 raise ValueError(f"Experiment {experiment_id} not found")
             
-            # Get event counts
             events = db.query(ExperimentEvent).filter(
                 ExperimentEvent.experiment_id == experiment_id
             ).all()

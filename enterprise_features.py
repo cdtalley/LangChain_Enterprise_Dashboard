@@ -1,14 +1,4 @@
-"""
-Enterprise Features for LangChain AI Workbench
-==================================================
-Production-ready features that demonstrate enterprise-grade capabilities:
-- REST API endpoints
-- Real-time monitoring and metrics
-- Caching and performance optimization
-- Health checks and system status
-- Async processing capabilities
-- Enterprise authentication simulation
-"""
+"""REST API, monitoring, caching, and health checks for enterprise deployment."""
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -34,17 +24,14 @@ from model_registry import ModelRegistryManager, ModelType, ModelStage
 from model_monitoring import ModelMonitoring
 from model_serving import create_model_serving_app, PredictionRequest, BatchPredictionRequest
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database setup (SQLite for demo)
 DATABASE_URL = "sqlite:///enterprise_workbench.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Models
 class QueryLog(Base):
     __tablename__ = "query_logs"
     
@@ -66,10 +53,8 @@ class SystemMetrics(Base):
     metric_value = Column(Float)
     metadata = Column(Text)
 
-# Create tables
 Base.metadata.create_all(bind=engine)
 
-# Pydantic models
 class QueryRequest(BaseModel):
     query: str = Field(..., description="The query to process")
     agent_type: Optional[str] = Field("auto", description="Agent type to use")
@@ -91,7 +76,6 @@ class SystemStatus(BaseModel):
     active_agents: List[str]
     system_load: Dict[str, float]
 
-# FastAPI app
 app = FastAPI(
     title="Enterprise LangChain AI Workbench API",
     description="Production-ready API for advanced AI agent orchestration",

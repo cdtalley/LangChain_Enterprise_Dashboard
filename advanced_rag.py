@@ -115,7 +115,7 @@ class LocalEmbeddings:
             embedding = self.model.encode(text).tolist()
         else:
             embedding = self.model.embed_query(text)
-        logger.info(f"Query embedding completed in {time.time() - start_time:.2f}s")
+        logger.debug(f"Query embedding completed in {time.time() - start_time:.2f}s")
         return embedding
     
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
@@ -125,7 +125,7 @@ class LocalEmbeddings:
             embeddings = self.model.encode(texts).tolist()
         else:
             embeddings = self.model.embed_documents(texts)
-        logger.info(f"Document embeddings completed for {len(texts)} docs in {time.time() - start_time:.2f}s")
+        logger.debug(f"Document embeddings completed for {len(texts)} docs in {time.time() - start_time:.2f}s")
         return embeddings
     
     async def aembed_query(self, text: str) -> List[float]:

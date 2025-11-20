@@ -1,13 +1,4 @@
-"""
-Model Registry & Management System
-===================================
-Enterprise-grade model versioning, tracking, and lifecycle management.
-Demonstrates advanced Python skills in:
-- Model serialization and versioning
-- Metadata management
-- Performance tracking
-- Model serving integration
-"""
+"""Model registry for versioning, tracking, and lifecycle management."""
 
 import os
 import json
@@ -107,27 +98,15 @@ class ModelRegistry(Base):
 
 
 class ModelRegistryManager:
-    """
-    Enterprise Model Registry Manager
-    
-    Features:
-    - Model versioning and tracking
-    - Performance metrics storage
-    - Model lifecycle management
-    - Model serving integration
-    - Metadata search and filtering
-    """
+    """Model versioning, tracking, and lifecycle management."""
     
     def __init__(self, registry_path: str = "./models/registry", db_url: str = "sqlite:///model_registry.db"):
         self.registry_path = Path(registry_path)
         self.registry_path.mkdir(parents=True, exist_ok=True)
         
-        # Database setup
         self.engine = create_engine(db_url)
         Base.metadata.create_all(bind=self.engine)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-        
-        logger.info(f"Model Registry initialized at {self.registry_path}")
     
     def register_model(
         self,
@@ -165,18 +144,14 @@ class ModelRegistryManager:
             Model ID
         """
         try:
-            # Create model directory
             model_dir = self.registry_path / name / version
             model_dir.mkdir(parents=True, exist_ok=True)
             
-            # Save model
             model_path = model_dir / "model.pkl"
             self._save_model(model, model_path)
             
-            # Calculate model size
             model_size_mb = model_path.stat().st_size / (1024 * 1024)
             
-            # Create metadata
             metadata = ModelMetadata(
                 name=name,
                 version=version,
@@ -194,12 +169,10 @@ class ModelRegistryManager:
                 tags=tags or []
             )
             
-            # Save metadata
             metadata_path = model_dir / "metadata.json"
             with open(metadata_path, 'w') as f:
                 json.dump(metadata.to_dict(), f, indent=2)
             
-            # Store in database
             db = self.SessionLocal()
             try:
                 registry_entry = ModelRegistry(
@@ -262,7 +235,6 @@ class ModelRegistryManager:
             elif stage:
                 query = query.filter(ModelRegistry.stage == stage.value)
             else:
-                # Get latest version
                 query = query.order_by(ModelRegistry.created_at.desc())
             
             registry_entry = query.first()
@@ -270,11 +242,9 @@ class ModelRegistryManager:
             if not registry_entry:
                 raise ValueError(f"Model {name} not found")
             
-            # Load model
             model_path = Path(registry_entry.model_path)
             model = self._load_model(model_path)
             
-            # Load metadata
             metadata_path = model_path.parent / "metadata.json"
             with open(metadata_path, 'r') as f:
                 metadata_dict = json.load(f)

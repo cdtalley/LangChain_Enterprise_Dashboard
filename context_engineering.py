@@ -48,20 +48,11 @@ class FewShotExample:
 
 
 class ContextEngineer:
-    """
-    Advanced Context Engineering for LLMs
-    
-    Features:
-    - Prompt templates
-    - Few-shot learning
-    - Context window optimization
-    - Chain-of-thought prompting
-    """
+    """Prompt engineering utilities for LLM optimization."""
     
     def __init__(self):
         self.templates = {}
         self.few_shot_examples = {}
-        logger.info("Context Engineer initialized")
     
     def create_template(
         self,
@@ -69,10 +60,9 @@ class ContextEngineer:
         template: str,
         variables: List[str]
     ) -> PromptTemplate:
-        """Create and store a prompt template"""
+        """Register a reusable prompt template."""
         prompt_template = PromptTemplate(template, variables)
         self.templates[name] = prompt_template
-        logger.info(f"Template '{name}' created")
         return prompt_template
     
     def build_few_shot_prompt(
@@ -81,48 +71,34 @@ class ContextEngineer:
         task_description: str,
         user_input: str
     ) -> str:
-        """Construct few-shot prompt with structured examples"""
-        parts = [task_description, "\n\nExamples:\n"]
-        for i, ex in enumerate(examples, 1):
-            parts.extend([
-                f"Example {i}:", f"Input: {ex.input}", f"Output: {ex.output}"
+        """Construct few-shot prompt with structured examples."""
+        prompt_sections = [task_description, "\n\nExamples:\n"]
+        for idx, example in enumerate(examples, 1):
+            prompt_sections.extend([
+                f"Example {idx}:", f"Input: {example.input}", f"Output: {example.output}"
             ])
-            if ex.explanation:
-                parts.append(f"Explanation: {ex.explanation}")
-            parts.append("")
-        parts.extend(["Now solve this:", f"Input: {user_input}", "Output:"])
-        return "\n".join(parts)
+            if example.explanation:
+                prompt_sections.append(f"Explanation: {example.explanation}")
+            prompt_sections.append("")
+        prompt_sections.extend(["Now solve this:", f"Input: {user_input}", "Output:"])
+        return "\n".join(prompt_sections)
     
     def build_chain_of_thought_prompt(
         self,
         question: str,
         reasoning_steps: Optional[List[str]] = None
     ) -> str:
-        """Build chain-of-thought reasoning prompt"""
-        prompt = f"""Let's think step by step.
-
-Question: {question}
-
-"""
+        """Generate chain-of-thought reasoning prompt."""
+        prompt_parts = ["Let's think step by step.", f"\nQuestion: {question}\n"]
         
         if reasoning_steps:
-            prompt += "Reasoning steps:\n"
-            for i, step in enumerate(reasoning_steps, 1):
-                prompt += f"{i}. {step}\n"
-            prompt += "\n"
+            prompt_parts.append("Reasoning steps:\n")
+            for idx, step in enumerate(reasoning_steps, 1):
+                prompt_parts.append(f"{idx}. {step}\n")
+            prompt_parts.append("\n")
         
-        prompt += """Let's work through this step by step:
-
-1. First, I need to understand what is being asked.
-2. Then, I'll identify the key information needed.
-3. Next, I'll work through the solution.
-4. Finally, I'll provide the answer.
-
-"""
-        
-        prompt += f"Question: {question}\n\nAnswer:"
-        
-        return prompt
+        prompt_parts.append(f"Question: {question}\n\nAnswer:")
+        return "".join(prompt_parts)
     
     def optimize_context_window(
         self,
@@ -130,15 +106,13 @@ Question: {question}
         max_tokens: int,
         preserve_sections: Optional[List[str]] = None
     ) -> str:
-        """Optimize context window by truncating less important parts"""
-        # Simple implementation - in production, use more sophisticated methods
+        """Truncate text to fit token budget while preserving critical sections."""
         words = text.split()
-        max_words = max_tokens // 2  # Rough estimate: 2 words per token
+        max_words = max_tokens // 2
         
         if len(words) <= max_words:
             return text
         
-        # If we need to preserve sections, keep those first
         if preserve_sections:
             preserved_text = ""
             remaining_text = text

@@ -62,14 +62,12 @@ except ImportError:
         WEB_SCRAPE_MAX_LENGTH = 2000
         WEB_SCRAPE_RATE_LIMIT_DELAY = 1.0
 
-# Configure logging
 logging.basicConfig(
     level=getattr(logging, Config.LOG_LEVEL if hasattr(Config, 'LOG_LEVEL') else 'INFO'),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
 CODE_EXECUTION_TIMEOUT = getattr(Config, 'CODE_EXECUTION_TIMEOUT', 30)
 WEB_SCRAPE_TIMEOUT = getattr(Config, 'WEB_SCRAPE_TIMEOUT', 10)
 WEB_SCRAPE_MAX_LENGTH = getattr(Config, 'WEB_SCRAPE_MAX_LENGTH', 2000)
@@ -458,7 +456,7 @@ class MultiAgentSystem:
                     )
                 except ImportError:
                     llm = hf_pipeline
-                logger.info(f"{model_name} LLM loaded successfully")
+                logger.debug(f"{model_name} LLM loaded")
                 return llm
             except Exception as e:
                 logger.warning(f"Failed to load {model_name}: {e}")
@@ -533,7 +531,7 @@ class MultiAgentSystem:
                     "errors": 0,
                     "avg_response_time": 0.0
                 }
-                logger.info(f"{agent_name} agent initialized with {len(tools)} tools")
+                logger.debug(f"{agent_name} agent initialized with {len(tools)} tools")
             
             def _extract_code_from_query(self, query: str) -> Optional[str]:
                 """Extract Python code blocks from query."""
@@ -686,7 +684,7 @@ Always be thorough and provide well-researched responses."""
                 else:
                     agent = ProductionAgent(self.llm, research_tools, system_prompt, "Research")
                 agents["researcher"] = agent
-                logger.info("Research agent created successfully")
+                logger.debug("Research agent created")
             except Exception as e:
                 logger.error(f"Failed to create research agent: {e}")
         
@@ -711,7 +709,7 @@ Always write clean, efficient, and well-documented code."""
                 else:
                     agent = ProductionAgent(self.llm, code_tools, system_prompt, "Code")
                 agents["coder"] = agent
-                logger.info("Code agent created successfully")
+                logger.debug("Code agent created")
             except Exception as e:
                 logger.error(f"Failed to create code agent: {e}")
         
@@ -735,7 +733,7 @@ Always provide thoughtful, well-reasoned analysis."""
                 else:
                     agent = ProductionAgent(self.llm, self.tools, system_prompt, "Analysis")
                 agents["analyst"] = agent
-                logger.info("Analysis agent created successfully")
+                logger.debug("Analysis agent created")
             except Exception as e:
                 logger.error(f"Failed to create analysis agent: {e}")
         
@@ -773,7 +771,7 @@ Always provide thoughtful, well-reasoned analysis."""
             self.system_metrics["successful_tasks"] += 1
             self._update_avg_response_time(execution_time)
             
-            logger.info(f"Agent '{agent_name}' completed task in {execution_time:.2f}s")
+            logger.debug(f"Agent '{agent_name}' completed task in {execution_time:.2f}s")
             return result
             
         except TimeoutError:
@@ -839,7 +837,7 @@ Always provide thoughtful, well-reasoned analysis."""
                 "timestamp": datetime.now().isoformat()
             }
             
-            logger.info(f"Collaborative task completed in {total_time:.2f}s")
+            logger.debug(f"Collaborative task completed in {total_time:.2f}s")
             return results
             
         except Exception as e:
@@ -987,7 +985,7 @@ Always provide thoughtful, well-reasoned analysis."""
                     except Exception as e:
                         logger.warning(f"Error shutting down executor for {tool.name}: {e}")
             
-            logger.info("MultiAgentSystem cleanup completed")
+            logger.debug("MultiAgentSystem cleanup completed")
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")
     
