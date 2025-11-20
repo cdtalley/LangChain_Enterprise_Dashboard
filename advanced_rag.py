@@ -422,14 +422,20 @@ class AdvancedRAGSystem:
             
             results["answer"] = answer
             results["context"] = context
-            results["source_documents"] = [
-                {
-                    "content": doc.page_content[:200] + "...",
+            results["source_documents"] = []
+            for doc in final_docs:
+                score = getattr(doc, 'score', None)
+                if score is None:
+                    query_emb = self.embeddings.embed_query(query)
+                    doc_emb = self.embeddings.embed_query(doc.page_content)
+                    score = float(np.dot(query_emb, doc_emb) / (
+                        np.linalg.norm(query_emb) * np.linalg.norm(doc_emb)
+                    ))
+                results["source_documents"].append({
+                    "content": doc.page_content[:500] + "..." if len(doc.page_content) > 500 else doc.page_content,
                     "metadata": doc.metadata,
-                    "score": getattr(doc, 'score', None)
-                }
-                for doc in final_docs
-            ]
+                    "score": score
+                })
             results["metadata"] = {
                 "num_sources": len(final_docs),
                 "query_type": query_type,

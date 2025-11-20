@@ -21,6 +21,13 @@ from ml_datasets.train_models import train_all_models
 from llm_fine_tuning import (
     LLMFineTuner, FineTuningConfig, FineTuningMethod, create_finetuning_config
 )
+from langchain_callbacks import TokenTrackingCallback, AgentReasoningCallback
+from langchain_visualizations import (
+    create_execution_flow_diagram, create_token_usage_chart,
+    create_agent_reasoning_timeline, create_rag_retrieval_visualization,
+    create_chain_performance_comparison, create_agent_decision_tree,
+    create_cost_estimation_chart
+)
 
 # Advanced data science imports
 try:
@@ -476,7 +483,7 @@ st.markdown('<h1 class="main-header">🤖 Enterprise LangChain AI Workbench</h1>
 st.caption("**Advanced LLM Orchestration & Multi-Agent Collaboration Platform**")
 
 # --- Tab Navigation ---
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs([
+tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16, tab17 = st.tabs([
     "🏠 Welcome",
     "🤖 Multi-Agent System",
     "📊 Advanced RAG",
@@ -493,7 +500,8 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12,
     "🔬 Statistical Analysis",
     "🤖 AutoML",
     "📈 Time Series",
-    "🎯 Model Ensembling"
+    "🎯 Model Ensembling",
+    "⚡ LangChain Expertise"
 ])
 
 # --- Welcome Tab ---
@@ -3954,6 +3962,246 @@ with tab16:
                 st.error(f"Error training ensemble: {e}")
                 import traceback
                 st.code(traceback.format_exc())
+
+# --- LangChain Expertise Tab ---
+with tab17:
+    st.markdown('<h2 class="section-header">⚡ LangChain Expertise & Advanced Visualizations</h2>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    This section demonstrates advanced LangChain patterns including:
+    - **Execution Flow Tracking**: Visualize chain execution with callbacks
+    - **Token Usage Analytics**: Track and optimize token consumption
+    - **Agent Reasoning Traces**: See how agents make decisions
+    - **RAG Retrieval Visualization**: Understand document retrieval process
+    - **Chain Performance Comparison**: Compare different chain strategies
+    """)
+    
+    expertise_tabs = st.tabs([
+        "🔍 Execution Flow",
+        "📊 Token Analytics",
+        "🤖 Agent Reasoning",
+        "📚 RAG Visualization",
+        "⚖️ Chain Comparison"
+    ])
+    
+    with expertise_tabs[0]:
+        st.markdown("### 🔍 LangChain Execution Flow Tracking")
+        
+        if 'token_callback' not in st.session_state:
+            st.session_state['token_callback'] = TokenTrackingCallback()
+        
+        callback = st.session_state['token_callback']
+        
+        test_query = st.text_input("Test Query for Execution Tracking:", 
+                                   value="What is machine learning?",
+                                   key="exec_track_query")
+        
+        if st.button("Run with Tracking", key="run_tracking"):
+            callback.reset()
+            multi_agent = get_multi_agent()
+            if multi_agent:
+                with st.spinner("Executing with callback tracking..."):
+                    try:
+                        result = multi_agent.run_agent("researcher", test_query)
+                        st.success("Execution completed!")
+                        st.write("**Result:**", result)
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+        
+        metrics = callback.get_metrics()
+        
+        if metrics['chain_steps']:
+            st.markdown("#### Execution Flow Diagram")
+            flow_fig = create_execution_flow_diagram(metrics['chain_steps'])
+            st.plotly_chart(flow_fig, use_container_width=True)
+            
+            st.markdown("#### Execution Steps")
+            steps_df = pd.DataFrame(metrics['chain_steps'])
+            st.dataframe(steps_df, use_container_width=True, hide_index=True)
+            
+            st.markdown("#### Performance Metrics")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Steps", len(metrics['chain_steps']))
+            with col2:
+                st.metric("Avg Latency", f"{metrics['avg_latency_seconds']:.3f}s")
+            with col3:
+                st.metric("Total Latency", f"{metrics['total_latency_seconds']:.3f}s")
+        else:
+            st.info("Run a query with tracking to see execution flow.")
+    
+    with expertise_tabs[1]:
+        st.markdown("### 📊 Token Usage Analytics & Cost Tracking")
+        
+        if 'token_history' not in st.session_state:
+            st.session_state['token_history'] = []
+        
+        callback = st.session_state.get('token_callback', TokenTrackingCallback())
+        metrics = callback.get_metrics()
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Current Token Usage")
+            if metrics['token_usage']['total_tokens'] > 0:
+                token_fig = create_token_usage_chart(metrics['token_usage'])
+                st.plotly_chart(token_fig, use_container_width=True)
+                
+                st.markdown("**Breakdown:**")
+                st.write(f"- Prompt Tokens: {metrics['token_usage']['prompt_tokens']:,}")
+                st.write(f"- Completion Tokens: {metrics['token_usage']['completion_tokens']:,}")
+                st.write(f"- Total Tokens: {metrics['token_usage']['total_tokens']:,}")
+            else:
+                st.info("No token usage data yet. Run queries to track usage.")
+        
+        with col2:
+            st.markdown("#### Cost Estimation")
+            if metrics['token_usage']['total_tokens'] > 0:
+                model_pricing = {
+                    'prompt_per_1k': 0.002,
+                    'completion_per_1k': 0.002
+                }
+                cost_fig = create_cost_estimation_chart(metrics['token_usage'], model_pricing)
+                st.plotly_chart(cost_fig, use_container_width=True)
+                
+                total_cost = ((metrics['token_usage']['prompt_tokens'] / 1000) * 0.002 +
+                             (metrics['token_usage']['completion_tokens'] / 1000) * 0.002)
+                st.metric("Estimated Cost", f"${total_cost:.4f}")
+            else:
+                st.info("Run queries to estimate costs.")
+        
+        if st.session_state['token_history']:
+            st.markdown("#### Historical Token Usage")
+            hist_fig = create_token_usage_chart(metrics['token_usage'], st.session_state['token_history'])
+            st.plotly_chart(hist_fig, use_container_width=True)
+    
+    with expertise_tabs[2]:
+        st.markdown("### 🤖 Agent Reasoning Trace Visualization")
+        
+        if 'reasoning_callback' not in st.session_state:
+            st.session_state['reasoning_callback'] = AgentReasoningCallback()
+        
+        reasoning_callback = st.session_state['reasoning_callback']
+        
+        test_agent_query = st.text_input("Agent Query:", 
+                                        value="Analyze the relationship between housing prices and income",
+                                        key="reasoning_query")
+        
+        if st.button("Run Agent with Reasoning Trace", key="run_reasoning"):
+            reasoning_callback.reset()
+            multi_agent = get_multi_agent()
+            if multi_agent:
+                with st.spinner("Agent reasoning..."):
+                    try:
+                        result = multi_agent.run_agent("analyst", test_agent_query)
+                        st.success("Agent completed reasoning!")
+                        st.write("**Result:**", result)
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+        
+        reasoning_trace = reasoning_callback.get_reasoning_trace()
+        
+        if reasoning_trace:
+            st.markdown("#### Reasoning Timeline")
+            timeline_fig = create_agent_reasoning_timeline(reasoning_trace)
+            st.plotly_chart(timeline_fig, use_container_width=True)
+            
+            st.markdown("#### Decision Tree - Tool Usage")
+            tool_fig = create_agent_decision_tree(reasoning_callback.agent_actions)
+            st.plotly_chart(tool_fig, use_container_width=True)
+            
+            st.markdown("#### Detailed Reasoning Steps")
+            for idx, step in enumerate(reasoning_trace, 1):
+                with st.expander(f"Step {idx}: {step.get('type', 'unknown').title()}"):
+                    st.json(step.get('content', {}))
+        else:
+            st.info("Run an agent query to see reasoning traces.")
+    
+    with expertise_tabs[3]:
+        st.markdown("### 📚 RAG Retrieval Visualization")
+        
+        rag_query = st.text_input("RAG Query:", 
+                                 value="What are the key features of this document?",
+                                 key="rag_viz_query")
+        
+        if st.button("Retrieve & Visualize", key="rag_viz_btn"):
+            rag_system = get_advanced_rag()
+            if rag_system:
+                with st.spinner("Retrieving documents..."):
+                    try:
+                        results = rag_system.query_documents(rag_query, top_k=5)
+                        
+                        if 'source_documents' in results:
+                            st.markdown("#### Retrieval Scores")
+                            retrieval_fig = create_rag_retrieval_visualization(results['source_documents'])
+                            st.plotly_chart(retrieval_fig, use_container_width=True)
+                            
+                            st.markdown("#### Retrieved Documents")
+                            for idx, doc in enumerate(results['source_documents'], 1):
+                                with st.expander(f"Document {idx} (Score: {doc.get('score', 'N/A'):.3f})"):
+                                    st.write("**Content:**", doc.get('content', '')[:500])
+                                    st.write("**Metadata:**", doc.get('metadata', {}))
+                            
+                            st.markdown("#### Answer")
+                            st.write(results.get('answer', 'No answer generated'))
+                        else:
+                            st.warning("No documents retrieved.")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+            else:
+                st.error("RAG system not available.")
+    
+    with expertise_tabs[4]:
+        st.markdown("### ⚖️ Chain Performance Comparison")
+        
+        st.markdown("""
+        Compare different LangChain chain strategies:
+        - **Sequential Chains**: Linear execution
+        - **Parallel Chains**: Concurrent execution
+        - **Router Chains**: Conditional routing
+        """)
+        
+        if st.button("Run Performance Comparison", key="chain_compare_btn"):
+            with st.spinner("Running chain comparisons..."):
+                chain_metrics = []
+                
+                test_query = "Explain machine learning in simple terms"
+                
+                for chain_type in ["Sequential", "Parallel", "Router"]:
+                    start_time = pd.Timestamp.now()
+                    try:
+                        multi_agent = get_multi_agent()
+                        if multi_agent:
+                            result = multi_agent.run_agent("researcher", test_query)
+                            end_time = pd.Timestamp.now()
+                            latency = (end_time - start_time).total_seconds()
+                            
+                            callback = st.session_state.get('token_callback', TokenTrackingCallback())
+                            token_usage = callback.get_metrics()['token_usage']['total_tokens']
+                            
+                            chain_metrics.append({
+                                'chain_name': chain_type,
+                                'latency': latency,
+                                'tokens': token_usage,
+                                'success': True
+                            })
+                    except Exception as e:
+                        chain_metrics.append({
+                            'chain_name': chain_type,
+                            'latency': 0,
+                            'tokens': 0,
+                            'success': False
+                        })
+                
+                if chain_metrics:
+                    st.markdown("#### Performance Comparison")
+                    comparison_fig = create_chain_performance_comparison(chain_metrics)
+                    st.plotly_chart(comparison_fig, use_container_width=True)
+                    
+                    comparison_df = pd.DataFrame(chain_metrics)
+                    st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+                else:
+                    st.warning("No comparison data available.")
 
 # --- Footer ---
 st.markdown("---")
