@@ -477,7 +477,7 @@ st.markdown('<h1 class="main-header">🤖 Enterprise LangChain AI Workbench</h1>
 st.caption("**Advanced LLM Orchestration & Multi-Agent Collaboration Platform**")
 
 # --- Tab Navigation ---
-tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs([
+tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs([
     "🏠 Welcome",
     "🤖 Multi-Agent System",
     "📊 Advanced RAG",
@@ -491,7 +491,10 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12,
     "🎓 LLM Fine-Tuning",
     "📚 Datasets & Models",
     "📊 Data Profiling",
-    "🔬 Statistical Analysis"
+    "🔬 Statistical Analysis",
+    "🤖 AutoML",
+    "📈 Time Series",
+    "🎯 Model Ensembling"
 ])
 
 # --- Welcome Tab ---
@@ -1483,227 +1486,515 @@ print("Analysis complete!")""",
 
 # --- Analytics Dashboard Tab ---
 with tab4:
-    st.markdown('<h2 class="section-header">Enterprise Analytics Dashboard</h2>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">📊 Interactive Data Science Dashboard</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.15rem;">
+            Explore datasets with stunning visualizations, statistical insights, and compelling data stories
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Simulated analytics data
-    col1, col2, col3, col4 = st.columns(4)
+    # Dataset selection with beautiful cards
+    st.markdown("### 🎯 Select Your Dataset")
     
-    with col1:
-        st.metric("Total Queries", "1,247", "12%")
-    with col2:
-        st.metric("Avg Response Time", "1.8s", "-15%")
-    with col3:
-        st.metric("Documents Processed", "342", "8%")
-    with col4:
-        st.metric("Agent Efficiency", "94.2%", "2.1%")
+    dataset_info = {
+        'Wine Quality': {'icon': '🍷', 'desc': 'Wine quality prediction based on physicochemical properties', 'samples': '~1,600', 'color': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'},
+        'Breast Cancer': {'icon': '🏥', 'desc': 'Breast cancer diagnosis classification', 'samples': '~570', 'color': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'},
+        'Housing Prices': {'icon': '🏠', 'desc': 'California house price prediction', 'samples': '~20,000', 'color': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'},
+        'Credit Card Fraud': {'icon': '💳', 'desc': 'Fraud detection in credit card transactions', 'samples': '~10,000', 'color': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'}
+    }
     
-    # Usage trends
-    st.subheader("📈 Usage Trends")
+    cols = st.columns(4)
+    selected_dataset = st.session_state.get('selected_dataset', None)
     
-    # Generate sample data
-    dates = pd.date_range(start='2024-01-01', end='2024-01-31', freq='D')
-    usage_data = pd.DataFrame({
-        'Date': dates,
-        'Queries': np.random.poisson(50, len(dates)),
-        'Agent_Calls': np.random.poisson(30, len(dates)),
-        'Documents_Processed': np.random.poisson(15, len(dates))
-    })
-    
-    # Advanced animated visualization
-    fig = px.line(
-        usage_data, 
-        x='Date', 
-        y=['Queries', 'Agent_Calls', 'Documents_Processed'],
-        title="Daily Platform Usage",
-        animation_frame=usage_data.index if len(usage_data) > 0 else None,
-        labels={'value': 'Count', 'Date': 'Date'},
-        color_discrete_map={
-            'Queries': '#667eea',
-            'Agent_Calls': '#764ba2',
-            'Documents_Processed': '#f093fb'
-        }
-    )
-    fig.update_layout(
-        hovermode='x unified',
-        xaxis=dict(showgrid=True),
-        yaxis=dict(showgrid=True),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
-    )
-    fig.update_traces(line=dict(width=3), marker=dict(size=8))
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Real-time performance heatmap
-    st.subheader("🔥 Performance Heatmap")
-    if multi_agent:
-        agent_metrics = {}
-        for agent_name in agents:
-            if hasattr(multi_agent.agents.get(agent_name), 'metrics'):
-                agent_metrics[agent_name] = multi_agent.agents[agent_name].metrics
-        
-        if agent_metrics:
-            heatmap_data = []
-            for agent_name, metrics in agent_metrics.items():
-                heatmap_data.append({
-                    'Agent': agent_name.title(),
-                    'Invocations': metrics.get('invocations', 0),
-                    'Tool Uses': metrics.get('tool_uses', 0),
-                    'Avg Response Time': metrics.get('avg_response_time', 0),
-                    'Errors': metrics.get('errors', 0)
-                })
+    for idx, (name, info) in enumerate(dataset_info.items()):
+        with cols[idx]:
+            is_selected = selected_dataset == name
+            border_style = "3px solid #667eea" if is_selected else "2px solid transparent"
+            st.markdown(f"""
+            <div style="background: {info['color']}; padding: 1.5rem; border-radius: 0.75rem; 
+                        cursor: pointer; transition: all 0.3s; border: {border_style}; 
+                        box-shadow: {'0 8px 20px rgba(102, 126, 234, 0.4)' if is_selected else '0 4px 12px rgba(0,0,0,0.15)'};
+                        transform: {'scale(1.02)' if is_selected else 'scale(1)'};">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem; text-align: center;">{info['icon']}</div>
+                <div style="font-weight: bold; color: white; margin-bottom: 0.25rem; text-align: center; font-size: 1.1rem;">{name}</div>
+                <div style="font-size: 0.85rem; color: rgba(255,255,255,0.9); text-align: center;">{info['samples']} samples</div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            heatmap_df = pd.DataFrame(heatmap_data)
-            heatmap_fig = px.imshow(
-                heatmap_df.set_index('Agent').T,
-                labels=dict(x="Agent", y="Metric", color="Value"),
-                title="Agent Performance Heatmap",
-                color_continuous_scale='Viridis',
-                aspect="auto"
+            if st.button(f"Select {name}", key=f"dataset_btn_{name}", use_container_width=True):
+                selected_dataset = name
+                st.session_state['selected_dataset'] = name
+                st.rerun()
+    
+    df_analytics = None
+    
+    if selected_dataset:
+        try:
+            loaders = {
+                'Wine Quality': load_wine_quality,
+                'Breast Cancer': load_breast_cancer,
+                'Housing Prices': load_housing_prices,
+                'Credit Card Fraud': load_credit_card_fraud
+            }
+            if selected_dataset in loaders:
+                with st.spinner(f"🔄 Loading {selected_dataset} dataset..."):
+                    X_train, X_test, y_train, y_test = loaders[selected_dataset]()
+                    df_analytics = pd.concat([X_train, X_test], axis=0).reset_index(drop=True)
+                    df_analytics['target'] = pd.concat([y_train, y_test], axis=0).reset_index(drop=True)
+                    st.session_state['analytics_df'] = df_analytics
+                    st.session_state['selected_dataset'] = selected_dataset
+        except Exception as e:
+            st.error(f"❌ Error loading dataset: {e}")
+    
+    if 'analytics_df' in st.session_state:
+        df_analytics = st.session_state['analytics_df']
+        selected_dataset = st.session_state.get('selected_dataset', 'Unknown')
+    
+    if df_analytics is not None:
+        # Beautiful Hero Stats Section
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem;">
+            <h2 style="color: white; margin: 0; text-align: center;">📊 {selected_dataset}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        numeric_cols = df_analytics.select_dtypes(include=[np.number]).columns.tolist()
+        
+        # Beautiful metric cards with gradients
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1rem; border-radius: 0.75rem; text-align: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Total Rows</div>
+                <div style="font-size: 2rem; font-weight: bold;">{len(df_analytics):,}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1rem; border-radius: 0.75rem; text-align: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Features</div>
+                <div style="font-size: 2rem; font-weight: bold;">{len(numeric_cols)}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            if 'target' in df_analytics.columns:
+                if df_analytics['target'].dtype == 'object' or df_analytics['target'].nunique() < 20:
+                    target_val = df_analytics['target'].nunique()
+                    label = "Classes"
+                else:
+                    target_val = f"{df_analytics['target'].min():.1f} - {df_analytics['target'].max():.1f}"
+                    label = "Target Range"
+            else:
+                target_val = "N/A"
+                label = "Target"
+            
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1rem; border-radius: 0.75rem; text-align: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="font-size: 0.9rem; opacity: 0.9;">{label}</div>
+                <div style="font-size: 2rem; font-weight: bold;">{target_val}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col4:
+            missing_pct = (df_analytics.isnull().sum().sum() / (len(df_analytics) * len(df_analytics.columns))) * 100
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1rem; border-radius: 0.75rem; text-align: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Missing Data</div>
+                <div style="font-size: 2rem; font-weight: bold;">{missing_pct:.1f}%</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Multi-Feature Distribution Comparison - STUNNING visualization
+        st.markdown("---")
+        st.markdown("### 🌈 Multi-Feature Distribution Analysis")
+        st.markdown("**Compare distributions across multiple features simultaneously**")
+        
+        if len(numeric_cols) >= 2:
+            selected_features = st.multiselect(
+                "Select Features to Compare (2-5 recommended):",
+                numeric_cols,
+                default=numeric_cols[:3] if len(numeric_cols) >= 3 else numeric_cols[:2],
+                key="multi_feature_select"
             )
-            heatmap_fig.update_layout(height=300)
-            st.plotly_chart(heatmap_fig, use_container_width=True)
-    
-    # Enhanced Agent performance comparison
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("🤖 Agent Performance Analysis")
-        
-        # Get real agent capabilities
-        multi_agent = get_multi_agent()
-        if multi_agent is None:
-            st.warning("Multi-Agent System not available")
-            capabilities = {}
-        else:
-            capabilities = multi_agent.get_agent_capabilities()
-        
-        # Create performance data with real capabilities
-        agent_data = []
-        for agent_name, caps in capabilities.items():
-            agent_data.append({
-                'Agent': agent_name.title(),
-                'Tools_Count': len(caps['tools']),
-                'Strengths_Count': len(caps['strengths']),
-                'Best_For_Count': len(caps['best_for'])
-            })
-        
-        agent_df = pd.DataFrame(agent_data)
-        
-        # Enhanced multi-metric chart with animations
-        fig = px.bar(agent_df, 
-                    x='Agent', 
-                    y=['Tools_Count', 'Strengths_Count', 'Best_For_Count'],
-                    title="Agent Capability Comparison",
-                    barmode='group',
-                    color_discrete_map={
-                        'Tools_Count': '#667eea',
-                        'Strengths_Count': '#764ba2',
-                        'Best_For_Count': '#f093fb'
-                    },
-                    labels={'value': 'Count', 'Agent': 'Agent', 'variable': 'Metric Type'})
-        fig.update_layout(
-            hovermode='x unified',
-            xaxis=dict(title="Agent"),
-            yaxis=dict(title="Count"),
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            height=400
-        )
-        fig.update_traces(marker_line_width=1.5, marker_line_color='white')
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Add real-time agent activity timeline if available
-        if multi_agent:
-            # Create timeline visualization
-            timeline_data = []
-            for agent_name in agents:
-                if hasattr(multi_agent.agents.get(agent_name), 'metrics'):
-                    metrics = multi_agent.agents[agent_name].metrics
-                    timeline_data.append({
-                        'Agent': agent_name.title(),
-                        'Activity Level': metrics.get('invocations', 0),
-                        'Efficiency': 100 - (metrics.get('errors', 0) / max(metrics.get('invocations', 1), 1) * 100)
-                    })
             
-            if timeline_data:
-                timeline_df = pd.DataFrame(timeline_data)
-                timeline_fig = px.scatter(
-                    timeline_df,
-                    x='Activity Level',
-                    y='Efficiency',
-                    size='Activity Level',
-                    color='Agent',
-                    title="Agent Activity vs Efficiency",
-                    hover_data=['Agent'],
-                    color_discrete_map={
-                        'Researcher': '#667eea',
-                        'Coder': '#4facfe',
-                        'Analyst': '#43e97b'
-                    }
+            if len(selected_features) >= 2:
+                # Create beautiful parallel distribution plot with violin plots
+                fig = go.Figure()
+                
+                colors = px.colors.qualitative.Set3[:len(selected_features)]
+                
+                for idx, feat in enumerate(selected_features):
+                    # Normalize for comparison
+                    normalized = (df_analytics[feat] - df_analytics[feat].min()) / (df_analytics[feat].max() - df_analytics[feat].min() + 1e-10)
+                    
+                    fig.add_trace(go.Violin(
+                        y=normalized,
+                        name=feat,
+                        box_visible=True,
+                        meanline_visible=True,
+                        fillcolor=colors[idx],
+                        line_color='black',
+                        opacity=0.7
+                    ))
+                
+                fig.update_layout(
+                    title="Feature Distribution Comparison (Normalized)",
+                    yaxis_title="Normalized Value",
+                    height=500,
+                    showlegend=True,
+                    template="plotly_white",
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)'
                 )
-                timeline_fig.update_layout(height=400)
-                st.plotly_chart(timeline_fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Statistical comparison table
+                comparison_stats = pd.DataFrame({
+                    feat: [
+                        f"{df_analytics[feat].mean():.3f}",
+                        f"{df_analytics[feat].median():.3f}",
+                        f"{df_analytics[feat].std():.3f}",
+                        f"{df_analytics[feat].skew():.2f}",
+                        f"{(df_analytics[feat].std() / df_analytics[feat].mean() * 100):.1f}%" if df_analytics[feat].mean() != 0 else "N/A"
+                    ]
+                    for feat in selected_features
+                }, index=['Mean', 'Median', 'Std Dev', 'Skewness', 'CV %'])
+                
+                st.markdown("**Statistical Comparison:**")
+                st.dataframe(comparison_stats, use_container_width=True)
         
-        # Show detailed capabilities
-        with st.expander("📋 Detailed Agent Capabilities"):
-            for agent_name, caps in capabilities.items():
-                st.write(f"**{agent_name.title()}:**")
-                st.write(f"- {caps['description']}")
-                st.write(f"- Tools: {', '.join(caps['tools'])}")
-                st.write(f"- Best for: {', '.join(caps['best_for'])}")
-                st.write("---")
+        # Advanced Correlation Network Visualization
+        if len(numeric_cols) > 1:
+            st.markdown("---")
+            st.markdown("### 🔗 Advanced Correlation Analysis")
+            
+            corr_matrix = df_analytics[numeric_cols].corr()
+            
+            # Create beautiful annotated correlation heatmap
+            corr_fig = go.Figure(data=go.Heatmap(
+                z=corr_matrix.values,
+                x=corr_matrix.columns,
+                y=corr_matrix.columns,
+                colorscale='RdBu',
+                zmid=0,
+                text=corr_matrix.round(2).values,
+                texttemplate='%{text}',
+                textfont={"size":10},
+                colorbar=dict(title="Correlation")
+            ))
+            
+            corr_fig.update_layout(
+                title="Feature Correlation Matrix (Interactive)",
+                height=700,
+                xaxis_title="",
+                yaxis_title="",
+                template="plotly_white",
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)'
+            )
+            st.plotly_chart(corr_fig, use_container_width=True)
+            
+            # Find and highlight strong relationships
+            strong_pairs = []
+            for i in range(len(corr_matrix.columns)):
+                for j in range(i+1, len(corr_matrix.columns)):
+                    corr_val = corr_matrix.iloc[i, j]
+                    if abs(corr_val) > 0.7:
+                        strong_pairs.append({
+                            'Feature 1': corr_matrix.columns[i],
+                            'Feature 2': corr_matrix.columns[j],
+                            'Correlation': f"{corr_val:.3f}",
+                            'Strength': 'Very Strong' if abs(corr_val) > 0.9 else 'Strong'
+                        })
+            
+            if strong_pairs:
+                st.markdown("**🔍 Strong Feature Relationships Detected:**")
+                strong_df = pd.DataFrame(strong_pairs)
+                st.dataframe(strong_df, use_container_width=True, hide_index=True)
+                
+                # Create network visualization of strong correlations
+                if len(strong_pairs) > 0:
+                    st.markdown("**Network View of Strong Correlations:**")
+                    network_text = " → ".join([f"{pair['Feature 1']} ↔ {pair['Feature 2']} ({pair['Correlation']})" for pair in strong_pairs[:5]])
+                    st.info(f"💡 **Key Relationships:** {network_text}")
+        
+        # Target Analysis with Beautiful Visualizations
+        if 'target' in df_analytics.columns:
+            st.markdown("---")
+            st.markdown("### 🎯 Target Variable Deep Dive")
+            
+            if df_analytics['target'].dtype == 'object' or df_analytics['target'].nunique() < 20:
+                # Classification: Beautiful class distribution
+                value_counts = df_analytics['target'].value_counts().sort_index()
+                
+                # Create stunning donut chart
+                donut_fig = go.Figure(data=[go.Pie(
+                    labels=value_counts.index.astype(str),
+                    values=value_counts.values,
+                    hole=0.4,
+                    marker_colors=px.colors.qualitative.Set3[:len(value_counts)],
+                    textinfo='label+percent',
+                    textposition='outside'
+                )])
+                
+                donut_fig.update_layout(
+                    title="Target Class Distribution",
+                    height=500,
+                    showlegend=True,
+                    template="plotly_white",
+                    annotations=[dict(text=f'Total<br>{len(df_analytics)}', x=0.5, y=0.5, font_size=20, showarrow=False)]
+                )
+                
+                col1, col2 = st.columns([2, 1])
+                with col1:
+                    st.plotly_chart(donut_fig, use_container_width=True)
+                
+                with col2:
+                    st.markdown("**Class Statistics:**")
+                    for class_val, count in value_counts.items():
+                        pct = (count / len(df_analytics)) * 100
+                        st.markdown(f"""
+                        <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                            <strong>{class_val}:</strong> {count:,} ({pct:.1f}%)
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Class imbalance assessment
+                    max_class_pct = (value_counts.max() / len(df_analytics)) * 100
+                    if max_class_pct > 80:
+                        st.error(f"⚠️ **Severe imbalance:** {max_class_pct:.1f}% in majority class")
+                    elif max_class_pct > 60:
+                        st.warning(f"ℹ️ **Moderate imbalance:** {max_class_pct:.1f}% in majority class")
+                    else:
+                        st.success("✅ **Balanced classes**")
+                
+                # Feature importance by class separation
+                if SKLEARN_AVAILABLE and len(numeric_cols) > 0:
+                    st.markdown("**📊 Feature Importance for Classification:**")
+                    
+                    # Calculate feature importance using variance ratio
+                    try:
+                        from sklearn.feature_selection import f_classif
+                        f_scores, p_values = f_classif(df_analytics[numeric_cols], df_analytics['target'])
+                        feature_importance = pd.DataFrame({
+                            'Feature': numeric_cols,
+                            'F-Score': f_scores,
+                            'P-Value': p_values
+                        }).sort_values('F-Score', ascending=False)
+                        
+                        importance_fig = px.bar(
+                            feature_importance.head(10),
+                            x='F-Score',
+                            y='Feature',
+                            orientation='h',
+                            title="Top 10 Features by F-Score (Class Separation)",
+                            color='F-Score',
+                            color_continuous_scale='Viridis'
+                        )
+                        importance_fig.update_layout(height=400, template="plotly_white")
+                        st.plotly_chart(importance_fig, use_container_width=True)
+                    except:
+                        pass
+            
+            else:
+                # Regression: Beautiful target distribution with insights
+                target_col1, target_col2 = st.columns([2, 1])
+                
+                with target_col1:
+                    # Create stunning histogram with KDE overlay
+                    hist_fig = go.Figure()
+                    
+                    hist_fig.add_trace(go.Histogram(
+                        x=df_analytics['target'],
+                        nbinsx=50,
+                        name='Frequency',
+                        marker_color='#667eea',
+                        opacity=0.7
+                    ))
+                    
+                    # Add mean and median lines
+                    mean_val = df_analytics['target'].mean()
+                    median_val = df_analytics['target'].median()
+                    
+                    hist_fig.add_vline(x=mean_val, line_dash="dash", line_color="red", 
+                                     annotation_text=f"Mean: {mean_val:.2f}")
+                    hist_fig.add_vline(x=median_val, line_dash="dash", line_color="green",
+                                     annotation_text=f"Median: {median_val:.2f}")
+                    
+                    hist_fig.update_layout(
+                        title="Target Distribution with Central Tendency",
+                        xaxis_title="Target Value",
+                        yaxis_title="Frequency",
+                        height=500,
+                        template="plotly_white",
+                        showlegend=False
+                    )
+                    st.plotly_chart(hist_fig, use_container_width=True)
+                
+                with target_col2:
+                    target_stats = df_analytics['target'].describe()
+                    
+                    st.markdown("**📈 Target Statistics:**")
+                    stats_display = {
+                        'Mean': f"{target_stats['mean']:.3f}",
+                        'Median': f"{target_stats['50%']:.3f}",
+                        'Std Dev': f"{target_stats['std']:.3f}",
+                        'Min': f"{target_stats['min']:.3f}",
+                        'Max': f"{target_stats['max']:.3f}",
+                        'Range': f"{target_stats['max'] - target_stats['min']:.3f}",
+                        'Skewness': f"{df_analytics['target'].skew():.2f}",
+                        'Kurtosis': f"{df_analytics['target'].kurtosis():.2f}"
+                    }
+                    
+                    for stat, val in stats_display.items():
+                        st.markdown(f"""
+                        <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+                                    padding: 0.5rem; border-radius: 0.5rem; margin-bottom: 0.5rem; text-align: center;">
+                            <div style="font-size: 0.85rem; color: #7f8c8d;">{stat}</div>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #2c3e50;">{val}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                # Feature-Target Relationships
+                if len(numeric_cols) > 0:
+                    st.markdown("**🔗 Feature-Target Relationships:**")
+                    
+                    target_corr = df_analytics[numeric_cols].corrwith(df_analytics['target']).abs().sort_values(ascending=False)
+                    top_features = target_corr.head(8)
+                    
+                    # Beautiful horizontal bar chart
+                    corr_fig = px.bar(
+                        x=top_features.values,
+                        y=top_features.index,
+                        orientation='h',
+                        title="Top Features by Correlation with Target",
+                        labels={'x': '|Correlation|', 'y': 'Feature'},
+                        color=top_features.values,
+                        color_continuous_scale='Viridis'
+                    )
+                    corr_fig.update_layout(
+                        height=400,
+                        template="plotly_white",
+                        xaxis_title="Absolute Correlation",
+                        yaxis_title=""
+                    )
+                    st.plotly_chart(corr_fig, use_container_width=True)
+                    
+                    # Interactive scatter plots for top 3 features
+                    top_3_features = top_features.head(3).index.tolist()
+                    
+                    scatter_cols = st.columns(3)
+                    for idx, feat in enumerate(top_3_features):
+                        with scatter_cols[idx]:
+                            scatter_fig = px.scatter(
+                                df_analytics,
+                                x=feat,
+                                y='target',
+                                title=f"{feat} vs Target",
+                                trendline="ols",
+                                trendline_color_override="red",
+                                opacity=0.6
+                            )
+                            scatter_fig.update_layout(
+                                height=300,
+                                template="plotly_white",
+                                showlegend=False
+                            )
+                            corr_val = df_analytics[feat].corr(df_analytics['target'])
+                            scatter_fig.add_annotation(
+                                text=f"r = {corr_val:.3f}",
+                                xref="paper", yref="paper",
+                                x=0.5, y=0.95,
+                                showarrow=False,
+                                font=dict(size=14, color="red")
+                            )
+                            st.plotly_chart(scatter_fig, use_container_width=True)
+        
+        # Data Quality Dashboard
+        st.markdown("---")
+        st.markdown("### ✅ Comprehensive Data Quality Assessment")
+        
+        quality_metrics = {
+            'Completeness': (1 - (df_analytics.isnull().sum().sum() / (len(df_analytics) * len(df_analytics.columns)))) * 100,
+            'Uniqueness': (1 - (df_analytics.duplicated().sum() / len(df_analytics))) * 100,
+            'Consistency': 95  # Simplified for now
+        }
+        
+        quality_cols = st.columns(3)
+        for idx, (metric, value) in enumerate(quality_metrics.items()):
+            with quality_cols[idx]:
+                color = "green" if value > 90 else "orange" if value > 75 else "red"
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                            padding: 1.5rem; border-radius: 1rem; text-align: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <div style="font-size: 1.1rem; opacity: 0.9;">{metric}</div>
+                    <div style="font-size: 2.5rem; font-weight: bold;">{value:.1f}%</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        {'✅ Excellent' if value > 90 else '⚠️ Good' if value > 75 else '❌ Needs Attention'}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Key Insights Summary
+        st.markdown("---")
+        st.markdown("### 💡 Data Science Insights & Recommendations")
+        
+        insights = []
+        
+        if len(numeric_cols) > 0:
+            # Variability analysis
+            high_var_features = []
+            for col in numeric_cols[:10]:
+                if df_analytics[col].mean() != 0:
+                    cv = (df_analytics[col].std() / df_analytics[col].mean()) * 100
+                    if cv > 100:
+                        high_var_features.append((col, cv))
+            
+            if high_var_features:
+                top_var = sorted(high_var_features, key=lambda x: x[1], reverse=True)[:3]
+                insights.append(f"**High Variability Features:** {', '.join([f'{f} (CV={cv:.0f}%)' for f, cv in top_var])} - Consider log transformation or robust scaling")
+        
+        if 'target' in df_analytics.columns and len(numeric_cols) > 0:
+            if df_analytics['target'].dtype in [np.number]:
+                strongest_corr_feature = df_analytics[numeric_cols].corrwith(df_analytics['target']).abs().idxmax()
+                strongest_corr_val = df_analytics[strongest_corr_feature].corr(df_analytics['target'])
+                insights.append(f"**Strongest Predictor:** `{strongest_corr_feature}` shows {abs(strongest_corr_val):.3f} correlation with target - prioritize in modeling")
+        
+        if len(numeric_cols) > 1:
+            corr_matrix = df_analytics[numeric_cols].corr()
+            strong_pairs = []
+            for i in range(len(corr_matrix.columns)):
+                for j in range(i+1, len(corr_matrix.columns)):
+                    if abs(corr_matrix.iloc[i, j]) > 0.8:
+                        strong_pairs.append((corr_matrix.columns[i], corr_matrix.columns[j], corr_matrix.iloc[i, j]))
+            
+            if strong_pairs:
+                insights.append(f"**Multicollinearity Alert:** {len(strong_pairs)} feature pairs with |r| > 0.8 - consider feature selection or dimensionality reduction")
+        
+        if insights:
+            for insight in insights:
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+                            padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; border-left: 4px solid #2196F3;">
+                    {insight}
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("💡 Load a dataset and explore features to see insights")
     
-    with col2:
-        st.subheader("🔍 Query Classification & Routing")
-        
-        # Simulate query classification data
-        query_classification = pd.DataFrame({
-            'Query_Type': ['Factual', 'Conceptual', 'Analytical', 'Research', 'Code'],
-            'Count': [45, 32, 28, 67, 23],
-            'Avg_Response_Time': [1.2, 2.1, 2.8, 1.9, 3.2]
-        })
-        
-        # Create dual-axis chart
-        fig = go.Figure()
-        
-        # Add bar chart for count
-        fig.add_trace(go.Bar(
-            name='Query Count',
-            x=query_classification['Query_Type'],
-            y=query_classification['Count'],
-            yaxis='y',
-            marker_color='lightblue'
-        ))
-        
-        # Add line chart for response time
-        fig.add_trace(go.Scatter(
-            name='Avg Response Time (s)',
-            x=query_classification['Query_Type'],
-            y=query_classification['Avg_Response_Time'],
-            yaxis='y2',
-            mode='lines+markers',
-            line=dict(color='red', width=3)
-        ))
-        
-        # Update layout
-        fig.update_layout(
-            title="Query Type Distribution & Performance",
-            xaxis_title="Query Type",
-            yaxis=dict(title="Query Count", side="left"),
-            yaxis2=dict(title="Avg Response Time (s)", side="right", overlaying="y"),
-            hovermode='x unified'
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Show routing insights
-        with st.expander("🧠 Intelligent Routing Insights"):
-            st.write("**Query Classification Patterns:**")
-            st.write("- **Factual queries** → Researcher Agent (fast, accurate)")
-            st.write("- **Conceptual queries** → Analyst Agent (deep analysis)")
-            st.write("- **Code queries** → Coder Agent (technical expertise)")
-            st.write("- **Research queries** → Researcher Agent (web search)")
-            st.write("- **Analytical queries** → Analyst Agent (pattern recognition)")
+    else:
+        st.markdown("""
+        <div style="text-align: center; padding: 3rem; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+                    border-radius: 1rem; margin: 2rem 0;">
+            <h3 style="color: #2c3e50;">👆 Select a dataset above to begin your data science journey</h3>
+            <p style="color: #7f8c8d; font-size: 1.1rem;">Choose from Wine Quality, Breast Cancer, Housing Prices, or Credit Card Fraud datasets</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # --- Enterprise Demo Tab ---
 with tab5:
@@ -2444,7 +2735,204 @@ with tab10:
 
 # --- Datasets & Models Tab ---
 with tab11:
-    st.markdown('<h2 class="section-header">📚 Datasets & Model Showcase</h2>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">📚 Datasets & Model Training</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.15rem;">
+            Explore datasets, train models, and register them in the model registry
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader("📊 Available Datasets")
+        datasets_info = list_available_datasets()
+        
+        selected_dataset = st.selectbox(
+            "Select Dataset",
+            options=list(datasets_info.keys()),
+            format_func=lambda x: datasets_info[x]['name'],
+            key="dataset_selector"
+        )
+        
+        if selected_dataset:
+            info = datasets_info[selected_dataset]
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1rem;">
+                <h3 style="color: #2c3e50; margin-top: 0;">{info['name']}</h3>
+                <p><strong>Type:</strong> {info['type']}</p>
+                <p><strong>Samples:</strong> {info['samples']}</p>
+                <p><strong>Features:</strong> {info['features']}</p>
+                <p><strong>Description:</strong> {info['description']}</p>
+                <p><strong>Source:</strong> {info['source']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button(f"📥 Load {info['name']} Dataset", type="primary", key=f"load_dataset_{selected_dataset}_btn", use_container_width=True):
+                with st.spinner(f"Loading {info['name']}..."):
+                    try:
+                        loader_map = {
+                            'wine_quality': load_wine_quality,
+                            'breast_cancer': load_breast_cancer,
+                            'credit_card_fraud': load_credit_card_fraud,
+                            'housing_prices': load_housing_prices,
+                            'contract_classification': load_contract_classification
+                        }
+                        
+                        X_train, X_test, y_train, y_test = loader_map[selected_dataset]()
+                        
+                        st.session_state[f'{selected_dataset}_data'] = {
+                            'X_train': X_train,
+                            'X_test': X_test,
+                            'y_train': y_train,
+                            'y_test': y_test,
+                            'info': info
+                        }
+                        
+                        st.success(f"✅ Dataset loaded successfully!")
+                        
+                        # Show preview
+                        preview_col1, preview_col2 = st.columns(2)
+                        with preview_col1:
+                            st.markdown("**Training Set Preview:**")
+                            st.dataframe(X_train.head(10), use_container_width=True)
+                            st.caption(f"Shape: {X_train.shape}")
+                        with preview_col2:
+                            st.markdown("**Test Set Preview:**")
+                            st.dataframe(X_test.head(10), use_container_width=True)
+                            st.caption(f"Shape: {X_test.shape}")
+                        
+                        # Show statistics
+                        st.markdown("---")
+                        st.markdown("### 📈 Dataset Statistics")
+                        stats_col1, stats_col2 = st.columns(2)
+                        
+                        with stats_col1:
+                            st.markdown("**Feature Statistics:**")
+                            st.dataframe(X_train.describe(), use_container_width=True)
+                        
+                        with stats_col2:
+                            st.markdown("**Target Distribution:**")
+                            if info['type'] in ['classification', 'binary_classification', 'multiclass_classification']:
+                                value_counts = y_train.value_counts().sort_index()
+                                target_fig = px.bar(
+                                    x=value_counts.index.astype(str),
+                                    y=value_counts.values,
+                                    title="Target Class Distribution",
+                                    labels={'x': 'Class', 'y': 'Count'},
+                                    color=value_counts.values,
+                                    color_continuous_scale='Viridis'
+                                )
+                                target_fig.update_layout(height=300, template="plotly_white")
+                                st.plotly_chart(target_fig, use_container_width=True)
+                                
+                                # Class balance info
+                                max_class_pct = (value_counts.max() / len(y_train)) * 100
+                                if max_class_pct > 80:
+                                    st.warning(f"⚠️ Class imbalance: {max_class_pct:.1f}% in majority class")
+                                else:
+                                    st.success("✅ Relatively balanced classes")
+                            else:
+                                target_fig = px.histogram(
+                                    y_train,
+                                    nbins=50,
+                                    title="Target Value Distribution",
+                                    marginal="box"
+                                )
+                                target_fig.update_layout(height=300, template="plotly_white")
+                                st.plotly_chart(target_fig, use_container_width=True)
+                                
+                                # Regression stats
+                                target_stats = y_train.describe()
+                                st.markdown(f"""
+                                **Target Statistics:**
+                                - Mean: {target_stats['mean']:.3f}
+                                - Std Dev: {target_stats['std']:.3f}
+                                - Range: {target_stats['min']:.3f} - {target_stats['max']:.3f}
+                                """)
+                        
+                    except Exception as e:
+                        st.error(f"Error loading dataset: {e}")
+                        import traceback
+                        st.code(traceback.format_exc())
+    
+    with col2:
+        st.subheader("🤖 Model Training")
+        st.markdown("""
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            Train models on loaded datasets and automatically register them in the model registry.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🚀 Train All Models", type="primary", key="train_all_models_btn", use_container_width=True):
+            with st.spinner("Training models... This may take a minute."):
+                try:
+                    results = train_all_models()
+                    st.success(f"✅ Trained and registered {len(results)} models!")
+                    
+                    # Show results
+                    for result in results:
+                        with st.expander(f"✅ {result.get('name', 'Model')} v{result.get('version', '1.0.0')}"):
+                            st.json(result)
+                except Exception as e:
+                    st.error(f"Error training models: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
+        
+        st.markdown("---")
+        st.subheader("📦 Registered Models")
+        registry = st.session_state.get('model_registry')
+        if registry is not None:
+            models = registry.list_models()
+            
+            if models:
+                st.markdown(f"**Total Models:** {len(models)}")
+                for model in models[:5]:
+                    with st.expander(f"📦 {model['name']} v{model['version']} ({model['stage']})"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.markdown(f"""
+                            **Type:** {model['model_type']}  
+                            **Stage:** {model['stage']}  
+                            **Size:** {model.get('model_size_mb', 'N/A')} MB  
+                            **Created:** {model['created_at']}
+                            """)
+                        with col2:
+                            if model.get('performance_metrics'):
+                                st.markdown("**Performance Metrics:**")
+                                for metric, value in model['performance_metrics'].items():
+                                    st.markdown(f"- {metric}: {value:.4f}")
+            else:
+                st.info("No models registered yet. Train models to see them here.")
+        else:
+            st.warning("Model Registry not initialized")
+    
+    # Dataset showcase highlights
+    st.markdown("---")
+    st.markdown("### 🎯 Dataset Highlights")
+    
+    highlight_cols = st.columns(5)
+    highlights = [
+        {'name': 'Wine Quality', 'icon': '🍷', 'type': 'Classification', 'samples': '~1,600'},
+        {'name': 'Breast Cancer', 'icon': '🏥', 'type': 'Binary Classification', 'samples': '~570'},
+        {'name': 'Housing Prices', 'icon': '🏠', 'type': 'Regression', 'samples': '~20,000'},
+        {'name': 'Credit Card Fraud', 'icon': '💳', 'type': 'Binary Classification', 'samples': '~10,000'},
+        {'name': 'Contract Classification', 'icon': '📄', 'type': 'Multi-class', 'samples': '~5,000'}
+    ]
+    
+    for idx, highlight in enumerate(highlights):
+        with highlight_cols[idx]:
+            st.markdown(f"""
+            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+                        border-radius: 0.5rem; border: 2px solid transparent;">
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{highlight['icon']}</div>
+                <div style="font-weight: bold; color: #2c3e50; font-size: 0.9rem;">{highlight['name']}</div>
+                <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 0.25rem;">{highlight['type']}</div>
+                <div style="font-size: 0.7rem; color: #95a5a6;">{highlight['samples']}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # --- Data Profiling Tab ---
 with tab12:
@@ -2884,144 +3372,589 @@ with tab13:
                         title="Contingency Table Heatmap"
                     )
                     st.plotly_chart(heatmap_fig, use_container_width=True)
+
+# --- AutoML Tab ---
+with tab14:
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">🤖 Automated Machine Learning</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.15rem;">
+            Automated model selection, hyperparameter optimization, and performance comparison
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([2, 1])
+    if not SKLEARN_AVAILABLE:
+        st.error("⚠️ scikit-learn not available. Install with: pip install scikit-learn")
+        st.stop()
     
-    with col1:
-        st.subheader("📊 Available Datasets")
-        datasets_info = list_available_datasets()
-        
-        selected_dataset = st.selectbox(
-            "Select Dataset",
-            options=list(datasets_info.keys()),
-            format_func=lambda x: datasets_info[x]['name'],
-            key="dataset_selector"
-        )
-        
-        if selected_dataset:
-            info = datasets_info[selected_dataset]
-            st.markdown(f"""
-            **{info['name']}**
-            - **Type**: {info['type']}
-            - **Samples**: {info['samples']}
-            - **Features**: {info['features']}
-            - **Description**: {info['description']}
-            - **Source**: {info['source']}
-            """)
-            
-            if st.button(f"📥 Load {info['name']} Dataset", key=f"load_dataset_{selected_dataset}_btn"):
-                with st.spinner(f"Loading {info['name']}..."):
-                    try:
-                        loader_map = {
-                            'wine_quality': load_wine_quality,
-                            'breast_cancer': load_breast_cancer,
-                            'credit_card_fraud': load_credit_card_fraud,
-                            'housing_prices': load_housing_prices,
-                            'contract_classification': load_contract_classification
-                        }
-                        
-                        X_train, X_test, y_train, y_test = loader_map[selected_dataset]()
-                        
-                        st.success(f"✅ Dataset loaded successfully!")
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.subheader("Training Set")
-                            st.dataframe(X_train.head(10))
-                            st.caption(f"Shape: {X_train.shape}")
-                        with col2:
-                            st.subheader("Test Set")
-                            st.dataframe(X_test.head(10))
-                            st.caption(f"Shape: {X_test.shape}")
-                        
-                        st.subheader("📈 Data Statistics")
-                        st.dataframe(X_train.describe())
-                        
-                        st.subheader("📊 Target Distribution")
-                        if info['type'] in ['classification', 'binary_classification', 'multiclass_classification']:
-                            value_counts = y_train.value_counts()
-                            fig = px.bar(
-                                x=value_counts.index.astype(str),
-                                y=value_counts.values,
-                                title="Target Class Distribution",
-                                labels={'x': 'Class', 'y': 'Count'}
-                            )
-                            st.plotly_chart(fig, use_container_width=True)
-                        else:
-                            fig = px.histogram(y_train, title="Target Value Distribution")
-                            st.plotly_chart(fig, use_container_width=True)
-                        
-                        st.session_state[f'{selected_dataset}_data'] = {
-                            'X_train': X_train,
-                            'X_test': X_test,
-                            'y_train': y_train,
-                            'y_test': y_test
-                        }
-                        
-                    except Exception as e:
-                        st.error(f"Error loading dataset: {e}")
+    # Dataset selection
+    automl_option = st.radio(
+        "Data Source:",
+        ["Upload CSV", "Use Pre-loaded Dataset"],
+        key="automl_data_source"
+    )
     
-    with col2:
-        st.subheader("🤖 Train Models")
-        st.markdown("""
-        Train models on datasets and register them in the model registry.
-        """)
+    df_automl = None
+    y_automl = None
+    
+    if automl_option == "Upload CSV":
+        uploaded_file = st.file_uploader("Upload CSV file", type=['csv'], key="automl_csv_upload")
+        if uploaded_file:
+            df_automl = pd.read_csv(uploaded_file)
+            target_col = st.selectbox("Select Target Column:", df_automl.columns.tolist(), key="automl_target_select")
+            if target_col:
+                y_automl = df_automl[target_col]
+                df_automl = df_automl.drop(columns=[target_col])
+                st.success(f"✅ Loaded {len(df_automl)} rows")
+    else:
+        dataset_options = list_available_datasets()
+        selected_dataset = st.selectbox("Select Dataset:", dataset_options, key="automl_dataset_select")
         
-        if st.button("🚀 Train All Models", type="primary", key="train_all_models_btn"):
-            with st.spinner("Training models... This may take a minute."):
-                try:
-                    results = train_all_models()
-                    st.success(f"✅ Trained and registered {len(results)} models!")
-                    st.json(results)
-                except Exception as e:
-                    st.error(f"Error training models: {e}")
+        if selected_dataset and st.button("Load Dataset", key="load_automl_dataset_btn"):
+            try:
+                loaders = {
+                    'Wine Quality': load_wine_quality,
+                    'Breast Cancer': load_breast_cancer,
+                    'Credit Card Fraud': load_credit_card_fraud,
+                    'Housing Prices': load_housing_prices
+                }
+                if selected_dataset in loaders:
+                    X_train, X_test, y_train, y_test = loaders[selected_dataset]()
+                    df_automl = pd.concat([X_train, X_test], axis=0).reset_index(drop=True)
+                    y_automl = pd.concat([y_train, y_test], axis=0).reset_index(drop=True)
+                    st.success(f"✅ Loaded {len(df_automl)} rows")
+            except Exception as e:
+                st.error(f"Error loading dataset: {e}")
+    
+    if df_automl is not None and y_automl is not None:
+        # Auto-detect task type
+        is_classification = y_automl.dtype == 'object' or y_automl.nunique() < 20
         
         st.markdown("---")
-        st.subheader("📦 Registered Models")
-        registry = st.session_state.get('model_registry')
-        if registry is not None:
-            models = registry.list_models()
-            
-            if models:
-                for model in models[:5]:
-                    with st.expander(f"📦 {model['name']} v{model['version']}"):
-                        st.json({
-                            'type': model['model_type'],
-                            'stage': model['stage'],
-                            'metrics': model['performance_metrics'],
-                            'created': model['created_at']
+        st.markdown(f"### 🎯 Task Type: {'Classification' if is_classification else 'Regression'}")
+        
+        # Model selection
+        if is_classification:
+            models_to_test = st.multiselect(
+                "Select Models to Compare:",
+                ["Logistic Regression", "Decision Tree", "Random Forest", "SVM", "Ridge"],
+                default=["Logistic Regression", "Random Forest", "Decision Tree"],
+                key="automl_class_models"
+            )
+        else:
+            models_to_test = st.multiselect(
+                "Select Models to Compare:",
+                ["Ridge", "Decision Tree", "Random Forest", "SVR"],
+                default=["Ridge", "Random Forest"],
+                key="automl_reg_models"
+            )
+        
+        cv_folds = st.slider("Cross-Validation Folds", 3, 10, 5, key="automl_cv_folds")
+        
+        if st.button("🚀 Run AutoML", type="primary", key="run_automl_btn") and models_to_test:
+            with st.spinner("Training and comparing models..."):
+                try:
+                    from sklearn.model_selection import cross_val_score
+                    from sklearn.linear_model import LogisticRegression, Ridge
+                    from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+                    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+                    from sklearn.svm import SVC, SVR
+                    from sklearn.metrics import accuracy_score, mean_squared_error
+                    
+                    # Prepare data
+                    X = df_automl.select_dtypes(include=[np.number])
+                    if len(X.columns) == 0:
+                        st.error("No numeric columns found")
+                        st.stop()
+                    
+                    # Handle missing values
+                    X = X.fillna(X.mean())
+                    
+                    # Split data
+                    from sklearn.model_selection import train_test_split
+                    X_train_auto, X_test_auto, y_train_auto, y_test_auto = train_test_split(
+                        X, y_automl, test_size=0.2, random_state=42, stratify=y_automl if is_classification else None
+                    )
+                    
+                    # Model mapping
+                    model_map = {}
+                    if is_classification:
+                        model_map = {
+                            "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
+                            "Decision Tree": DecisionTreeClassifier(random_state=42),
+                            "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
+                            "SVM": SVC(random_state=42),
+                            "Ridge": Ridge()  # Not ideal for classification but included
+                        }
+                    else:
+                        model_map = {
+                            "Ridge": Ridge(random_state=42),
+                            "Decision Tree": DecisionTreeRegressor(random_state=42),
+                            "Random Forest": RandomForestRegressor(n_estimators=100, random_state=42),
+                            "SVR": SVR()
+                        }
+                    
+                    results = []
+                    
+                    for model_name in models_to_test:
+                        if model_name not in model_map:
+                            continue
+                        
+                        model = model_map[model_name]
+                        
+                        # Cross-validation
+                        if is_classification:
+                            cv_scores = cross_val_score(model, X_train_auto, y_train_auto, cv=cv_folds, scoring='accuracy')
+                            metric_name = "Accuracy"
+                        else:
+                            cv_scores = cross_val_score(model, X_train_auto, y_train_auto, cv=cv_folds, scoring='neg_mean_squared_error')
+                            cv_scores = -cv_scores
+                            metric_name = "RMSE"
+                        
+                        # Train and evaluate
+                        model.fit(X_train_auto, y_train_auto)
+                        
+                        if is_classification:
+                            test_score = accuracy_score(y_test_auto, model.predict(X_test_auto))
+                        else:
+                            test_score = np.sqrt(mean_squared_error(y_test_auto, model.predict(X_test_auto)))
+                        
+                        results.append({
+                            'Model': model_name,
+                            f'CV {metric_name}': f"{cv_scores.mean():.4f}",
+                            f'CV Std': f"{cv_scores.std():.4f}",
+                            f'Test {metric_name}': f"{test_score:.4f}"
                         })
+                    
+                    results_df = pd.DataFrame(results)
+                    
+                    # Find best model
+                    if is_classification:
+                        best_idx = results_df[f'CV {metric_name}'].astype(float).idxmax()
+                    else:
+                        best_idx = results_df[f'CV {metric_name}'].astype(float).idxmin()
+                    
+                    best_model = results_df.iloc[best_idx]['Model']
+                    
+                    st.markdown("---")
+                    st.markdown("### 📊 Model Comparison Results")
+                    
+                    # Highlight best model
+                    st.markdown(f"**🏆 Best Model: {best_model}**")
+                    
+                    # Results table
+                    st.dataframe(results_df, use_container_width=True, hide_index=True)
+                    
+                    # Visualization
+                    if is_classification:
+                        fig = px.bar(
+                            results_df,
+                            x='Model',
+                            y=f'CV {metric_name}',
+                            title="Model Performance Comparison (Cross-Validation Accuracy)",
+                            color=f'CV {metric_name}',
+                            color_continuous_scale='Viridis',
+                            error_y=results_df['CV Std'].astype(float)
+                        )
+                    else:
+                        fig = px.bar(
+                            results_df,
+                            x='Model',
+                            y=f'CV {metric_name}',
+                            title="Model Performance Comparison (Cross-Validation RMSE)",
+                            color=f'CV {metric_name}',
+                            color_continuous_scale='RdYlGn_r'
+                        )
+                    
+                    fig.update_layout(
+                        height=400,
+                        template="plotly_white",
+                        xaxis_title="",
+                        yaxis_title=metric_name
+                    )
+                    fig.update_traces(marker_line_width=1.5, marker_line_color='white')
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                except Exception as e:
+                    st.error(f"Error running AutoML: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
+    else:
+        st.info("👆 Load a dataset above to begin AutoML analysis")
+
+# --- Time Series Analysis Tab ---
+with tab15:
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">📈 Time Series Analysis</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.15rem;">
+            Time series forecasting, decomposition, and trend analysis
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    ts_option = st.radio(
+        "Data Source:",
+        ["Generate Sample Data", "Upload CSV"],
+        key="ts_data_source"
+    )
+    
+    df_ts = None
+    
+    if ts_option == "Generate Sample Data":
+        if st.button("Generate Sample Time Series", key="generate_ts_btn"):
+            dates = pd.date_range(start='2020-01-01', end='2024-12-31', freq='D')
+            trend = np.linspace(100, 200, len(dates))
+            seasonal = 10 * np.sin(2 * np.pi * np.arange(len(dates)) / 365.25)
+            noise = np.random.normal(0, 5, len(dates))
+            values = trend + seasonal + noise
+            
+            df_ts = pd.DataFrame({
+                'date': dates,
+                'value': values
+            }).set_index('date')
+            
+            st.session_state['ts_data'] = df_ts
+            st.success(f"✅ Generated {len(df_ts)} data points")
+    else:
+        uploaded_file = st.file_uploader("Upload CSV file", type=['csv'], key="ts_csv_upload")
+        if uploaded_file:
+            df_ts = pd.read_csv(uploaded_file)
+            date_col = st.selectbox("Select Date Column:", df_ts.columns.tolist(), key="ts_date_select")
+            value_col = st.selectbox("Select Value Column:", df_ts.columns.tolist(), key="ts_value_select")
+            
+            if date_col and value_col:
+                df_ts[date_col] = pd.to_datetime(df_ts[date_col])
+                df_ts = df_ts.set_index(date_col)[[value_col]]
+                df_ts.columns = ['value']
+                st.session_state['ts_data'] = df_ts
+                st.success(f"✅ Loaded {len(df_ts)} data points")
+    
+    if 'ts_data' in st.session_state:
+        df_ts = st.session_state['ts_data']
+    
+    if df_ts is not None and len(df_ts) > 0:
+        # Time series visualization
+        st.markdown("---")
+        st.markdown("### 📊 Time Series Visualization")
+        
+        ts_fig = px.line(
+            df_ts.reset_index(),
+            x=df_ts.index.name if df_ts.index.name else 'date',
+            y='value',
+            title="Time Series Data",
+            markers=True
+        )
+        ts_fig.update_layout(
+            height=500,
+            template="plotly_white",
+            xaxis_title="Date",
+            yaxis_title="Value"
+        )
+        st.plotly_chart(ts_fig, use_container_width=True)
+        
+        # Statistical analysis
+        st.markdown("---")
+        st.markdown("### 📈 Statistical Analysis")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Mean", f"{df_ts['value'].mean():.2f}")
+        with col2:
+            st.metric("Std Dev", f"{df_ts['value'].std():.2f}")
+        with col3:
+            trend_direction = "Upward" if df_ts['value'].iloc[-1] > df_ts['value'].iloc[0] else "Downward"
+            st.metric("Trend", trend_direction)
+        with col4:
+            autocorr = df_ts['value'].autocorr(lag=1)
+            st.metric("Autocorrelation (lag=1)", f"{autocorr:.3f}")
+        
+        # Decomposition
+        st.markdown("---")
+        st.markdown("### 🔍 Time Series Decomposition")
+        
+        if SCIPY_AVAILABLE:
+            # Simple moving average for trend
+            window_size = st.slider("Moving Average Window", 7, 365, 30, key="ma_window")
+            df_ts['trend'] = df_ts['value'].rolling(window=window_size, center=True).mean()
+            df_ts['detrended'] = df_ts['value'] - df_ts['trend']
+            
+            # Seasonal component (simplified)
+            if len(df_ts) > 365:
+                df_ts['seasonal'] = df_ts.groupby(df_ts.index.dayofyear)['detrended'].transform('mean')
             else:
-                st.info("No models registered yet. Train models to see them here.")
+                df_ts['seasonal'] = 0
+            
+            df_ts['residual'] = df_ts['detrended'] - df_ts['seasonal']
+            
+            # Plot decomposition
+            decomp_fig = go.Figure()
+            
+            decomp_fig.add_trace(go.Scatter(x=df_ts.index, y=df_ts['value'], name='Original', line=dict(color='blue')))
+            decomp_fig.add_trace(go.Scatter(x=df_ts.index, y=df_ts['trend'], name='Trend', line=dict(color='red', dash='dash')))
+            decomp_fig.add_trace(go.Scatter(x=df_ts.index, y=df_ts['seasonal'], name='Seasonal', line=dict(color='green')))
+            decomp_fig.add_trace(go.Scatter(x=df_ts.index, y=df_ts['residual'], name='Residual', line=dict(color='orange')))
+            
+            decomp_fig.update_layout(
+                title="Time Series Decomposition",
+                height=600,
+                template="plotly_white",
+                xaxis_title="Date",
+                yaxis_title="Value"
+            )
+            st.plotly_chart(decomp_fig, use_container_width=True)
+        
+        # Forecasting
+        st.markdown("---")
+        st.markdown("### 🔮 Simple Forecasting")
+        
+        forecast_horizon = st.slider("Forecast Horizon (days)", 7, 365, 30, key="forecast_horizon")
+        
+        if st.button("Generate Forecast", key="generate_forecast_btn"):
+            # Simple linear trend forecast
+            last_value = df_ts['value'].iloc[-1]
+            trend_slope = (df_ts['value'].iloc[-30:].mean() - df_ts['value'].iloc[:30].mean()) / len(df_ts)
+            
+            future_dates = pd.date_range(start=df_ts.index[-1] + pd.Timedelta(days=1), periods=forecast_horizon, freq='D')
+            forecast_values = last_value + trend_slope * np.arange(1, forecast_horizon + 1)
+            
+            forecast_df = pd.DataFrame({
+                'date': future_dates,
+                'forecast': forecast_values
+            }).set_index('date')
+            
+            # Combine historical and forecast
+            combined_fig = go.Figure()
+            
+            combined_fig.add_trace(go.Scatter(
+                x=df_ts.index,
+                y=df_ts['value'],
+                name='Historical',
+                line=dict(color='blue', width=2)
+            ))
+            
+            combined_fig.add_trace(go.Scatter(
+                x=forecast_df.index,
+                y=forecast_df['forecast'],
+                name='Forecast',
+                line=dict(color='red', width=2, dash='dash')
+            ))
+            
+            combined_fig.update_layout(
+                title=f"Time Series Forecast ({forecast_horizon} days ahead)",
+                height=500,
+                template="plotly_white",
+                xaxis_title="Date",
+                yaxis_title="Value"
+            )
+            st.plotly_chart(combined_fig, use_container_width=True)
+            
+            st.markdown(f"**Forecast Summary:**")
+            st.markdown(f"- Forecast start: {forecast_df.index[0].strftime('%Y-%m-%d')}")
+            st.markdown(f"- Forecast end: {forecast_df.index[-1].strftime('%Y-%m-%d')}")
+            st.markdown(f"- Predicted value at end: {forecast_df['forecast'].iloc[-1]:.2f}")
+    else:
+        st.info("👆 Generate sample data or upload a CSV file to begin time series analysis")
+
+# --- Model Ensembling Tab ---
+with tab16:
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">🎯 Model Ensembling</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.15rem;">
+            Combine multiple models for improved performance using Voting, Stacking, and Blending
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
-    st.subheader("🎯 Dataset Showcase Highlights")
+    if not SKLEARN_AVAILABLE:
+        st.error("⚠️ scikit-learn not available. Install with: pip install scikit-learn")
+        st.stop()
     
-    col1, col2, col3 = st.columns(3)
+    # Dataset selection
+    ensemble_dataset = st.selectbox(
+        "Select Dataset:",
+        ["Wine Quality", "Breast Cancer", "Housing Prices"],
+        key="ensemble_dataset_select"
+    )
     
-    with col1:
-        st.markdown("""
-        **🏆 Wine Quality**
-        - Classification task
-        - 11 features
-        - Predict wine quality (0-10)
-        """)
-    
-    with col2:
-        st.markdown("""
-        **🏥 Breast Cancer**
-        - Binary classification
-        - 30 features
-        - Medical diagnosis
-        """)
-    
-    with col3:
-        st.markdown("""
-        **📄 Contract Classification**
-        - Multi-class classification
-        - FinQuery domain
-        - Contract type prediction
-        """)
+    if st.button("Load Dataset & Train Ensemble", type="primary", key="train_ensemble_btn"):
+        with st.spinner("Training ensemble models..."):
+            try:
+                from sklearn.ensemble import VotingClassifier, VotingRegressor, RandomForestClassifier, RandomForestRegressor
+                from sklearn.linear_model import LogisticRegression, Ridge
+                from sklearn.svm import SVC, SVR
+                from sklearn.model_selection import cross_val_score
+                from sklearn.metrics import accuracy_score, mean_squared_error
+                
+                loaders = {
+                    'Wine Quality': load_wine_quality,
+                    'Breast Cancer': load_breast_cancer,
+                    'Housing Prices': load_housing_prices
+                }
+                
+                X_train, X_test, y_train, y_test = loaders[ensemble_dataset]()
+                
+                # Determine task type
+                is_classification = y_train.dtype == 'object' or y_train.nunique() < 20
+                
+                # Prepare data
+                X_train_ens = X_train.select_dtypes(include=[np.number]).fillna(X_train.select_dtypes(include=[np.number]).mean())
+                X_test_ens = X_test.select_dtypes(include=[np.number]).fillna(X_test.select_dtypes(include=[np.number]).mean())
+                
+                if is_classification:
+                    # Base models
+                    rf = RandomForestClassifier(n_estimators=100, random_state=42)
+                    lr = LogisticRegression(max_iter=1000, random_state=42)
+                    svm = SVC(probability=True, random_state=42)
+                    
+                    # Individual model performance
+                    individual_results = []
+                    for name, model in [("Random Forest", rf), ("Logistic Regression", lr), ("SVM", svm)]:
+                        scores = cross_val_score(model, X_train_ens, y_train, cv=5, scoring='accuracy')
+                        model.fit(X_train_ens, y_train)
+                        test_acc = accuracy_score(y_test, model.predict(X_test_ens))
+                        individual_results.append({
+                            'Model': name,
+                            'CV Accuracy': f"{scores.mean():.4f}",
+                            'Test Accuracy': f"{test_acc:.4f}"
+                        })
+                    
+                    # Voting Classifier
+                    voting_clf = VotingClassifier(
+                        estimators=[('rf', rf), ('lr', lr), ('svm', svm)],
+                        voting='soft'
+                    )
+                    
+                    voting_scores = cross_val_score(voting_clf, X_train_ens, y_train, cv=5, scoring='accuracy')
+                    voting_clf.fit(X_train_ens, y_train)
+                    voting_test_acc = accuracy_score(y_test, voting_clf.predict(X_test_ens))
+                    
+                    ensemble_results = {
+                        'Model': 'Voting Classifier',
+                        'CV Accuracy': f"{voting_scores.mean():.4f}",
+                        'Test Accuracy': f"{voting_test_acc:.4f}"
+                    }
+                    
+                else:
+                    # Regression models
+                    rf = RandomForestRegressor(n_estimators=100, random_state=42)
+                    ridge = Ridge(random_state=42)
+                    svr = SVR()
+                    
+                    # Individual model performance
+                    individual_results = []
+                    for name, model in [("Random Forest", rf), ("Ridge", ridge), ("SVR", svr)]:
+                        scores = cross_val_score(model, X_train_ens, y_train, cv=5, scoring='neg_mean_squared_error')
+                        rmse_cv = np.sqrt(-scores.mean())
+                        model.fit(X_train_ens, y_train)
+                        test_rmse = np.sqrt(mean_squared_error(y_test, model.predict(X_test_ens)))
+                        individual_results.append({
+                            'Model': name,
+                            'CV RMSE': f"{rmse_cv:.4f}",
+                            'Test RMSE': f"{test_rmse:.4f}"
+                        })
+                    
+                    # Voting Regressor
+                    voting_reg = VotingRegressor(
+                        estimators=[('rf', rf), ('ridge', ridge), ('svr', svr)]
+                    )
+                    
+                    voting_scores = cross_val_score(voting_reg, X_train_ens, y_train, cv=5, scoring='neg_mean_squared_error')
+                    rmse_cv = np.sqrt(-voting_scores.mean())
+                    voting_reg.fit(X_train_ens, y_train)
+                    voting_test_rmse = np.sqrt(mean_squared_error(y_test, voting_reg.predict(X_test_ens)))
+                    
+                    ensemble_results = {
+                        'Model': 'Voting Regressor',
+                        'CV RMSE': f"{rmse_cv:.4f}",
+                        'Test RMSE': f"{voting_test_rmse:.4f}"
+                    }
+                
+                # Combine results
+                all_results = individual_results + [ensemble_results]
+                results_df = pd.DataFrame(all_results)
+                
+                st.markdown("---")
+                st.markdown("### 📊 Ensemble vs Individual Models")
+                
+                # Highlight ensemble
+                st.markdown(f"**🎯 Ensemble Model: {ensemble_results['Model']}**")
+                
+                st.dataframe(results_df, use_container_width=True, hide_index=True)
+                
+                # Visualization
+                if is_classification:
+                    metric_col = 'CV Accuracy'
+                    fig = px.bar(
+                        results_df,
+                        x='Model',
+                        y=metric_col,
+                        title="Model Performance: Individual vs Ensemble",
+                        color='Model',
+                        color_discrete_map={
+                            'Voting Classifier': '#667eea',
+                            'Random Forest': '#4facfe',
+                            'Logistic Regression': '#43e97b',
+                            'SVM': '#fa709a'
+                        }
+                    )
+                else:
+                    metric_col = 'CV RMSE'
+                    fig = px.bar(
+                        results_df,
+                        x='Model',
+                        y=metric_col,
+                        title="Model Performance: Individual vs Ensemble (Lower is Better)",
+                        color='Model',
+                        color_discrete_map={
+                            'Voting Regressor': '#667eea',
+                            'Random Forest': '#4facfe',
+                            'Ridge': '#43e97b',
+                            'SVR': '#fa709a'
+                        }
+                    )
+                
+                fig.update_layout(
+                    height=400,
+                    template="plotly_white",
+                    xaxis_title="",
+                    yaxis_title=metric_col
+                )
+                fig.update_traces(marker_line_width=1.5, marker_line_color='white')
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Improvement calculation
+                if is_classification:
+                    best_individual = max([float(r['CV Accuracy']) for r in individual_results])
+                    ensemble_score = float(ensemble_results['CV Accuracy'])
+                    improvement = ((ensemble_score - best_individual) / best_individual) * 100
+                else:
+                    best_individual = min([float(r['CV RMSE']) for r in individual_results])
+                    ensemble_score = float(ensemble_results['CV RMSE'])
+                    improvement = ((best_individual - ensemble_score) / best_individual) * 100
+                
+                st.markdown("---")
+                st.markdown("### 💡 Ensemble Insights")
+                
+                if improvement > 0:
+                    st.success(f"✅ **Ensemble improves performance by {improvement:.2f}%** over the best individual model")
+                else:
+                    st.info(f"ℹ️ Ensemble performance: {improvement:.2f}% (may need tuning)")
+                
+                st.markdown("""
+                **Ensembling Benefits:**
+                - Reduces overfitting by combining multiple models
+                - Captures different patterns from different algorithms
+                - More robust predictions through model diversity
+                - Typically improves generalization performance
+                """)
+                
+            except Exception as e:
+                st.error(f"Error training ensemble: {e}")
+                import traceback
+                st.code(traceback.format_exc())
 
 # --- Footer ---
 st.markdown("---")

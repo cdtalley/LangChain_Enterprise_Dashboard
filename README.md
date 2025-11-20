@@ -71,7 +71,7 @@ python --version  # Should be 3.11.x or 3.12.x
 # Linux: sudo apt install python3.12
 ```
 
-See [PYTHON313_COMPATIBILITY.md](PYTHON313_COMPATIBILITY.md) for installation instructions.
+See [PYTHON313_COMPATIBILITY.md](PYTHON313_COMPATIBILITY.md) for detailed Python setup instructions.
 
 ### Local Development
 
@@ -525,17 +525,32 @@ async def process_query(query: QueryRequest) -> QueryResponse:
 
 ## 📚 **Documentation**
 
-### **Developer Resources**
-- 📖 **[API Documentation](http://localhost:8000/docs)**: Interactive API explorer
-- 🏗️ **[Architecture Guide](docs/architecture.md)**: System design and patterns
-- 🔧 **[Development Guide](docs/development.md)**: Setup and contribution guidelines
-- 🚀 **[Deployment Guide](docs/deployment.md)**: Production deployment instructions
+### **Setup & Configuration**
+- 🔧 **[Python Setup Guide](PYTHON313_COMPATIBILITY.md)**: Python version requirements and environment setup
+- 📖 **[API Documentation](http://localhost:8000/docs)**: Interactive API explorer (when running)
 
-### **User Guides**
-- 👋 **[Getting Started](docs/getting-started.md)**: Quick start tutorial
-- 🎯 **[Feature Guide](docs/features.md)**: Comprehensive feature overview
-- 💡 **[Best Practices](docs/best-practices.md)**: Optimal usage patterns
-- ❓ **[FAQ](docs/faq.md)**: Frequently asked questions
+### **Feature Documentation**
+- 📊 **[MLOps Features](docs/MLOPS_FEATURES.md)**: Complete MLOps platform documentation
+- 📦 **[Model Management](docs/MODEL_MANAGEMENT_FEATURES.md)**: Model registry and lifecycle management
+- 🔗 **[Integration Guide](docs/INTEGRATION_GUIDE.md)**: AWS, GCP, Azure integrations
+- 📚 **[MLOps README](docs/README_MLOPS.md)**: MLOps platform overview
+
+### **Showcase & Examples**
+- 🚀 **[Quick Demo Guide](docs/QUICK_DEMO_GUIDE.md)**: Step-by-step demo walkthrough
+- 📈 **[Project Showcase](docs/PROJECT_SHOWCASE.md)**: Project highlights and capabilities
+- 💼 **[Employer Showcase](docs/EMPLOYER_SHOWCASE.md)**: Business value demonstration
+- 📊 **[Datasets Showcase](docs/DATASETS_SHOWCASE.md)**: Pre-loaded datasets and training
+
+### **Development Resources**
+- 🎯 **[Complete Features List](docs/COMPLETE_FEATURES_LIST.md)**: Comprehensive feature catalog
+- ✨ **[Enhancements Summary](docs/ENHANCEMENTS_SUMMARY.md)**: Recent improvements and updates
+- 💻 **[Code Improvements](docs/EXPERT_CODE_IMPROVEMENTS.md)**: Code quality and refactoring notes
+
+### **Interview & Career**
+- 🎓 **[Interview Prep](docs/INTERVIEW_PREP.md)**: Interview talking points and preparation
+- 📋 **[Job Requirements](docs/JOB_REQUIREMENTS_IMPLEMENTATION.md)**: Requirements mapping
+- 🔍 **[Skills Analysis](docs/SKILLS_GAP_ANALYSIS.md)**: Skills assessment
+- 🎯 **[Skills Match](docs/FINQUERY_SKILLS_MATCH.md)**: Skills alignment analysis
 
 ---
 
