@@ -1,121 +1,45 @@
-# Python
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Python (keep existing Python files)
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environments
 venv/
 venv312/
 env/
 ENV/
-env.bak/
-venv.bak/
-.venv/
-.conda/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-*.sublime-project
-*.sublime-workspace
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-logs/
-*.log.*
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Data files (uncomment if you don't want to track data)
-# data/
-# *.csv
-# *.json
-# *.parquet
-
-# Model files (uncomment if models are too large)
-# models/
-# *.pkl
-# *.joblib
-# *.h5
-# *.ckpt
-
-# Uploads
-uploads/*
-!uploads/.gitkeep
-
-# Cache
-.cache/
-*.cache
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# OS
-Thumbs.db
-.DS_Store
-*.swp
-*.swo
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# Coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-
-# Documentation builds
-docs/_build/
-site/
-
-# Kubernetes secrets
-*.secret.yaml
-*.secret.yml
-
-# Local configuration
-config.local.py
-settings.local.py
-

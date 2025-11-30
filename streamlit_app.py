@@ -28,6 +28,7 @@ from langchain_visualizations import (
     create_chain_performance_comparison, create_agent_decision_tree,
     create_cost_estimation_chart
 )
+from demo_data_generator import DemoDataGenerator
 
 # Advanced data science imports
 try:
@@ -623,6 +624,129 @@ with tab0:
             <p style="color: #34495e; font-size: 1rem; line-height: 1.6; margin: 0;">Pre-loaded datasets with automated model training and evaluation</p>
         </div>
         """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Auto-load impressive demo datasets on first visit
+    if 'demo_generator' not in st.session_state:
+        st.session_state['demo_generator'] = DemoDataGenerator()
+    
+    if 'welcome_demo_loaded' not in st.session_state:
+        with st.spinner("✨ Loading impressive demo datasets..."):
+            demo_gen = st.session_state['demo_generator']
+            # Generate multiple impressive datasets
+            try:
+                st.session_state['welcome_finance_data'] = demo_gen.generate_finance_data(2000)
+                st.session_state['welcome_ecommerce_data'] = demo_gen.generate_ecommerce_data(1500)
+                st.session_state['welcome_healthcare_data'] = demo_gen.generate_healthcare_data(1000)
+                st.session_state['welcome_demo_loaded'] = True
+            except Exception as e:
+                st.warning(f"Demo data generation had issues: {e}")
+    
+    # Showcase Demo Datasets Section
+    if 'welcome_demo_loaded' in st.session_state and st.session_state['welcome_demo_loaded']:
+        st.markdown('<h2 class="section-header">📊 Live Demo Datasets</h2>', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 1rem; margin-bottom: 1.5rem; color: white;">
+            <p style="margin: 0; font-size: 1.1rem; text-align: center;">
+                <strong>✨ Pre-loaded datasets ready for exploration!</strong> Click any card below to dive into interactive visualizations.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        demo_col1, demo_col2, demo_col3 = st.columns(3)
+        
+        with demo_col1:
+            finance_df = st.session_state.get('welcome_finance_data')
+            if finance_df is not None:
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 0.75rem; color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px) scale(1.02)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 0.5rem;">💳</div>
+                    <h3 style="color: white; text-align: center; margin: 0.5rem 0;">Finance</h3>
+                    <p style="text-align: center; font-size: 0.9rem; opacity: 0.95; margin: 0;">{:,} transactions</p>
+                </div>
+                """.format(len(finance_df)), unsafe_allow_html=True)
+                
+                # Quick visualization
+                if len(finance_df) > 0:
+                    fig = px.histogram(
+                        finance_df.head(500), 
+                        x='amount', 
+                        nbins=30,
+                        title="Transaction Amount Distribution",
+                        labels={'amount': 'Amount ($)', 'count': 'Frequency'}
+                    )
+                    fig.update_layout(height=250, showlegend=False, margin=dict(l=0, r=0, t=30, b=0))
+                    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+                    
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.metric("Avg Amount", f"${finance_df['amount'].mean():.2f}")
+                    with col_b:
+                        fraud_rate = finance_df['is_fraud'].mean() * 100
+                        st.metric("Fraud Rate", f"{fraud_rate:.2f}%")
+        
+        with demo_col2:
+            ecommerce_df = st.session_state.get('welcome_ecommerce_data')
+            if ecommerce_df is not None:
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 0.75rem; color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px) scale(1.02)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 0.5rem;">🛒</div>
+                    <h3 style="color: white; text-align: center; margin: 0.5rem 0;">E-commerce</h3>
+                    <p style="text-align: center; font-size: 0.9rem; opacity: 0.95; margin: 0;">{:,} orders</p>
+                </div>
+                """.format(len(ecommerce_df)), unsafe_allow_html=True)
+                
+                # Quick visualization
+                if len(ecommerce_df) > 0:
+                    product_counts = ecommerce_df['product'].value_counts().head(5)
+                    fig = px.bar(
+                        x=product_counts.index,
+                        y=product_counts.values,
+                        title="Top 5 Products",
+                        labels={'x': 'Product', 'y': 'Orders'}
+                    )
+                    fig.update_layout(height=250, showlegend=False, margin=dict(l=0, r=0, t=30, b=0))
+                    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+                    
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.metric("Total Revenue", f"${ecommerce_df['total_amount'].sum():,.0f}")
+                    with col_b:
+                        st.metric("Avg Order", f"${ecommerce_df['total_amount'].mean():.2f}")
+        
+        with demo_col3:
+            healthcare_df = st.session_state.get('welcome_healthcare_data')
+            if healthcare_df is not None:
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem; color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px) scale(1.02)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 0.5rem;">🏥</div>
+                    <h3 style="color: white; text-align: center; margin: 0.5rem 0;">Healthcare</h3>
+                    <p style="text-align: center; font-size: 0.9rem; opacity: 0.95; margin: 0;">{:,} patients</p>
+                </div>
+                """.format(len(healthcare_df)), unsafe_allow_html=True)
+                
+                # Quick visualization
+                if len(healthcare_df) > 0:
+                    condition_counts = healthcare_df['condition'].value_counts()
+                    fig = px.pie(
+                        values=condition_counts.values,
+                        names=condition_counts.index,
+                        title="Condition Distribution",
+                        hole=0.4
+                    )
+                    fig.update_layout(height=250, showlegend=False, margin=dict(l=0, r=0, t=30, b=0))
+                    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+                    
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.metric("Avg Age", f"{healthcare_df['age'].mean():.1f}")
+                    with col_b:
+                        readmit_rate = healthcare_df['readmission_risk'].mean() * 100
+                        st.metric("Readmit Risk", f"{readmit_rate:.1f}%")
+        
+        st.markdown("---")
+        st.info("💡 **Tip:** Navigate to the **📈 Analytics Dashboard** or **🎯 Enterprise Demo** tab to explore these datasets in detail with advanced visualizations and analysis!")
     
     st.markdown("---")
     
@@ -1502,6 +1626,379 @@ with tab4:
     </div>
     """, unsafe_allow_html=True)
     
+    # Auto-load demo data on first visit
+    if 'demo_generator' not in st.session_state:
+        st.session_state['demo_generator'] = DemoDataGenerator()
+    
+    demo_gen = st.session_state['demo_generator']
+    available_datasets = demo_gen.get_available_datasets()
+    
+    # Auto-generate a sample dataset if none exists
+    if 'demo_data' not in st.session_state or st.session_state['demo_data'] is None:
+        with st.spinner("✨ Loading sample demo dataset..."):
+            try:
+                # Generate E-commerce data as default showcase
+                default_df = demo_gen.generate_ecommerce_data(1500)
+                st.session_state['demo_data'] = default_df
+                st.session_state['demo_industry'] = 'E-commerce'
+                st.session_state['auto_loaded_demo'] = True
+            except Exception as e:
+                st.warning(f"Could not auto-load demo data: {e}")
+    
+    # Demo Data Generator Section
+    st.markdown("### 🎯 Demo Data Generator")
+    st.markdown("Generate realistic demo datasets from various industries for testing and demonstrations.")
+    
+    if st.session_state.get('auto_loaded_demo', False):
+        st.success("✨ **Sample dataset auto-loaded!** Explore the visualizations below or generate a custom dataset.")
+    
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        selected_industry = st.selectbox(
+            "Select Industry:",
+            options=list(available_datasets.keys()),
+            format_func=lambda x: f"{available_datasets[x]['icon']} {x} - {available_datasets[x]['description']}",
+            key="demo_industry_select"
+        )
+    
+    with col2:
+        n_records = st.number_input(
+            "Number of Records:",
+            min_value=100,
+            max_value=10000,
+            value=1000,
+            step=100,
+            key="demo_n_records"
+        )
+    
+    with col3:
+        st.write("")  # Spacing
+        st.write("")  # Spacing
+        generate_btn = st.button("🚀 Generate Dataset", type="primary", key="generate_demo_btn")
+    
+    if generate_btn:
+        with st.spinner(f"Generating {n_records} records for {selected_industry}..."):
+            try:
+                demo_df = demo_gen.generate_dataset(selected_industry, n_records)
+                st.session_state['demo_data'] = demo_df
+                st.session_state['demo_industry'] = selected_industry
+                st.success(f"✅ Generated {len(demo_df)} records for {selected_industry}!")
+                
+                # Show preview
+                with st.expander("📋 Preview Generated Data"):
+                    st.dataframe(demo_df.head(20), use_container_width=True)
+                    st.write(f"**Shape:** {demo_df.shape[0]} rows × {demo_df.shape[1]} columns")
+                    st.write(f"**Columns:** {', '.join(demo_df.columns.tolist())}")
+            except Exception as e:
+                st.error(f"Error generating dataset: {e}")
+    
+    # Show current demo data if available
+    if 'demo_data' in st.session_state and st.session_state['demo_data'] is not None:
+        st.markdown("---")
+        demo_df = st.session_state['demo_data']
+        current_industry = st.session_state.get('demo_industry', 'Unknown')
+        
+        st.markdown(f"### 📊 Current Demo Dataset: {available_datasets[current_industry]['icon']} {current_industry}")
+        
+        # Quick stats
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Total Records", f"{len(demo_df):,}")
+        with col2:
+            st.metric("Columns", len(demo_df.columns))
+        with col3:
+            numeric_cols = demo_df.select_dtypes(include=[np.number]).columns
+            st.metric("Numeric Columns", len(numeric_cols))
+        with col4:
+            st.metric("Memory Usage", f"{demo_df.memory_usage(deep=True).sum() / 1024:.1f} KB")
+        
+        # Data exploration tabs
+        explore_tabs = st.tabs(["📋 Data Preview", "📈 Statistics", "🔍 Visualizations", "💾 Export"])
+        
+        with explore_tabs[0]:
+            st.dataframe(demo_df, use_container_width=True, height=400)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Data Types:**")
+                dtype_df = pd.DataFrame({
+                    'Column': demo_df.columns,
+                    'Type': [str(dtype) for dtype in demo_df.dtypes],
+                    'Non-Null Count': demo_df.count().values,
+                    'Null Count': demo_df.isnull().sum().values
+                })
+                st.dataframe(dtype_df, use_container_width=True, hide_index=True)
+            
+            with col2:
+                st.markdown("**Missing Values:**")
+                missing = demo_df.isnull().sum()
+                if missing.sum() > 0:
+                    missing_df = pd.DataFrame({
+                        'Column': missing.index,
+                        'Missing Count': missing.values,
+                        'Percentage': (missing.values / len(demo_df) * 100).round(2)
+                    })
+                    missing_df = missing_df[missing_df['Missing Count'] > 0]
+                    st.dataframe(missing_df, use_container_width=True, hide_index=True)
+                else:
+                    st.success("✅ No missing values!")
+        
+        with explore_tabs[1]:
+            st.markdown("#### Descriptive Statistics")
+            st.dataframe(demo_df.describe(), use_container_width=True)
+            
+            if len(numeric_cols) > 0:
+                st.markdown("#### Correlation Matrix")
+                corr_matrix = demo_df[numeric_cols].corr()
+                corr_fig = px.imshow(
+                    corr_matrix,
+                    text_auto=True,
+                    aspect="auto",
+                    color_continuous_scale='RdBu',
+                    title="Correlation Heatmap"
+                )
+                st.plotly_chart(corr_fig, use_container_width=True)
+        
+        with explore_tabs[2]:
+            if len(numeric_cols) > 0:
+                # Enhanced visualization options
+                viz_type = st.radio(
+                    "Visualization Type:",
+                    ["📊 Quick Insights", "📈 Histogram", "📦 Box Plot", "📉 Line Plot", "🔍 Scatter Plot", "🌡️ Heatmap"],
+                    horizontal=True,
+                    key="viz_type_select"
+                )
+                
+                if viz_type == "📊 Quick Insights":
+                    st.markdown("#### 🎯 Automated Insights Dashboard")
+                    
+                    # Auto-generate multiple insightful visualizations
+                    insight_col1, insight_col2 = st.columns(2)
+                    
+                    with insight_col1:
+                        # Top distributions
+                        top_numeric = numeric_cols[:min(3, len(numeric_cols))]
+                        for col in top_numeric:
+                            fig = px.histogram(
+                                demo_df, 
+                                x=col, 
+                                nbins=30, 
+                                title=f"Distribution: {col}",
+                                color_discrete_sequence=['#667eea']
+                            )
+                            fig.update_layout(height=250, margin=dict(l=0, r=0, t=30, b=0))
+                            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+                    
+                    with insight_col2:
+                        # Summary statistics
+                        st.markdown("#### 📈 Key Statistics")
+                        for col in top_numeric:
+                            st.markdown(f"**{col}**")
+                            stat_col1, stat_col2, stat_col3 = st.columns(3)
+                            with stat_col1:
+                                st.metric("Mean", f"{demo_df[col].mean():.2f}")
+                            with stat_col2:
+                                st.metric("Median", f"{demo_df[col].median():.2f}")
+                            with stat_col3:
+                                st.metric("Std Dev", f"{demo_df[col].std():.2f}")
+                            st.markdown("---")
+                        
+                        # Correlation insights
+                        if len(numeric_cols) > 1:
+                            st.markdown("#### 🔗 Top Correlations")
+                            corr_matrix = demo_df[numeric_cols].corr()
+                            # Get top correlations (excluding self-correlations)
+                            corr_pairs = []
+                            for i in range(len(corr_matrix.columns)):
+                                for j in range(i+1, len(corr_matrix.columns)):
+                                    corr_pairs.append((
+                                        corr_matrix.columns[i],
+                                        corr_matrix.columns[j],
+                                        corr_matrix.iloc[i, j]
+                                    ))
+                            corr_pairs.sort(key=lambda x: abs(x[2]), reverse=True)
+                            
+                            for col1, col2, corr_val in corr_pairs[:5]:
+                                st.markdown(f"**{col1}** ↔ **{col2}**: `{corr_val:.3f}`")
+                
+                elif viz_type == "📈 Histogram":
+                    selected_col = st.selectbox("Select Column:", numeric_cols, key="hist_col_select")
+                    fig = px.histogram(
+                        demo_df, 
+                        x=selected_col, 
+                        nbins=30, 
+                        title=f"Distribution of {selected_col}",
+                        color_discrete_sequence=['#667eea']
+                    )
+                    fig.update_layout(height=500)
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                elif viz_type == "📦 Box Plot":
+                    selected_col = st.selectbox("Select Column:", numeric_cols, key="box_col_select")
+                    
+                    # Check if there's a categorical column to group by
+                    categorical_cols = demo_df.select_dtypes(include=['object', 'category']).columns
+                    if len(categorical_cols) > 0:
+                        group_by = st.selectbox("Group By (Optional):", [None] + list(categorical_cols), key="box_group_select")
+                        if group_by:
+                            fig = px.box(demo_df, x=group_by, y=selected_col, title=f"{selected_col} by {group_by}")
+                        else:
+                            fig = px.box(demo_df, y=selected_col, title=f"Box Plot of {selected_col}")
+                    else:
+                        fig = px.box(demo_df, y=selected_col, title=f"Box Plot of {selected_col}")
+                    
+                    fig.update_layout(height=500)
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                elif viz_type == "📉 Line Plot":
+                    selected_col = st.selectbox("Select Column:", numeric_cols, key="line_col_select")
+                    
+                    if demo_df.select_dtypes(include=['datetime']).columns.any():
+                        date_col = demo_df.select_dtypes(include=['datetime']).columns[0]
+                        # Aggregate by date if needed
+                        if len(demo_df) > 1000:
+                            demo_df_sorted = demo_df.sort_values(date_col)
+                            demo_df_sorted['date_group'] = pd.to_datetime(demo_df_sorted[date_col]).dt.date
+                            daily_agg = demo_df_sorted.groupby('date_group')[selected_col].mean().reset_index()
+                            fig = px.line(
+                                daily_agg, 
+                                x='date_group', 
+                                y=selected_col, 
+                                title=f"{selected_col} Over Time (Daily Average)",
+                                color_discrete_sequence=['#764ba2']
+                            )
+                        else:
+                            fig = px.line(demo_df, x=date_col, y=selected_col, title=f"{selected_col} Over Time")
+                    else:
+                        fig = px.line(demo_df, y=selected_col, title=f"{selected_col} Trend")
+                    
+                    fig.update_layout(height=500)
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                elif viz_type == "🔍 Scatter Plot":
+                    if len(numeric_cols) > 1:
+                        x_col = st.selectbox("X-axis:", numeric_cols, key="scatter_x")
+                        y_col = st.selectbox("Y-axis:", numeric_cols, key="scatter_y")
+                        
+                        # Check for categorical column for color
+                        categorical_cols = demo_df.select_dtypes(include=['object', 'category']).columns
+                        color_by = None
+                        if len(categorical_cols) > 0:
+                            color_by = st.selectbox("Color By (Optional):", [None] + list(categorical_cols), key="scatter_color")
+                        
+                        if color_by:
+                            fig = px.scatter(
+                                demo_df, 
+                                x=x_col, 
+                                y=y_col, 
+                                color=color_by,
+                                title=f"{y_col} vs {x_col}",
+                                hover_data=[c for c in demo_df.columns if c not in [x_col, y_col, color_by]][:3]
+                            )
+                        else:
+                            fig = px.scatter(
+                                demo_df, 
+                                x=x_col, 
+                                y=y_col, 
+                                title=f"{y_col} vs {x_col}",
+                                color_discrete_sequence=['#43e97b']
+                            )
+                        
+                        fig.update_layout(height=500)
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.warning("Need at least 2 numeric columns for scatter plot.")
+                
+                elif viz_type == "🌡️ Heatmap":
+                    if len(numeric_cols) > 1:
+                        corr_matrix = demo_df[numeric_cols].corr()
+                        fig = px.imshow(
+                            corr_matrix,
+                            text_auto=True,
+                            aspect="auto",
+                            color_continuous_scale='RdBu',
+                            title="Correlation Heatmap",
+                            labels=dict(x="Variable", y="Variable", color="Correlation")
+                        )
+                        fig.update_layout(height=600)
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.warning("Need at least 2 numeric columns for heatmap.")
+            else:
+                st.info("No numeric columns available for visualization.")
+        
+        with explore_tabs[3]:
+            st.markdown("#### Export Options")
+            
+            export_format = st.radio(
+                "Export Format:",
+                ["CSV", "JSON", "Excel", "Parquet"],
+                horizontal=True,
+                key="export_format"
+            )
+            
+            if st.button("💾 Download Dataset", key="download_demo_btn"):
+                if export_format == "CSV":
+                    csv = demo_df.to_csv(index=False)
+                    st.download_button(
+                        label="Download CSV",
+                        data=csv,
+                        file_name=f"{current_industry.lower()}_demo_data.csv",
+                        mime="text/csv"
+                    )
+                elif export_format == "JSON":
+                    json_str = demo_df.to_json(orient='records', indent=2)
+                    st.download_button(
+                        label="Download JSON",
+                        data=json_str,
+                        file_name=f"{current_industry.lower()}_demo_data.json",
+                        mime="application/json"
+                    )
+                elif export_format == "Excel":
+                    try:
+                        import io
+                        buffer = io.BytesIO()
+                        demo_df.to_excel(buffer, index=False, engine='openpyxl')
+                        st.download_button(
+                            label="Download Excel",
+                            data=buffer.getvalue(),
+                            file_name=f"{current_industry.lower()}_demo_data.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                    except ImportError:
+                        st.warning("Excel export requires 'openpyxl'. Install with: pip install openpyxl")
+                elif export_format == "Parquet":
+                    try:
+                        buffer = demo_df.to_parquet(index=False)
+                        st.download_button(
+                            label="Download Parquet",
+                            data=buffer,
+                            file_name=f"{current_industry.lower()}_demo_data.parquet",
+                            mime="application/octet-stream"
+                        )
+                    except ImportError:
+                        st.warning("Parquet export requires 'pyarrow'. Install with: pip install pyarrow")
+        
+        # Use this data for analytics
+        st.markdown("---")
+        st.markdown("### 🔄 Use This Data for Analysis")
+        if st.button("📊 Load into Analytics", key="load_demo_analytics"):
+            st.session_state['analytics_df'] = demo_df
+            st.success(f"✅ Loaded {current_industry} data into analytics!")
+            st.info("Scroll down to use this data in the analytics sections below.")
+    
+    st.markdown("---")
+    st.markdown("### 📊 Built-in Datasets")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">📊 Interactive Data Science Dashboard</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.15rem;">
+            Explore datasets with stunning visualizations, statistical insights, and compelling data stories
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Dataset selection with beautiful cards
     st.markdown("### 🎯 Select Your Dataset")
     
@@ -2005,13 +2502,406 @@ with tab4:
 
 # --- Enterprise Demo Tab ---
 with tab5:
-    st.markdown('<h2 class="section-header">Enterprise Use Case Demonstration</h2>', unsafe_allow_html=True)
-    
     st.markdown("""
-    ### 🎯 **Complete Workflow Demonstration**
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2.5rem; border-radius: 1rem; margin-bottom: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem; text-align: center; font-weight: 700;">🎯 Enterprise Demo Showcase</h1>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin-top: 0.75rem; font-size: 1.2rem;">
+            Real-world datasets with stunning visualizations and actionable insights
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    This tab showcases a comprehensive enterprise workflow that combines all advanced features:
-    """)
+    # Initialize demo generator
+    if 'demo_generator' not in st.session_state:
+        st.session_state['demo_generator'] = DemoDataGenerator()
+    
+    demo_gen = st.session_state['demo_generator']
+    available_datasets = demo_gen.get_available_datasets()
+    
+    # Auto-generate impressive demo datasets if not already loaded
+    if 'enterprise_demo_loaded' not in st.session_state:
+        with st.spinner("✨ Generating impressive enterprise demo datasets..."):
+            try:
+                st.session_state['enterprise_finance'] = demo_gen.generate_finance_data(3000)
+                st.session_state['enterprise_ecommerce'] = demo_gen.generate_ecommerce_data(2500)
+                st.session_state['enterprise_marketing'] = demo_gen.generate_marketing_data(2000)
+                st.session_state['enterprise_hr'] = demo_gen.generate_hr_data(1500)
+                st.session_state['enterprise_demo_loaded'] = True
+            except Exception as e:
+                st.error(f"Error generating demo data: {e}")
+    
+    # Dataset showcase with beautiful cards
+    st.markdown("### 📊 Available Enterprise Datasets")
+    
+    dataset_tabs = st.tabs(["💳 Finance", "🛒 E-commerce", "📢 Marketing", "👥 HR", "🎯 Custom Generate"])
+    
+    with dataset_tabs[0]:  # Finance
+        finance_df = st.session_state.get('enterprise_finance')
+        if finance_df is not None:
+            st.markdown("#### 💳 Financial Transactions Analysis")
+            
+            # Key metrics
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            with metric_col1:
+                st.metric("Total Transactions", f"{len(finance_df):,}")
+            with metric_col2:
+                st.metric("Total Volume", f"${finance_df['amount'].sum():,.2f}")
+            with metric_col3:
+                fraud_count = finance_df['is_fraud'].sum()
+                st.metric("Fraud Cases", f"{fraud_count} ({fraud_count/len(finance_df)*100:.2f}%)", delta=f"{fraud_count/len(finance_df)*100:.2f}%", delta_color="inverse")
+            with metric_col4:
+                st.metric("Avg Transaction", f"${finance_df['amount'].mean():.2f}")
+            
+            # Visualizations
+            viz_col1, viz_col2 = st.columns(2)
+            
+            with viz_col1:
+                # Transaction amount distribution
+                fig = px.histogram(
+                    finance_df, 
+                    x='amount', 
+                    nbins=50,
+                    title="Transaction Amount Distribution",
+                    labels={'amount': 'Amount ($)', 'count': 'Frequency'},
+                    color_discrete_sequence=['#667eea']
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Category breakdown
+                category_counts = finance_df['category'].value_counts()
+                fig = px.pie(
+                    values=category_counts.values,
+                    names=category_counts.index,
+                    title="Transactions by Category",
+                    hole=0.4
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with viz_col2:
+                # Time series of transactions
+                finance_df['date'] = pd.to_datetime(finance_df['date'])
+                daily_volume = finance_df.groupby(finance_df['date'].dt.date)['amount'].sum().reset_index()
+                daily_volume.columns = ['date', 'total_amount']
+                
+                fig = px.line(
+                    daily_volume,
+                    x='date',
+                    y='total_amount',
+                    title="Daily Transaction Volume",
+                    labels={'date': 'Date', 'total_amount': 'Total Amount ($)'},
+                    color_discrete_sequence=['#764ba2']
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Fraud analysis
+                fraud_by_category = finance_df.groupby('category')['is_fraud'].mean().sort_values(ascending=False)
+                fig = px.bar(
+                    x=fraud_by_category.index,
+                    y=fraud_by_category.values * 100,
+                    title="Fraud Rate by Category (%)",
+                    labels={'x': 'Category', 'y': 'Fraud Rate (%)'},
+                    color=fraud_by_category.values * 100,
+                    color_continuous_scale='Reds'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Data preview
+            with st.expander("📋 View Raw Data"):
+                st.dataframe(finance_df.head(100), use_container_width=True)
+    
+    with dataset_tabs[1]:  # E-commerce
+        ecommerce_df = st.session_state.get('enterprise_ecommerce')
+        if ecommerce_df is not None:
+            st.markdown("#### 🛒 E-commerce Sales Analysis")
+            
+            # Key metrics
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            with metric_col1:
+                st.metric("Total Orders", f"{len(ecommerce_df):,}")
+            with metric_col2:
+                st.metric("Total Revenue", f"${ecommerce_df['total_amount'].sum():,.2f}")
+            with metric_col3:
+                st.metric("Avg Order Value", f"${ecommerce_df['total_amount'].mean():.2f}")
+            with metric_col4:
+                return_rate = ecommerce_df['returned'].mean() * 100
+                st.metric("Return Rate", f"{return_rate:.2f}%", delta=f"{return_rate:.2f}%", delta_color="inverse")
+            
+            # Visualizations
+            viz_col1, viz_col2 = st.columns(2)
+            
+            with viz_col1:
+                # Revenue by product
+                product_revenue = ecommerce_df.groupby('product')['total_amount'].sum().sort_values(ascending=False).head(10)
+                fig = px.bar(
+                    x=product_revenue.values,
+                    y=product_revenue.index,
+                    orientation='h',
+                    title="Top 10 Products by Revenue",
+                    labels={'x': 'Revenue ($)', 'y': 'Product'},
+                    color=product_revenue.values,
+                    color_continuous_scale='Viridis'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Regional performance
+                region_revenue = ecommerce_df.groupby('region')['total_amount'].sum()
+                fig = px.pie(
+                    values=region_revenue.values,
+                    names=region_revenue.index,
+                    title="Revenue by Region",
+                    hole=0.4
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with viz_col2:
+                # Sales trend over time
+                ecommerce_df['order_date'] = pd.to_datetime(ecommerce_df['order_date'])
+                daily_sales = ecommerce_df.groupby(ecommerce_df['order_date'].dt.date)['total_amount'].sum().reset_index()
+                daily_sales.columns = ['date', 'revenue']
+                
+                fig = px.line(
+                    daily_sales,
+                    x='date',
+                    y='revenue',
+                    title="Daily Sales Trend",
+                    labels={'date': 'Date', 'revenue': 'Revenue ($)'},
+                    color_discrete_sequence=['#43e97b']
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Payment method distribution
+                payment_counts = ecommerce_df['payment_method'].value_counts()
+                fig = px.bar(
+                    x=payment_counts.index,
+                    y=payment_counts.values,
+                    title="Orders by Payment Method",
+                    labels={'x': 'Payment Method', 'y': 'Number of Orders'},
+                    color=payment_counts.values,
+                    color_continuous_scale='Blues'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Data preview
+            with st.expander("📋 View Raw Data"):
+                st.dataframe(ecommerce_df.head(100), use_container_width=True)
+    
+    with dataset_tabs[2]:  # Marketing
+        marketing_df = st.session_state.get('enterprise_marketing')
+        if marketing_df is not None:
+            st.markdown("#### 📢 Marketing Campaign Performance")
+            
+            # Key metrics
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            with metric_col1:
+                st.metric("Total Campaigns", f"{len(marketing_df):,}")
+            with metric_col2:
+                st.metric("Total Spend", f"${marketing_df['spend'].sum():,.2f}")
+            with metric_col3:
+                st.metric("Total Revenue", f"${marketing_df['revenue'].sum():,.2f}")
+            with metric_col4:
+                avg_roas = marketing_df['roas'].mean()
+                st.metric("Avg ROAS", f"{avg_roas:.2f}x")
+            
+            # Visualizations
+            viz_col1, viz_col2 = st.columns(2)
+            
+            with viz_col1:
+                # ROAS by channel
+                channel_roas = marketing_df.groupby('channel')['roas'].mean().sort_values(ascending=False)
+                fig = px.bar(
+                    x=channel_roas.index,
+                    y=channel_roas.values,
+                    title="ROAS by Channel",
+                    labels={'x': 'Channel', 'y': 'ROAS'},
+                    color=channel_roas.values,
+                    color_continuous_scale='Greens'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Conversion rate by campaign
+                campaign_conversion = marketing_df.groupby('campaign_name')['conversion_rate'].mean().sort_values(ascending=False).head(10)
+                fig = px.bar(
+                    x=campaign_conversion.index,
+                    y=campaign_conversion.values,
+                    title="Top 10 Campaigns by Conversion Rate",
+                    labels={'x': 'Campaign', 'y': 'Conversion Rate (%)'},
+                    color=campaign_conversion.values,
+                    color_continuous_scale='Purples'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with viz_col2:
+                # Spend vs Revenue scatter
+                fig = px.scatter(
+                    marketing_df,
+                    x='spend',
+                    y='revenue',
+                    color='channel',
+                    size='conversions',
+                    title="Spend vs Revenue by Channel",
+                    labels={'spend': 'Spend ($)', 'revenue': 'Revenue ($)'},
+                    hover_data=['campaign_name', 'roas']
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # CTR by channel
+                channel_ctr = marketing_df.groupby('channel')['ctr'].mean().sort_values(ascending=False)
+                fig = px.pie(
+                    values=channel_ctr.values,
+                    names=channel_ctr.index,
+                    title="Average CTR by Channel",
+                    hole=0.4
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Data preview
+            with st.expander("📋 View Raw Data"):
+                st.dataframe(marketing_df.head(100), use_container_width=True)
+    
+    with dataset_tabs[3]:  # HR
+        hr_df = st.session_state.get('enterprise_hr')
+        if hr_df is not None:
+            st.markdown("#### 👥 Human Resources Analytics")
+            
+            # Key metrics
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            with metric_col1:
+                st.metric("Total Employees", f"{len(hr_df):,}")
+            with metric_col2:
+                st.metric("Avg Salary", f"${hr_df['salary'].mean():,.0f}")
+            with metric_col3:
+                st.metric("Avg Performance", f"{hr_df['performance_score'].mean():.1f}/100")
+            with metric_col4:
+                turnover_rate = hr_df['left_company'].mean() * 100
+                st.metric("Turnover Rate", f"{turnover_rate:.1f}%", delta=f"{turnover_rate:.1f}%", delta_color="inverse")
+            
+            # Visualizations
+            viz_col1, viz_col2 = st.columns(2)
+            
+            with viz_col1:
+                # Salary distribution by department
+                fig = px.box(
+                    hr_df,
+                    x='department',
+                    y='salary',
+                    title="Salary Distribution by Department",
+                    labels={'department': 'Department', 'salary': 'Salary ($)'}
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Performance vs Satisfaction
+                fig = px.scatter(
+                    hr_df,
+                    x='satisfaction_score',
+                    y='performance_score',
+                    color='department',
+                    size='projects_completed',
+                    title="Performance vs Satisfaction",
+                    labels={'satisfaction_score': 'Satisfaction Score', 'performance_score': 'Performance Score'}
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with viz_col2:
+                # Department headcount
+                dept_counts = hr_df['department'].value_counts()
+                fig = px.bar(
+                    x=dept_counts.index,
+                    y=dept_counts.values,
+                    title="Employee Count by Department",
+                    labels={'x': 'Department', 'y': 'Count'},
+                    color=dept_counts.values,
+                    color_continuous_scale='Blues'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Retention analysis
+                retention_by_dept = hr_df.groupby('department')['left_company'].mean() * 100
+                fig = px.bar(
+                    x=retention_by_dept.index,
+                    y=100 - retention_by_dept.values,
+                    title="Retention Rate by Department (%)",
+                    labels={'x': 'Department', 'y': 'Retention Rate (%)'},
+                    color=100 - retention_by_dept.values,
+                    color_continuous_scale='Greens'
+                )
+                fig.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Data preview
+            with st.expander("📋 View Raw Data"):
+                st.dataframe(hr_df.head(100), use_container_width=True)
+    
+    with dataset_tabs[4]:  # Custom Generate
+        st.markdown("#### 🎯 Generate Custom Demo Dataset")
+        st.markdown("Create a custom dataset for any industry to explore and analyze.")
+        
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            selected_industry = st.selectbox(
+                "Select Industry:",
+                options=list(available_datasets.keys()),
+                format_func=lambda x: f"{available_datasets[x]['icon']} {x} - {available_datasets[x]['description']}",
+                key="custom_demo_industry_select"
+            )
+        
+        with col2:
+            n_records = st.number_input(
+                "Number of Records:",
+                min_value=100,
+                max_value=10000,
+                value=1000,
+                step=100,
+                key="custom_demo_n_records"
+            )
+        
+        with col3:
+            st.write("")  # Spacing
+            st.write("")  # Spacing
+            generate_btn = st.button("🚀 Generate", type="primary", key="custom_generate_demo_btn")
+        
+        if generate_btn:
+            with st.spinner(f"Generating {n_records} records for {selected_industry}..."):
+                try:
+                    custom_df = demo_gen.generate_dataset(selected_industry, n_records)
+                    st.session_state['custom_demo_data'] = custom_df
+                    st.session_state['custom_demo_industry'] = selected_industry
+                    st.success(f"✅ Generated {len(custom_df)} records for {selected_industry}!")
+                    
+                    # Show preview
+                    st.dataframe(custom_df.head(20), use_container_width=True)
+                    st.write(f"**Shape:** {custom_df.shape[0]} rows × {custom_df.shape[1]} columns")
+                except Exception as e:
+                    st.error(f"Error generating dataset: {e}")
+        
+        if 'custom_demo_data' in st.session_state:
+            st.markdown("---")
+            st.markdown("### 📊 Generated Dataset Analysis")
+            custom_df = st.session_state['custom_demo_data']
+            current_industry = st.session_state.get('custom_demo_industry', 'Unknown')
+            
+            numeric_cols = custom_df.select_dtypes(include=[np.number]).columns
+            if len(numeric_cols) > 0:
+                selected_col = st.selectbox("Select Column for Visualization:", numeric_cols, key="custom_viz_col")
+                fig = px.histogram(custom_df, x=selected_col, nbins=30, title=f"Distribution of {selected_col}")
+                st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
     
     demo_scenario = st.selectbox(
         "Select Enterprise Scenario:",
