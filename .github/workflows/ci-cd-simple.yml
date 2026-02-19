@@ -66,23 +66,38 @@ jobs:
       run: |
         echo "Testing module imports..."
         python -c "
+        import sys
+        errors = []
+        
         try:
             import agents
             print('✅ agents module imported')
         except Exception as e:
-            print(f'⚠️ agents import warning: {e}')
+            error_msg = f'❌ agents import failed: {e}'
+            print(error_msg)
+            errors.append(error_msg)
         
         try:
             import advanced_rag
             print('✅ advanced_rag module imported')
         except Exception as e:
-            print(f'⚠️ advanced_rag import warning: {e}')
+            error_msg = f'❌ advanced_rag import failed: {e}'
+            print(error_msg)
+            errors.append(error_msg)
         
         try:
             import enterprise_features
             print('✅ enterprise_features module imported')
         except Exception as e:
-            print(f'⚠️ enterprise_features import warning: {e}')
+            error_msg = f'❌ enterprise_features import failed: {e}'
+            print(error_msg)
+            errors.append(error_msg)
+        
+        if errors:
+            print('\\n❌ Import tests failed with errors:')
+            for error in errors:
+                print(f'  - {error}')
+            sys.exit(1)
         
         print('✅ Basic import tests completed')
         "
@@ -90,14 +105,16 @@ jobs:
     - name: Test tool initialization
       run: |
         python -c "
+        import sys
         try:
             from agents import SecureCodeExecutorTool
             tool = SecureCodeExecutorTool()
             print('✅ SecureCodeExecutorTool initialized successfully')
         except Exception as e:
-            print(f'⚠️ Tool initialization warning: {e}')
+            print(f'❌ Tool initialization failed: {e}')
             import traceback
             traceback.print_exc()
+            sys.exit(1)
         "
 
   # Docker Build
@@ -115,7 +132,6 @@ jobs:
       run: |
         docker build -t langchain-workbench:test .
         echo "✅ Docker build completed successfully"
-      continue-on-error: true
 
   # Deployment Check
   deployment-check:
