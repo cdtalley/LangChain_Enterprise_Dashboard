@@ -83,7 +83,10 @@ export default function WelcomePage() {
 
       {/* Live Dataset Showcase */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">📊 Live Dataset Showcase</h2>
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Live Dataset Showcase</h2>
+          <p className="text-gray-600">Real-time data processing and analytics across multiple domains</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <MetricCard
             title="Finance"

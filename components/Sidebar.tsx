@@ -96,23 +96,23 @@ export default function Sidebar({ activePath, onNavigate }: SidebarProps) {
       </div>
 
       {/* Metrics */}
-      <div className="p-4 border-b border-white/10">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">Real-Time Metrics</h3>
+      <div className="p-4 border-b border-slate-700/50 bg-slate-800/30">
+        <h3 className="text-xs font-semibold text-slate-400 uppercase mb-3 tracking-wider">Real-Time Metrics</h3>
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-white/5 rounded p-2">
-            <div className="text-xs text-gray-400">Uptime</div>
-            <div className="text-sm font-bold">99.9%</div>
+          <div className="bg-slate-700/30 rounded-lg p-2.5 border border-slate-600/30">
+            <div className="text-xs text-slate-400 mb-1">Uptime</div>
+            <div className="text-sm font-bold text-green-400">99.9%</div>
           </div>
-          <div className="bg-white/5 rounded p-2">
-            <div className="text-xs text-gray-400">Response</div>
-            <div className="text-sm font-bold">1.2s</div>
+          <div className="bg-slate-700/30 rounded-lg p-2.5 border border-slate-600/30">
+            <div className="text-xs text-slate-400 mb-1">Response</div>
+            <div className="text-sm font-bold text-blue-400">1.2s</div>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="p-4">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">Navigation</h3>
+        <h3 className="text-xs font-semibold text-slate-400 uppercase mb-3 tracking-wider">Navigation</h3>
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -121,13 +121,13 @@ export default function Sidebar({ activePath, onNavigate }: SidebarProps) {
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive
-                    ? "bg-white/20 text-white shadow-lg"
-                    : "text-gray-300 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-white shadow-lg border border-purple-500/30"
+                    : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
                 }`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-purple-300' : ''}`} />
                 <span className="text-sm font-medium">{item.label}</span>
               </button>
             );
@@ -136,11 +136,20 @@ export default function Sidebar({ activePath, onNavigate }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/10 mt-auto">
-        <div className="text-xs text-gray-400 space-y-1">
-          <div>✨ 50+ Features</div>
-          <div>🚀 Production Ready</div>
-          <div>⚡ Enterprise Grade</div>
+      <div className="p-4 border-t border-slate-700/50 mt-auto bg-slate-800/30">
+        <div className="text-xs text-slate-400 space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+            <span>18+ Enterprise Features</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+            <span>Production Ready</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+            <span>Secure & Scalable</span>
+          </div>
         </div>
       </div>
     </motion.div>

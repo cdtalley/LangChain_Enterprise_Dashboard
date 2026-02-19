@@ -58,9 +58,9 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
       <Sidebar activePath={activePath} onNavigate={setActivePath} />
-      <main className="flex-1 ml-64 p-8">
+      <main className="flex-1 ml-64 p-8 max-w-[1920px] mx-auto">
         <motion.div
           key={activePath}
           initial={{ opacity: 0, y: 20 }}
