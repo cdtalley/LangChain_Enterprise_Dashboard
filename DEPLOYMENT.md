@@ -47,23 +47,33 @@ After deployment, the dashboard will be available at:
 https://<your-username>.github.io/LangChain_Enterprise_Dashboard/
 ```
 
-## 🔧 Manual Deployment
+## 🔧 Initial Setup (One-Time)
+
+**IMPORTANT: Enable GitHub Pages before first deployment**
+
+1. **Enable GitHub Pages in repository settings:**
+   - Go to: https://github.com/cdtalley/LangChain_Enterprise_Dashboard/settings/pages
+   - Under "Source", select: **GitHub Actions**
+   - Click **Save**
+   - This enables the Pages environment for the workflow
+
+2. **Verify workflow is ready:**
+   - Check Actions tab: https://github.com/cdtalley/LangChain_Enterprise_Dashboard/actions
+   - The workflow will run automatically on push to `main`
+
+## 🔄 Manual Deployment
 
 To deploy manually:
 
-1. Enable GitHub Pages in repository settings:
-   - Go to Settings → Pages
-   - Source: GitHub Actions
-
-2. Build locally (optional):
+1. **Build locally (optional):**
    ```bash
    npm run build:gh-pages
    ```
 
-3. Push to main branch or trigger workflow manually:
-   - Go to Actions tab
+2. **Trigger workflow manually:**
+   - Go to Actions tab: https://github.com/cdtalley/LangChain_Enterprise_Dashboard/actions
    - Select "Deploy Next.js Dashboard to GitHub Pages"
-   - Click "Run workflow"
+   - Click "Run workflow" → "Run workflow"
 
 ## 📝 Notes
 
