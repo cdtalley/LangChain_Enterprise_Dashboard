@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from "react";
 import Tour, { TourStep } from "@/components/Tour";
 import { getTourSteps } from "@/lib/tour-steps";
 import { useRouter } from "next/navigation";
@@ -17,24 +17,24 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const [isTourActive, setIsTourActive] = useState(false);
   const router = useRouter();
 
-  const startTour = () => {
+  const startTour = useCallback(() => {
     setIsTourActive(true);
-  };
+  }, []);
 
-  const stopTour = () => {
+  const stopTour = useCallback(() => {
     setIsTourActive(false);
-  };
+  }, []);
 
-  const handleTourComplete = () => {
+  const handleTourComplete = useCallback(() => {
     setIsTourActive(false);
-  };
+  }, []);
 
-  const handleTourSkip = () => {
+  const handleTourSkip = useCallback(() => {
     setIsTourActive(false);
-  };
+  }, []);
 
-  // Enhanced tour steps with navigation actions
-  const getEnhancedSteps = (): TourStep[] => {
+  // Memoize enhanced tour steps to prevent recreation on every render
+  const enhancedSteps = useMemo((): TourStep[] => {
     const steps = getTourSteps();
     
     // Add navigation actions for specific steps
@@ -104,14 +104,14 @@ export function TourProvider({ children }: { children: ReactNode }) {
       
       return enhancedStep;
     });
-  };
+  }, [router]);
 
   return (
     <TourContext.Provider value={{ startTour, stopTour, isTourActive }}>
       {children}
       {isTourActive && (
         <Tour
-          steps={getEnhancedSteps()}
+          steps={enhancedSteps}
           onComplete={handleTourComplete}
           onSkip={handleTourSkip}
         />

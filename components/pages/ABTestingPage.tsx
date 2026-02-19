@@ -9,6 +9,7 @@ import { STORAGE_KEYS } from "@/lib/persistence";
 import { useData } from "@/lib/DataContext";
 import MetricCard from "@/components/MetricCard";
 import DataTable from "@/components/DataTable";
+import HelpGuide from "@/components/HelpGuide";
 import {
   BarChart,
   Bar,
@@ -214,6 +215,75 @@ export default function ABTestingPage() {
           Create Experiment
         </button>
       </div>
+
+      {/* Help Guide */}
+      <HelpGuide
+        title="How to Use A/B Testing"
+        description="Follow these steps to create and run your first experiment"
+        steps={[
+          {
+            number: 1,
+            title: "Calculate Sample Size",
+            description: "Use the calculator below to determine how many samples you need. Enter your baseline metric and expected improvement percentage.",
+            action: () => {
+              const element = Array.from(document.querySelectorAll('h2')).find(el => el.textContent?.includes('Sample Size'));
+              element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            },
+            actionLabel: "Go to Calculator"
+          },
+          {
+            number: 2,
+            title: "Choose a Template or Create Custom",
+            description: "Click a Quick Start template below to auto-fill an experiment, or click 'Create Experiment' to build your own.",
+            action: () => {
+              setShowCreateForm(true);
+            },
+            actionLabel: "Create Experiment"
+          },
+          {
+            number: 3,
+            title: "Start Your Experiment",
+            description: "Once created, click the Play button on your experiment card to begin collecting data. If you don't have an experiment yet, use a template above first.",
+            action: () => {
+              if (experiments.length > 0) {
+                const firstExp = experiments[0];
+                if (firstExp.status === ExperimentStatus.DRAFT) {
+                  handleStartExperiment(firstExp.id);
+                  setSelectedExperiment(firstExp.id);
+                } else {
+                  // Scroll to experiments list
+                  setTimeout(() => {
+                    const element = document.querySelector('[data-tour="ab-testing"]');
+                    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }
+              } else {
+                // No experiments - suggest using template
+                loadExample(exampleExperiments[0]);
+              }
+            },
+            actionLabel: experiments.length > 0 ? "Start Experiment" : "Load Template First"
+          },
+          {
+            number: 4,
+            title: "Analyze Results",
+            description: "After collecting enough data, click 'Analyze' to see statistical significance, p-values, and recommendations.",
+            action: () => {
+              const runningExp = experiments.find(e => e.status === ExperimentStatus.RUNNING);
+              if (runningExp) {
+                handleAnalyze(runningExp.id);
+                setSelectedExperiment(runningExp.id);
+              }
+            },
+            actionLabel: "Analyze Results"
+          },
+          {
+            number: 5,
+            title: "Review Recommendations",
+            description: "Check the recommendation section to see if your treatment outperformed the baseline with statistical significance.",
+          }
+        ]}
+      />
 
       {/* Example Experiments */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6">

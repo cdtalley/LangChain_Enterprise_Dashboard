@@ -70,12 +70,13 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
     // Execute action if provided (navigation)
     if (step.action) {
       step.action();
-      // Wait longer for navigation to complete
-      await new Promise(resolve => setTimeout(resolve, 600));
+      // Wait longer for navigation to complete and DOM to update
+      await new Promise(resolve => setTimeout(resolve, 800));
     }
 
-    // Find element with retries
-    const element = await findElement(step.target, 15);
+    // Find element with retries (increase retries for navigation steps)
+    const retries = step.action ? 20 : 15;
+    const element = await findElement(step.target, retries);
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
@@ -149,7 +150,7 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
   }, [currentStep, steps, findElement]);
 
   useEffect(() => {
-    if (steps.length > 0 && isVisible) {
+    if (steps.length > 0 && isVisible && currentStep < steps.length) {
       // Clear any existing timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -166,7 +167,7 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [currentStep, steps, isVisible, updateTargetPosition]);
+  }, [currentStep, steps.length, isVisible, updateTargetPosition]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -189,36 +190,37 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
   }, [isVisible, updateTargetPosition]);
 
   useEffect(() => {
-    if (steps.length > 0) {
+    if (steps.length > 0 && !isVisible) {
       setIsVisible(true);
+      setCurrentStep(0); // Reset to first step when tour starts
     }
-  }, [steps.length]);
+  }, [steps.length, isVisible]);
 
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      completeTour();
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const completeTour = () => {
+  const completeTour = useCallback(() => {
     setIsVisible(false);
     setCurrentStep(0);
     if (onComplete) onComplete();
-  };
+  }, [onComplete]);
 
-  const skipTour = () => {
+  const skipTour = useCallback(() => {
     setIsVisible(false);
     setCurrentStep(0);
     if (onSkip) onSkip();
-  };
+  }, [onSkip]);
+
+  const nextStep = useCallback(() => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      completeTour();
+    }
+  }, [currentStep, steps.length, completeTour]);
+
+  const prevStep = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  }, [currentStep]);
 
   if (!isVisible || steps.length === 0) return null;
 

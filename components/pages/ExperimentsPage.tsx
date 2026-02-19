@@ -6,6 +6,7 @@ import { FileText, Plus, Play, CheckCircle, XCircle, TrendingUp } from "lucide-r
 import { getExperimentTracker } from "@/lib/experiment-tracking";
 import { STORAGE_KEYS } from "@/lib/persistence";
 import MetricCard from "@/components/MetricCard";
+import HelpGuide from "@/components/HelpGuide";
 import {
   LineChart,
   Line,
@@ -105,6 +106,43 @@ export default function ExperimentsPage() {
           New Experiment Run
         </button>
       </div>
+
+      {/* Help Guide */}
+      <HelpGuide
+        title="How to Use Experiment Tracking"
+        description="Track ML experiments like MLflow - log parameters, metrics, and compare runs"
+        steps={[
+          {
+            number: 1,
+            title: "Create a New Run",
+            description: "Click 'New Experiment Run' to start tracking. Give it a name and experiment group.",
+            action: () => {
+              setShowCreateForm(true);
+            },
+            actionLabel: "Create Run"
+          },
+          {
+            number: 2,
+            title: "Set Parameters",
+            description: "Enter your hyperparameters in key=value format (one per line). Example: learning_rate=0.001",
+          },
+          {
+            number: 3,
+            title: "Monitor Metrics",
+            description: "Once started, metrics are logged automatically. Watch accuracy and loss update in real-time.",
+          },
+          {
+            number: 4,
+            title: "Compare Runs",
+            description: "Click on any run to see detailed metrics, parameters, and performance charts.",
+          },
+          {
+            number: 5,
+            title: "Review History",
+            description: "All runs are saved automatically. Use the metrics summary cards to see overall status.",
+          }
+        ]}
+      />
 
       {/* Metrics Summary */}
       {runs.length > 0 && (

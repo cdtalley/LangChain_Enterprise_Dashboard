@@ -6,6 +6,7 @@ import { Bot, Send, Sparkles, Code, TrendingUp, CheckCircle, Clock, Lightbulb } 
 import { useData } from "@/lib/DataContext";
 import DataTable from "@/components/DataTable";
 import MetricCard from "@/components/MetricCard";
+import HelpGuide from "@/components/HelpGuide";
 
 const exampleQueries = [
   {
@@ -131,6 +132,54 @@ export default function MultiAgentPage() {
         <h1 className="text-4xl font-bold text-gray-900 mb-2">🤖 Multi-Agent System</h1>
         <p className="text-gray-600">Specialized agents with intelligent routing and collaborative workflows</p>
       </div>
+
+      {/* Help Guide */}
+      <HelpGuide
+        title="How to Use Multi-Agent System"
+        description="Learn how to leverage specialized AI agents for different tasks"
+        steps={[
+          {
+            number: 1,
+            title: "Choose Your Agent",
+            description: "Select Auto for intelligent routing, or pick a specific agent: Researcher (information gathering), Coder (code generation), or Analyst (data insights).",
+            action: () => {
+              setSelectedAgent("auto");
+            },
+            actionLabel: "Set to Auto"
+          },
+          {
+            number: 2,
+            title: "Try Example Queries",
+            description: "Click any example below to see how different agents handle different types of queries.",
+            action: () => {
+              handleExampleClick(exampleQueries[0]);
+            },
+            actionLabel: "Try Example"
+          },
+          {
+            number: 3,
+            title: "Submit Your Query",
+            description: "Type your question or task in the input field and click Send. The system will route it to the best agent automatically.",
+            action: () => {
+              if (!query) {
+                setQuery("What's the average transaction amount?");
+              }
+              document.querySelector('input[placeholder*="Ask a question"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            },
+            actionLabel: "Focus Input"
+          },
+          {
+            number: 4,
+            title: "Review Agent Response",
+            description: "Each response includes sources used, confidence level, processing time, and detailed results.",
+          },
+          {
+            number: 5,
+            title: "Explore Agent Capabilities",
+            description: "Check the agent cards below to understand what each agent specializes in.",
+          }
+        ]}
+      />
 
       {/* Example Queries */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6">

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import MetricCard from "@/components/MetricCard";
 import DataTable from "@/components/DataTable";
 import { useData } from "@/lib/DataContext";
+import HelpGuide from "@/components/HelpGuide";
 
 export default function RegistryPage() {
   const { ecommerceData, financeData } = useData();
@@ -48,6 +49,44 @@ export default function RegistryPage() {
           Register Model
         </button>
       </div>
+
+      {/* Help Guide */}
+      <HelpGuide
+        title="How to Use Model Registry"
+        description="Manage model versions, track performance, and compare models"
+        steps={[
+          {
+            number: 1,
+            title: "View Registered Models",
+            description: "See all models in your registry with their versions, types, and status.",
+          },
+          {
+            number: 2,
+            title: "Check Model Metrics",
+            description: "Review accuracy, status (Production/Staging), and training data size for each model.",
+          },
+          {
+            number: 3,
+            title: "Compare Models",
+            description: "Use the summary cards to compare overall performance across all models.",
+          },
+          {
+            number: 4,
+            title: "Register New Model",
+            description: "Click 'Register Model' to add a new model version to the registry.",
+            action: () => {
+              // Scroll to top where register button is
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+            actionLabel: "Scroll to Register"
+          },
+          {
+            number: 5,
+            title: "Monitor Production Models",
+            description: "Track which models are in production vs staging, and their performance metrics.",
+          }
+        ]}
+      />
 
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

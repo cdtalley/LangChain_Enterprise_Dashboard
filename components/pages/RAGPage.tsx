@@ -6,6 +6,7 @@ import { Upload, Search, FileText, Database, Sparkles, CheckCircle, Lightbulb } 
 import { useData } from "@/lib/DataContext";
 import DataTable from "@/components/DataTable";
 import MetricCard from "@/components/MetricCard";
+import HelpGuide from "@/components/HelpGuide";
 
 const exampleQueries = [
   "What are the top selling products?",
@@ -75,6 +76,56 @@ export default function RAGPage() {
         <h1 className="text-4xl font-bold text-gray-900 mb-2">📊 Advanced RAG</h1>
         <p className="text-gray-600">Hybrid search combining semantic and keyword matching</p>
       </div>
+
+      {/* Help Guide */}
+      <HelpGuide
+        title="How to Use RAG Search"
+        description="Learn how to query your documents effectively"
+        steps={[
+          {
+            number: 1,
+            title: "Review Available Documents",
+            description: "Check the Document Library section to see what datasets are indexed and ready for search.",
+            action: () => {
+              const element = Array.from(document.querySelectorAll('h2')).find(el => el.textContent?.includes('Document Library'));
+              element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            },
+            actionLabel: "View Documents"
+          },
+          {
+            number: 2,
+            title: "Choose Search Strategy",
+            description: "Select Semantic (meaning-based), Keyword (exact match), or Hybrid (best of both). Hybrid is recommended for most queries.",
+            action: () => {
+              setSelectedStrategy("hybrid");
+              const element = Array.from(document.querySelectorAll('label')).find(el => el.textContent?.includes('Search Strategy'));
+              element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            },
+            actionLabel: "Set to Hybrid"
+          },
+          {
+            number: 3,
+            title: "Try Example Queries",
+            description: "Click any example query below to see how RAG works, or type your own question.",
+            action: () => {
+              const firstExample = exampleQueries[0];
+              setQuery(firstExample);
+              setTimeout(() => handleSearch(), 100);
+            },
+            actionLabel: "Try Example"
+          },
+          {
+            number: 4,
+            title: "Review Search Results",
+            description: "Results show matching documents with relevance scores, key insights, and data previews.",
+          },
+          {
+            number: 5,
+            title: "Refine Your Query",
+            description: "Try different search strategies or rephrase your query to find more specific information.",
+          }
+        ]}
+      />
 
       {/* Example Queries */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6">
