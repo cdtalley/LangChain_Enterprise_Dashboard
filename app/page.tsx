@@ -52,7 +52,12 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     // Register navigation handler for tour
-    setNavigationHandler(setActivePath);
+    const handler = (path: string) => {
+      console.log(`Tour: Navigating to ${path}`);
+      setActivePath(path);
+    };
+    setNavigationHandler(handler);
+    console.log("Tour: Navigation handler registered");
   }, [setNavigationHandler]);
 
   const ActiveComponent = pageComponents[activePath] || WelcomePage;

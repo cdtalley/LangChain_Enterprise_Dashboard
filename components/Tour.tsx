@@ -37,8 +37,6 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
         // Try different selector formats
         if (selector === "body") {
           element = document.body;
-        } else if (selector === "sidebar") {
-          element = document.querySelector('[data-tour="sidebar"]') as HTMLElement;
         } else if (selector.startsWith("#")) {
           element = document.getElementById(selector.substring(1));
         } else if (selector.startsWith(".")) {
@@ -57,12 +55,20 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
 
         if (element && element.offsetParent !== null) {
           // Element exists and is visible
+          console.log(`Tour: Found element for selector: ${selector} (attempt ${attempts})`);
           resolve(element);
         } else if (attempts < retries) {
           setTimeout(tryFind, 300); // Increased delay for GitHub Pages
         } else {
           console.warn(`Tour: Could not find element: ${selector} after ${retries} attempts`);
-          resolve(null);
+          // Try to find any element with that selector even if not visible
+          const fallback = document.querySelector(selector) as HTMLElement;
+          if (fallback) {
+            console.log(`Tour: Found element but it may not be visible: ${selector}`);
+            resolve(fallback);
+          } else {
+            resolve(null);
+          }
         }
       };
       tryFind();
@@ -71,7 +77,11 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
 
   const updateTargetPosition = useCallback(async () => {
     const step = steps[currentStep];
-    if (!step) return;
+    if (!step) {
+      console.warn(`Tour: Step ${currentStep} not found`);
+      return;
+    }
+    console.log(`Tour: Updating position for step ${currentStep}: ${step.id}, target: ${step.target}`);
 
     // Execute action if provided (navigation)
     if (step.action) {
@@ -195,12 +205,17 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
     };
   }, [isVisible, updateTargetPosition]);
 
+  // Start tour when steps are provided
   useEffect(() => {
-    if (steps.length > 0 && !isVisible) {
+    if (steps.length > 0) {
+      console.log(`Tour: Initializing with ${steps.length} steps`);
       setIsVisible(true);
       setCurrentStep(0); // Reset to first step when tour starts
+    } else {
+      console.warn("Tour: No steps provided");
+      setIsVisible(false);
     }
-  }, [steps.length, isVisible]);
+  }, [steps.length]);
 
   const completeTour = useCallback(() => {
     setIsVisible(false);
@@ -228,10 +243,19 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
     }
   }, [currentStep]);
 
-  if (!isVisible || steps.length === 0) return null;
+  if (!isVisible || steps.length === 0 || currentStep >= steps.length) return null;
 
   const step = steps[currentStep];
-  if (!step) return null;
+  if (!step) {
+    // If step doesn't exist, try to go to next or complete
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+      return null;
+    } else {
+      completeTour();
+      return null;
+    }
+  }
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 

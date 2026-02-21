@@ -27,8 +27,15 @@ export function TourProvider({ children }: { children: ReactNode }) {
     // Ensure navigation handler is set (should be set by app/page.tsx on mount)
     if (!navigationHandler) {
       console.warn("Tour: Navigation handler not set. Tour may not navigate correctly.");
+    } else {
+      console.log("Tour: Starting tour with navigation handler available");
     }
-    setIsTourActive(true);
+    console.log("Tour: Setting isTourActive to true");
+    
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      setIsTourActive(true);
+    }, 100);
   }, []);
 
   const stopTour = useCallback(() => {
@@ -43,7 +50,8 @@ export function TourProvider({ children }: { children: ReactNode }) {
     setIsTourActive(false);
   }, []);
 
-  // Memoize enhanced tour steps to prevent recreation on every render
+  // Get enhanced tour steps with navigation actions
+  // Recreate steps when tour is active to ensure handler is current
   const enhancedSteps = useMemo((): TourStep[] => {
     const steps = getTourSteps();
     
@@ -150,12 +158,12 @@ export function TourProvider({ children }: { children: ReactNode }) {
       
       return enhancedStep;
     });
-  }, []);
+  }, [isTourActive]); // Recreate when tour becomes active
 
   return (
     <TourContext.Provider value={{ startTour, stopTour, isTourActive, setNavigationHandler }}>
       {children}
-      {isTourActive && (
+      {isTourActive && enhancedSteps.length > 0 && (
         <Tour
           steps={enhancedSteps}
           onComplete={handleTourComplete}

@@ -11,14 +11,14 @@ export const getTourSteps = (): TourStep[] => {
     },
     {
       id: "sidebar",
-      target: "sidebar",
+      target: "[data-tour='sidebar']",
       title: "Navigation Sidebar",
       content: "Use the sidebar to navigate between all 18 features. Each section is fully functional with real datasets and interactive visualizations.",
       position: "right",
     },
     {
       id: "welcome-page",
-      target: "welcome-stats",
+      target: "[data-tour='welcome-stats']",
       title: "Welcome Dashboard",
       content: "The welcome page shows live dataset metrics, quick charts, and data previews. All datasets are auto-loaded on startup.",
       position: "bottom",
