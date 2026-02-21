@@ -21,7 +21,7 @@ const features = [
   {
     icon: Cpu,
     title: "Local LLM Support",
-    description: "Run LLaMA, Mistral, GPT4All locally for secure, cost-efficient inference. Toggle between local and cloud models seamlessly.",
+    description: "Run LLaMA, Mistral, GPT4All locally for secure, cost-efficient inference. Switch between local and cloud models.",
     gradient: "from-green-500 to-emerald-500",
     badge: "Secure",
   },

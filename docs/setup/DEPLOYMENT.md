@@ -1,14 +1,14 @@
-# 🚀 GitHub Pages Deployment Guide
+# GitHub Pages Deployment Guide
 
 This guide explains how the Next.js dashboard is deployed to GitHub Pages.
 
-## 📋 Prerequisites
+## Prerequisites
 
 1. GitHub repository with GitHub Pages enabled
 2. GitHub Actions enabled in repository settings
 3. Repository name: `LangChain_Enterprise_Dashboard`
 
-## ⚙️ Configuration
+## Configuration
 
 ### Next.js Configuration
 
@@ -24,7 +24,7 @@ The `next.config.js` is configured to:
 - `npm run build:gh-pages` - Build for GitHub Pages (static export)
 - `npm run export` - Alias for `build:gh-pages`
 
-## 🔄 Automatic Deployment
+## Automatic Deployment
 
 The dashboard automatically deploys to GitHub Pages when:
 - Code is pushed to the `main` branch
@@ -40,14 +40,14 @@ The workflow:
 5. Uploads the `out` directory as a Pages artifact
 6. Deploys to GitHub Pages
 
-## 🌐 Accessing the Dashboard
+## Accessing the Dashboard
 
 After deployment, the dashboard will be available at:
 ```
 https://<your-username>.github.io/LangChain_Enterprise_Dashboard/
 ```
 
-## 🔧 Initial Setup (One-Time)
+## Initial Setup (One-Time)
 
 **IMPORTANT: Enable GitHub Pages before first deployment**
 

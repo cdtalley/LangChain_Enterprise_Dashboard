@@ -73,7 +73,7 @@ export default function RAGPage() {
   return (
     <div className="space-y-6" data-tour="rag">
       <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">📊 Advanced RAG</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Advanced RAG</h1>
         <p className="text-gray-600">Hybrid search combining semantic and keyword matching</p>
       </div>
 

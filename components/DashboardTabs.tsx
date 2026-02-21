@@ -7,9 +7,9 @@ import AnalyticsDashboard from "./AnalyticsDashboard";
 import DataGenerator from "./DataGenerator";
 
 const tabs = [
-  { id: "demo", label: "🎯 Enterprise Demo", component: EnterpriseDemo },
-  { id: "analytics", label: "📈 Analytics Dashboard", component: AnalyticsDashboard },
-  { id: "generator", label: "🚀 Data Generator", component: DataGenerator },
+  { id: "demo", label: "Enterprise Demo", component: EnterpriseDemo },
+  { id: "analytics", label: "Analytics Dashboard", component: AnalyticsDashboard },
+  { id: "generator", label: "Data Generator", component: DataGenerator },
 ];
 
 export default function DashboardTabs() {

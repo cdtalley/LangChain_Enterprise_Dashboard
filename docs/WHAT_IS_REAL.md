@@ -2,10 +2,6 @@
 
 *Drake Talley*
 
-Actual functionality vs UI/demo behavior.
-
----
-
 ## Fully Implemented
 
 ### 1. A/B testing – statistical tests  
@@ -17,7 +13,7 @@ Actual functionality vs UI/demo behavior.
 - **Sample size calculator** (222–238): power, effect size  
 - **Normal CDF** (313–329): error-function approximation used in p-values  
 
-All of the above use real formulas; p-values come from the data. Quick check: create an experiment in the UI, run analysis, inspect p-values in the console.
+All of the above use real formulas; p-values come from the data. Create an experiment, run analysis, inspect p-values in the console.
 
 ---
 
@@ -29,7 +25,7 @@ All of the above use real formulas; p-values come from the data. Quick check: cr
 - **Poisson** (133–142): count data, exponential decay  
 - **Correlated features**: e.g. income→spending, credit→fraud risk  
 
-Same seed ⇒ same output. Distributions behave as intended.
+Same seed ⇒ same output.
 
 ---
 
@@ -95,14 +91,6 @@ Search/semantic results are simulated. Real RAG would need embeddings + vector s
 
 ---
 
-## Short summary
-
-**Implemented for real:** A/B tests (t, chi-square, Mann-Whitney U, sample-size/power), normal CDF, data gen (Box-Muller, log-normal, Poisson, correlations), localStorage persistence, experiment tracking, React state.
-
-**Simulated for demo:** event generation for A/B, AutoML progress, multi-agent and RAG responses. The simulation is in the *inputs*; the *processing* (stats, persistence, state) is real.
-
----
-
 ## How to verify
 
 **A/B math** – console:
@@ -131,4 +119,4 @@ const data2 = gen2.generateFinanceData(10);
 console.log(data1[0].amount === data2[0].amount); // true
 ```
 
-**Persistence** – create an experiment, check `localStorage.getItem("ab_testing_experiments")`, reload; experiment still there.
+**Persistence** – create an experiment, check `localStorage.getItem("ab_testing_experiments")`, reload.

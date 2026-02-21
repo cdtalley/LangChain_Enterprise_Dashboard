@@ -43,8 +43,8 @@ export default function ProfilingPage() {
   return (
     <div className="space-y-6" data-tour="profiling">
       <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">📊 Data Profiling</h1>
-        <p className="text-gray-600">Comprehensive data quality analysis and profiling</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Data Profiling</h1>
+        <p className="text-gray-600">Data quality analysis and profiling</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

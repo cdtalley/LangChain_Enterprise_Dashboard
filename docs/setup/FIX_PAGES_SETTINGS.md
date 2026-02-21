@@ -1,9 +1,9 @@
-# 🔧 Fix GitHub Pages Settings
+# Fix GitHub Pages Settings
 
-## ⚠️ Current Issue
+## Current Issue
 GitHub Pages is showing the README instead of your Next.js dashboard. This means Pages is configured incorrectly.
 
-## ✅ Solution: Verify GitHub Pages Source
+## Solution Verify GitHub Pages Source
 
 **You MUST set GitHub Pages to use "GitHub Actions" (not "Deploy from a branch")**
 
@@ -15,8 +15,8 @@ GitHub Pages is showing the README instead of your Next.js dashboard. This means
    ```
 
 2. **Check the "Source" dropdown:**
-   - ❌ **WRONG**: "Deploy from a branch" (shows README)
-   - ✅ **CORRECT**: "GitHub Actions" (shows your dashboard)
+   - **Wrong**: "Deploy from a branch" (shows README)
+   - **Correct**: "GitHub Actions" (shows your dashboard)
 
 3. **If it's set to "Deploy from a branch":**
    - Click the dropdown
@@ -37,19 +37,19 @@ GitHub Pages is showing the README instead of your Next.js dashboard. This means
    https://cdtalley.github.io/LangChain_Enterprise_Dashboard/
    ```
 
-## 🔍 How to Verify It's Fixed
+## How to Verify It's Fixed
 
-- ✅ Dashboard loads with sidebar and navigation
-- ✅ Shows "Enterprise LangChain AI Workbench" title
-- ✅ Not just the README.md file
+- Dashboard loads with sidebar and navigation
+- Shows "Enterprise LangChain AI Workbench" title
+- Not just the README.md file
 
-## 📝 What I Just Fixed
+## What Was Fixed
 
-1. ✅ Added `.nojekyll` file (prevents Jekyll from processing)
-2. ✅ Updated workflow to create `.nojekyll` in build output
-3. ✅ Pushed changes to trigger new deployment
+1. Added `.nojekyll` file (prevents Jekyll from processing)
+2. Updated workflow to create `.nojekyll` in build output
+3. Pushed changes to trigger new deployment
 
-## 🐛 If Still Not Working
+## If Still Not Working
 
 1. **Check Actions Tab:**
    - Is the workflow running?

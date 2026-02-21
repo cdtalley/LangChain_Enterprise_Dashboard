@@ -400,4 +400,4 @@ DemoDataGenerator.generateFinanceData()
 
 ---
 
-**Use these diagrams to visualize the architecture when explaining!** 🎯
+Use these diagrams to visualize the architecture when explaining.

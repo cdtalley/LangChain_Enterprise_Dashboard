@@ -66,7 +66,7 @@ export default function HeroSection() {
             className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto"
           >
             Secure, scalable, and production-ready GenAI platform with local LLM support, 
-            advanced RAG, and comprehensive MLOps capabilities
+            advanced RAG, and MLOps across the lifecycle
           </motion.p>
           
           {/* Feature Pills */}

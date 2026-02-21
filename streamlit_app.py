@@ -370,7 +370,7 @@ div[data-testid="stMarkdownContainer"] .feature-card * {
 
 # --- Sidebar Configuration ---
 st.sidebar.markdown("""
-# 🚀 Enterprise LangChain AI Workbench
+# Enterprise LangChain AI Workbench
 
 **Advanced LLM Orchestration Platform**
 
@@ -381,7 +381,7 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 # System Health Metrics
-st.sidebar.markdown("### 📊 Real-Time Metrics")
+st.sidebar.markdown("### Real-Time Metrics")
 health_col1, health_col2 = st.sidebar.columns(2)
 with health_col1:
     st.sidebar.metric("Uptime", "99.9%", "↑ 0.1%")
@@ -511,7 +511,7 @@ with tab0:
     st.markdown("""
     <div class="welcome-hero">
         <h1 style="font-size: 4rem; margin-bottom: 1rem; font-weight: 800; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); letter-spacing: -1px;">
-            🚀 Enterprise LangChain AI Workbench
+            Enterprise LangChain AI Workbench
         </h1>
         <p style="font-size: 1.8rem; opacity: 0.98; margin-bottom: 0.5rem; font-weight: 300; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
             Production-Ready Multi-Agent AI System
@@ -520,18 +520,17 @@ with tab0:
             Advanced MLOps • Real-Time Analytics • Enterprise Architecture
         </p>
         <div style="margin-top: 2rem; padding: 1rem; background: rgba(255,255,255,0.15); border-radius: 0.5rem; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-            <p style="margin: 0; font-size: 1rem; font-weight: 500;">✨ <strong>Showcasing:</strong> Multi-Agent Collaboration • Advanced RAG • Model Registry • A/B Testing • Fine-Tuning</p>
+            <p style="margin: 0; font-size: 1rem; font-weight: 500;"><strong>Showcasing:</strong> Multi-Agent Collaboration • Advanced RAG • Model Registry • A/B Testing • Fine-Tuning</p>
         </div>
         <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
             <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite;">⚡ Real-Time Processing</span>
             <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite 0.3s;">🧠 AI-Powered</span>
-            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite 0.6s;">🚀 Enterprise-Grade</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite 0.6s;">Enterprise</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Real-time System Status with impressive metrics
-    st.markdown("### 📊 System Overview")
+    st.markdown("### System Overview")
     col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
@@ -627,14 +626,14 @@ with tab0:
     
     st.markdown("---")
     
-    # Auto-load impressive demo datasets on first visit
+    # Auto-load demo datasets on first visit
     if 'demo_generator' not in st.session_state:
         st.session_state['demo_generator'] = DemoDataGenerator()
     
     if 'welcome_demo_loaded' not in st.session_state:
-        with st.spinner("✨ Loading impressive demo datasets..."):
+        with st.spinner("Loading demo datasets..."):
             demo_gen = st.session_state['demo_generator']
-            # Generate multiple impressive datasets
+            # Generate demo datasets
             try:
                 st.session_state['welcome_finance_data'] = demo_gen.generate_finance_data(2000)
                 st.session_state['welcome_ecommerce_data'] = demo_gen.generate_ecommerce_data(1500)
@@ -645,11 +644,11 @@ with tab0:
     
     # Showcase Demo Datasets Section
     if 'welcome_demo_loaded' in st.session_state and st.session_state['welcome_demo_loaded']:
-        st.markdown('<h2 class="section-header">📊 Live Demo Datasets</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="section-header">Live Demo Datasets</h2>', unsafe_allow_html=True)
         st.markdown("""
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 1rem; margin-bottom: 1.5rem; color: white;">
             <p style="margin: 0; font-size: 1.1rem; text-align: center;">
-                <strong>✨ Pre-loaded datasets ready for exploration!</strong> Click any card below to dive into interactive visualizations.
+                <strong>Pre-loaded datasets.</strong> Click a card to view visualizations.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -746,12 +745,12 @@ with tab0:
                         st.metric("Readmit Risk", f"{readmit_rate:.1f}%")
         
         st.markdown("---")
-        st.info("💡 **Tip:** Navigate to the **📈 Analytics Dashboard** or **🎯 Enterprise Demo** tab to explore these datasets in detail with advanced visualizations and analysis!")
+        st.info("Go to **Analytics Dashboard** or **Enterprise Demo** to explore these datasets in detail.")
     
     st.markdown("---")
     
     # Getting Started Section - Enhanced User Flow
-    st.markdown('<h2 class="section-header">🚀 Getting Started</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Getting Started</h2>', unsafe_allow_html=True)
     
     st.markdown("""
     <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 2rem; border-radius: 1rem; margin: 1rem 0; border-left: 5px solid #2196F3;">

@@ -5,96 +5,84 @@
 When you boot the app:
 
 1. **Welcome page** with:
-   - Professional gradient hero section
+   - Gradient hero section
    - Real-time system metrics (99.9% uptime, 1.2s response time)
-   - Complete feature showcase
+   - Feature showcase
    - Technology stack overview
 
-2. **Professional Sidebar** showing:
+2. **Sidebar** with:
    - System health indicators
    - Real-time metrics
-   - Feature highlights
+   - Feature navigation
 
-### 🌟 **Top 5 Features to Demo (In Order)**
+### Top 5 features to demo (in order)
 
-#### 1. **Welcome Tab** (🏠 First Tab)
-- **What to Show**: The impressive hero section, system metrics, feature cards
-- **What to say**: "Enterprise AI platform with MLOps across the lifecycle—data, training, registry, A/B testing, deployment."
+#### 1. Welcome tab
+- **Show**: Hero section, system metrics, feature cards
+- **Say**: "Enterprise AI platform with MLOps across the lifecycle—data, training, registry, A/B testing, deployment."
 
-#### 2. **Multi-Agent System** (🤖 Tab 2)
-- **What to Show**: 
-  - Try a query like: "Research the latest trends in LLM fine-tuning"
-  - Show intelligent routing (how it picks the right agent)
-  - Demonstrate collaborative workflows
-- **What to Say**: "This demonstrates advanced multi-agent collaboration with specialized roles - Researcher, Coder, and Analyst - with intelligent query routing that automatically selects the best agent."
+#### 2. Multi-Agent System
+- **Show**: Query e.g. "Research the latest trends in LLM fine-tuning"; routing; collaborative workflows
+- **Say**: "Multi-agent collaboration with specialized roles—Researcher, Coder, Analyst—and query routing that selects the appropriate agent."
 
-#### 3. **Model Registry** (📦 Tab 7)
-- **What to Show**:
-  - Register a model
-  - Show versioning
-  - Display performance metrics
-- **What to Say**: "This is a complete model registry system with versioning, lifecycle management, and performance tracking - essential for production MLOps."
+#### 3. Model Registry
+- **Show**: Register a model, versioning, performance metrics
+- **Say**: "Model registry with versioning, lifecycle management, and performance tracking."
 
-#### 4. **Advanced RAG** (📊 Tab 3)
-- **What to Show**:
-  - Upload a document (PDF/TXT)
-  - Perform a query
-  - Show hybrid search results
-- **What to Say**: "This implements advanced RAG with hybrid search combining semantic and keyword matching, with smart chunking strategies for optimal retrieval."
+#### 4. Advanced RAG
+- **Show**: Upload a document (PDF/TXT), run a query, show hybrid search results
+- **Say**: "RAG with hybrid search (semantic + keyword) and configurable chunking."
 
-#### 5. **A/B Testing** (🧪 Tab 8)
-- **What to Show**:
-  - Create an experiment
-  - Show statistical significance testing
-  - Display results dashboard
-- **What to say**: "A/B testing with real statistical tests—significance, sample size, traffic splitting—for model deployment decisions."
+#### 5. A/B Testing
+- **Show**: Create an experiment, significance testing, results dashboard
+- **Say**: "A/B testing with real statistical tests—significance, sample size, traffic splitting—for deployment decisions."
 
-### 💡 **Key Talking Points**
+### Key talking points
 
-#### Architecture & design
-- **Architecture**: Connection pooling, health checks, error recovery, monitoring. Adapter pattern for PostgreSQL, MySQL, SQLite, MongoDB.
-- **Scalability**: Docker-ready, Kubernetes-compatible, async, caching.
+**Architecture**
+- Connection pooling, health checks, error recovery, monitoring. Adapter pattern for PostgreSQL, MySQL, SQLite, MongoDB.
+- Docker-ready, Kubernetes-compatible, async, caching.
 
-#### Code quality
+**Code quality**
 - Type hints, error handling, test coverage. Adapter/factory patterns, context managers, logging, separation of concerns.
 
-#### Technical depth
+**Technical depth**
 - Multi-agent, RAG, LoRA/QLoRA fine-tuning, routing. Model registry, A/B testing, experiment tracking, monitoring, deployment.
 
-### 🎬 **Demo Flow (5 Minutes)**
+### Demo flow (5 minutes)
 
-1. **Start** (30 sec): Show welcome page, highlight metrics
+1. **Start** (30 sec): Welcome page, metrics
 2. **Multi-Agent** (1 min): Run a query, show routing, explain architecture
-3. **Model Registry** (1 min): Show model management, versioning
-4. **RAG System** (1 min): Upload document, query, show results
+3. **Model Registry** (1 min): Model management, versioning
+4. **RAG** (1 min): Upload document, query, show results
 5. **A/B Testing** (1 min): Create experiment, show statistical analysis
-6. **Wrap-up** (30 sec): Highlight technology stack, scalability, production readiness
+6. **Wrap-up** (30 sec): Technology stack, scalability, production readiness
 
-### 🔥 **Impressive Details to Mention**
+### Details to mention
 
-- **"50+ Features"**: Complete platform covering entire ML lifecycle
-- **"Multi-Database Support"**: Works with any database backend
-- **"Production Monitoring"**: Real-time metrics, health checks, alerting
-- **"Security First"**: Code sandboxing, input validation, secure execution
-- **"Comprehensive Testing"**: Unit, integration, and end-to-end tests
-- **"Docker Ready"**: Can deploy anywhere - AWS, GCP, Azure, on-premise
+- **50+ features**: Platform covering the ML lifecycle
+- **Multi-database support**: Works with multiple backends
+- **Production monitoring**: Real-time metrics, health checks, alerting
+- **Security**: Code sandboxing, input validation, secure execution
+- **Testing**: Unit, integration, and end-to-end tests
+- **Deployment**: Docker; can run on AWS, GCP, Azure, on-premise
 
-### 📊 **Metrics to Highlight**
+### Metrics to highlight
 
-- **99.9% Uptime**: Production-grade reliability
-- **1.2s Response Time**: Optimized performance
-- **3 Specialized Agents**: Advanced AI collaboration
-- **50+ Features**: Complete platform
-- **Multi-Database**: Flexible architecture
-- **Zero Linting Errors**: Code quality
+- 99.9% uptime
+- 1.2s response time
+- 3 specialized agents
+- 50+ features
+- Multi-database architecture
+- Zero linting errors
 
-### 🎯 **Closing Statement**
+### Closing
 
-*"This platform shows MLOps end-to-end: system design, clean code, and deployable components. Built for scalability and maintainability."*
+*"This platform covers MLOps end-to-end: system design, clean code, and deployable components. Built for scalability and maintainability."*
 
 ---
 
-## 🚀 **Quick Start Commands**
+## Quick start commands
 
 ```bash
 # Start the app
@@ -108,12 +96,7 @@ python start_app.py
 
 ---
 
-## ✨ **Remember**
+## Notes
 
-- **Confidence**: You built this - own it!
-- **Depth**: Show you understand the architecture, not just the UI
-- **Production Focus**: Emphasize real-world readiness
-- **Technical Excellence**: Highlight code quality and best practices
-
-**You've got this! 🚀**
-
+- Show that you understand the architecture, not just the UI
+- Emphasize production readiness and code quality

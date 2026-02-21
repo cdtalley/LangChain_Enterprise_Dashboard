@@ -1,10 +1,10 @@
-# 🔖 Code Quick Reference
+# Code Quick Reference
 
-**Personal cheat sheet for understanding code structure**
+**Cheat sheet for code structure**
 
 ---
 
-## 📁 File Structure
+## File Structure
 
 ```
 lib/
@@ -31,7 +31,7 @@ app/
 
 ---
 
-## 🔑 Key Patterns
+## Key Patterns
 
 ### Singleton Pattern
 ```typescript
@@ -77,7 +77,7 @@ class Manager {
 
 ---
 
-## 📊 Data Structures
+## Data Structures
 
 ### Experiment (A/B Testing)
 ```typescript
@@ -178,7 +178,7 @@ calculateSampleSize(baselineMean, expectedLift) → n
 
 ---
 
-## 🎯 Common Code Patterns
+## Common Code Patterns
 
 ### Component with Framework
 ```typescript
@@ -260,7 +260,7 @@ EcommerceRecord     → E-commerce data row
 
 ---
 
-## 🚀 Common Workflows
+## Common Workflows
 
 ### Create A/B Test
 1. User fills form → `handleCreateExperiment()`
@@ -285,7 +285,7 @@ EcommerceRecord     → E-commerce data row
 
 ---
 
-## 💡 Key Insights
+## Key Insights
 
 1. **Everything saves automatically** - Framework methods call `saveToStorage()` internally
 2. **State updates are reactive** - React re-renders when state changes

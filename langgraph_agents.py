@@ -2,7 +2,7 @@
 LangGraph Agentic AI Framework
 ===============================
 Advanced agentic AI using LangGraph for complex workflows.
-Demonstrates cutting-edge Gen AI expertise.
+LangGraph-based agent workflows.
 """
 
 from typing import Dict, Any, List, Optional, TypedDict, Annotated

@@ -117,7 +117,7 @@ print(f"Total Orders: \{total}, Revenue: \${revenue:.2f}, Avg: \${avg_order:.2f}
   return (
     <div className="space-y-6" data-tour="tools">
       <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">🔧 Tool Execution</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Tool Execution</h1>
         <p className="text-gray-600">Execute Python code, scrape websites, analyze data</p>
       </div>
 

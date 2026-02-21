@@ -76,7 +76,7 @@ export default function MultiAgentPage() {
         },
         analyst: {
           agent: "Analyst",
-          response: `Based on analysis of ${financeData.length} finance records and ${ecommerceData.length} e-commerce records:\n\n📊 Key Insights:\n• Average transaction amount: $${avgAmount.toFixed(2)}\n• Total e-commerce revenue: $${(totalRevenue / 1000).toFixed(1)}K\n• Fraud rate: ${fraudRate}%\n• Top product category: Electronics\n• Peak transaction time: 2-4 PM\n\n💡 Recommendations:\n1. Monitor transactions above $${(avgAmount * 2).toFixed(2)} for fraud\n2. Focus marketing on high-performing product categories\n3. Optimize inventory for peak hours`,
+          response: `Based on analysis of ${financeData.length} finance records and ${ecommerceData.length} e-commerce records:\n\nKey metrics:\n• Average transaction amount: $${avgAmount.toFixed(2)}\n• Total e-commerce revenue: $${(totalRevenue / 1000).toFixed(1)}K\n• Fraud rate: ${fraudRate}%\n• Top product category: Electronics\n• Peak transaction time: 2-4 PM\n\nRecommendations:\n1. Monitor transactions above $${(avgAmount * 2).toFixed(2)} for fraud\n2. Focus marketing on high-performing product categories\n3. Optimize inventory for peak hours`,
           sources: 2,
           confidence: 0.95,
           processingTime: "1.5s",
@@ -136,7 +136,7 @@ export default function MultiAgentPage() {
       {/* Help Guide */}
       <HelpGuide
         title="How to Use Multi-Agent System"
-        description="Learn how to leverage specialized AI agents for different tasks"
+        description="Use specialized AI agents (Researcher, Coder, Analyst) for different tasks"
         steps={[
           {
             number: 1,

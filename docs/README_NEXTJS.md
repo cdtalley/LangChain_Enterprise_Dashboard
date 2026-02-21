@@ -1,94 +1,56 @@
-# 🚀 Enterprise LangChain AI Workbench - Next.js Edition
+# Enterprise LangChain AI Workbench (Next.js)
 
-A stunning, modern Next.js application showcasing enterprise AI/ML capabilities with beautiful visualizations and interactive dashboards.
+Next.js app for enterprise AI/ML: dashboards, data generation, and visualizations.
 
-## ✨ Features
+## Features
 
-- **Modern Next.js 14** with App Router and TypeScript
-- **Beautiful UI** with Tailwind CSS and Framer Motion animations
-- **Interactive Visualizations** using Recharts
-- **Demo Data Generator** - Generate realistic datasets for multiple industries
-- **Enterprise Dashboards** - Finance, E-commerce, Marketing, HR analytics
-- **Responsive Design** - Works perfectly on all devices
+- Next.js 14 with App Router and TypeScript
+- Tailwind CSS and Framer Motion
+- Recharts for visualizations
+- Demo data generator for multiple industries
+- Dashboards: Finance, E-commerce, Marketing, HR analytics
+- Responsive layout
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Animations**: Framer Motion
-- **Charts**: Recharts
-- **Icons**: Lucide React
+- Next.js 14 (App Router), TypeScript, Tailwind CSS, Framer Motion, Recharts, Lucide React
 
-## 📦 Installation
+## Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
-npm run dev
-
-# Build for production
+npm run dev   # http://localhost:3000
 npm run build
-
-# Start production server
 npm start
 ```
 
-## 🎯 Usage
+## Usage
 
-1. **Start the app**: `npm run dev`
-2. **Open browser**: Navigate to `http://localhost:3000`
-3. **Explore dashboards**: 
-   - Enterprise Demo: View pre-loaded datasets with visualizations
-   - Analytics Dashboard: Interactive data analysis
-   - Data Generator: Create custom datasets
+1. `npm run dev`
+2. Open `http://localhost:3000`
+3. Use sidebar: Enterprise Demo, Analytics Dashboard, Data Generator
 
-## 📊 Available Datasets
+## Available Datasets
 
-- **Healthcare**: Patient records, vitals, conditions
-- **Finance**: Transactions, fraud detection
-- **E-commerce**: Sales, products, orders
-- **Marketing**: Campaigns, conversions, ROI
-- **HR**: Employee data, performance, retention
+- Healthcare: patient records, vitals, conditions
+- Finance: transactions, fraud detection
+- E-commerce: sales, products, orders
+- Marketing: campaigns, conversions, ROI
+- HR: employee data, performance, retention
 
-## 🎨 Key Components
+## Components
 
-- `HeroSection`: Stunning hero with gradient animations
-- `StatsGrid`: Real-time metrics display
-- `FeatureCards`: Feature showcase with hover effects
-- `EnterpriseDemo`: Multi-dataset dashboard with charts
-- `AnalyticsDashboard`: Data visualization and insights
-- `DataGenerator`: Custom dataset creation tool
+- HeroSection, StatsGrid, FeatureCards, DashboardTabs
+- EnterpriseDemo, AnalyticsDashboard, DataGenerator
 
-## 🚀 Deployment
+## Deployment
 
-### Vercel (Recommended)
-```bash
-npm install -g vercel
-vercel
-```
+**Vercel:** `vercel`
 
-### Docker
-```bash
-docker build -t langchain-dashboard .
-docker run -p 3000:3000 langchain-dashboard
-```
+**Docker:** `docker build -t langchain-dashboard .` then `docker run -p 3000:3000 langchain-dashboard`
 
-## 📝 Notes
+## Notes
 
-- All demo data is generated client-side using TypeScript
-- No backend required for basic functionality
-- Can be extended with API routes for server-side data generation
-- Fully responsive and mobile-friendly
-
-## 🔮 Future Enhancements
-
-- [ ] API routes for server-side data generation
-- [ ] Real-time data updates
-- [ ] Export to Excel/Parquet formats
-- [ ] Advanced filtering and search
-- [ ] User authentication
-- [ ] Data persistence
-
+- Demo data is generated client-side in TypeScript
+- No backend required for core features
+- Can add API routes for server-side data

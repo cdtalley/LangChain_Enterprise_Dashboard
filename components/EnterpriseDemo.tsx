@@ -174,7 +174,7 @@ export default function EnterpriseDemo() {
     <div className="space-y-6" data-tour="demo">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🎯 Enterprise Demo Showcase</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Enterprise Demo</h1>
           <p className="text-gray-600">Real-world datasets with stunning visualizations and actionable insights</p>
         </div>
         <button

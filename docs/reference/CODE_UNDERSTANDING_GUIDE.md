@@ -1,12 +1,12 @@
-# 📚 Personal Code Understanding Guide
+# Code Understanding Guide
 
-**Deep dive into how every module works - For Personal Reference Only**
+**How each module works (personal reference)**
 
 This guide walks through each module line-by-line to ensure you understand how everything connects.
 
 ---
 
-## 🎯 Table of Contents
+## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
 2. [Core Libraries (`lib/`)](#core-libraries)
@@ -16,7 +16,7 @@ This guide walks through each module line-by-line to ensure you understand how e
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ### The Big Picture
 
@@ -854,7 +854,7 @@ Where:
 
 ---
 
-## 💡 Common Questions Answered
+## Common Questions Answered
 
 **Q: Why singleton pattern?**
 A: Ensures only one instance exists, loads from localStorage once, persists across re-renders.

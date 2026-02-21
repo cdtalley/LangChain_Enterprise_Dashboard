@@ -5,8 +5,8 @@ export const getTourSteps = (): TourStep[] => {
     {
       id: "welcome",
       target: "body",
-      title: "Welcome to LangChain Enterprise Dashboard! 🎉",
-      content: "This interactive tour will guide you through all the powerful features. Let's get started!",
+      title: "LangChain Enterprise Dashboard",
+      content: "This tour walks through the main features. Use the steps below or the sidebar to jump to any section.",
       position: "center",
     },
     {
@@ -55,7 +55,7 @@ export const getTourSteps = (): TourStep[] => {
       id: "demo",
       target: "[data-tour='demo']",
       title: "Enterprise Demo",
-      content: "Explore 5 pre-loaded datasets with comprehensive visualizations. Click dataset cards to switch views and see detailed analytics.",
+      content: "Explore 5 pre-loaded datasets with detailed visualizations. Click dataset cards to switch views and see analytics.",
       position: "bottom",
     },
     {
@@ -145,8 +145,8 @@ export const getTourSteps = (): TourStep[] => {
     {
       id: "complete",
       target: "body",
-      title: "Tour Complete! 🎊",
-      content: "You've explored all the features! Start using the dashboard to analyze data, run experiments, and build ML models. Happy exploring!",
+      title: "Tour complete",
+      content: "You've seen all sections. Use the sidebar to analyze data, run experiments, or work with the model registry and A/B tests.",
       position: "center",
     },
   ];

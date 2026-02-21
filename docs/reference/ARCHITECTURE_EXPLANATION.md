@@ -10,7 +10,7 @@ How to explain the LangChain Enterprise Dashboard: technical depth and architect
 
 ---
 
-## 🎯 The Big Picture: Two-Layer Architecture
+## The Big Picture: Two-Layer Architecture
 
 ### **Layer 1: Python Backend Modules** (Original Foundation)
 The Python files form the backend with ML capabilities:
@@ -54,12 +54,12 @@ Python Backend (Original Streamlit App)
 Each Python module is a standalone component that could be deployed independently. Design:
 - **Separation of Concerns**: Each module has a single responsibility
 - **Dependency Injection**: Configuration via `config.py`
-- **Error Handling**: Robust fallbacks and logging
+- **Error Handling**: Fallbacks and logging
 - **Type Safety**: Type hints throughout
 - **Testing**: Comprehensive test suite in `tests/`
 
 ### **Layer 2: Next.js Frontend** (Modern UI Layer)
-The TypeScript/React frontend provides a **beautiful, interactive dashboard**:
+The TypeScript/React frontend provides an interactive dashboard:
 
 ```
 Next.js Frontend (Current Application)
@@ -324,7 +324,7 @@ All Components (Reactive Updates)
 - Error handling for quota exceeded
 ```
 
-**Why impressive**: You built a **robust persistence layer** that handles edge cases and provides a clean API.
+**Note**: The persistence layer handles edge cases (e.g. quota exceeded) and exposes a clear API.
 
 ### **4. Type Safety Throughout**
 **What it shows**: Professional TypeScript practices
@@ -337,7 +337,7 @@ All Components (Reactive Updates)
 - Generic types for reusability
 ```
 
-**Why impressive**: Full type coverage prevents bugs and makes the codebase maintainable.
+**Note**: Full type coverage reduces bugs and improves maintainability.
 
 ### **5. Component Architecture**
 **What it shows**: React best practices
@@ -350,11 +350,11 @@ All Components (Reactive Updates)
 - Custom hooks for logic reuse
 ```
 
-**Why impressive**: Clean component architecture makes the codebase scalable and maintainable.
+**Note**: Focused components and reusable primitives keep the UI layer scalable.
 
 ---
 
-## 🎤 How to Explain It (Conversation Scripts)
+## How to Explain It (Conversation Scripts)
 
 ### **Scenario 1: Technical Interview**
 
@@ -382,7 +382,7 @@ All Components (Reactive Updates)
 ### **Scenario 2: LinkedIn Post / Portfolio**
 
 **Post**:
-> "Just completed a full-stack enterprise AI platform showcasing production-ready MLOps capabilities! 🚀
+> "Completed a full-stack enterprise AI platform with production MLOps.
 >
 > **Backend (Python)**: Built modular ML components including:
 > - Statistical A/B testing framework with t-tests, chi-square, and power analysis
@@ -395,7 +395,7 @@ All Components (Reactive Updates)
 > - 18 interactive feature pages
 > - Client-side data generation with realistic distributions
 > - State persistence across sessions
-> - Beautiful visualizations with Recharts
+> - Visualizations with Recharts
 >
 > **Key Achievement**: Ported complex Python ML algorithms to TypeScript, demonstrating deep understanding of statistical methods and cross-language implementation.
 >
@@ -419,7 +419,7 @@ All Components (Reactive Updates)
 
 ---
 
-## 🔍 Deep Dive: Explaining Individual Modules
+## Deep Dive: Individual Modules
 
 ### **A/B Testing Module** (`ab_testing.py` → `lib/ab-testing.ts`)
 
@@ -486,7 +486,7 @@ const spending = income * 0.3 + generateNormal(0, 2000); // Correlated
 
 ---
 
-## 📊 Architecture Diagram (Visual Explanation)
+## Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -536,7 +536,7 @@ const spending = income * 0.3 + generateNormal(0, 2000); // Correlated
 
 ---
 
-## 🎯 Key Takeaways for Your Explanation
+## Key Takeaways
 
 1. **Two-Layer Architecture**: Python backend modules + Next.js frontend
 2. **Language Portability**: Core algorithms ported Python → TypeScript
@@ -563,20 +563,15 @@ const spending = income * 0.3 + generateNormal(0, 2000); // Correlated
 
 ---
 
-## 🚀 What Makes This Project Stand Out
+## What Stands Out
 
 1. **Depth**: You didn't just use libraries—you implemented statistical tests
 2. **Breadth**: 18+ features covering the entire MLOps lifecycle
 3. **Architecture**: Clean separation of concerns, production-ready patterns
 4. **Migration**: Successfully ported complex Python logic to TypeScript
 5. **UI/UX**: Beautiful, modern interface that's actually functional
-6. **Documentation**: Comprehensive README and architecture docs
+6. **Documentation**: README and architecture docs
 
 ---
 
-**Remember**: The goal isn't to memorize this document—it's to understand the concepts so you can explain them naturally in conversation. Focus on:
-- **What** each module does
-- **Why** you made architectural decisions
-- **How** the pieces connect together
-
-Good luck! 🎉
+**Remember**: The goal is to understand the concepts so you can explain them in conversation. Focus on what each module does, why you made architectural decisions, and how the pieces connect.
