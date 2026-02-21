@@ -27,7 +27,7 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
   const [tooltipPosition, setTooltipPosition] = useState<"top" | "bottom" | "left" | "right" | "center">("bottom");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const findElement = useCallback((selector: string, retries = 10): Promise<HTMLElement | null> => {
+  const findElement = useCallback((selector: string, retries = 15): Promise<HTMLElement | null> => {
     return new Promise((resolve) => {
       let attempts = 0;
       const tryFind = () => {
@@ -35,7 +35,11 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
         let element: HTMLElement | null = null;
 
         // Try different selector formats
-        if (selector.startsWith("#")) {
+        if (selector === "body") {
+          element = document.body;
+        } else if (selector === "sidebar") {
+          element = document.querySelector('[data-tour="sidebar"]') as HTMLElement;
+        } else if (selector.startsWith("#")) {
           element = document.getElementById(selector.substring(1));
         } else if (selector.startsWith(".")) {
           element = document.querySelector(selector) as HTMLElement;
@@ -43,7 +47,7 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
           // Handle data-tour attribute
           element = document.querySelector(selector) as HTMLElement;
         } else {
-          // Try as data-tour attribute
+          // Try as data-tour attribute first
           element = document.querySelector(`[data-tour="${selector}"]`) as HTMLElement;
           if (!element) {
             // Try as regular selector
@@ -51,11 +55,13 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
           }
         }
 
-        if (element) {
+        if (element && element.offsetParent !== null) {
+          // Element exists and is visible
           resolve(element);
         } else if (attempts < retries) {
-          setTimeout(tryFind, 200);
+          setTimeout(tryFind, 300); // Increased delay for GitHub Pages
         } else {
+          console.warn(`Tour: Could not find element: ${selector} after ${retries} attempts`);
           resolve(null);
         }
       };
@@ -70,12 +76,12 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
     // Execute action if provided (navigation)
     if (step.action) {
       step.action();
-      // Wait longer for navigation to complete and DOM to update
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Wait longer for navigation to complete and DOM to update (GitHub Pages needs more time)
+      await new Promise(resolve => setTimeout(resolve, 1200));
     }
 
-    // Find element with retries (increase retries for navigation steps)
-    const retries = step.action ? 20 : 15;
+    // Find element with retries (increase retries for navigation steps and GitHub Pages)
+    const retries = step.action ? 25 : 20;
     const element = await findElement(step.target, retries);
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -156,10 +162,10 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
         clearTimeout(timeoutRef.current);
       }
       
-      // Small delay to ensure DOM is ready
+      // Small delay to ensure DOM is ready (longer for GitHub Pages)
       timeoutRef.current = setTimeout(() => {
         updateTargetPosition();
-      }, 100);
+      }, 200);
     }
 
     return () => {

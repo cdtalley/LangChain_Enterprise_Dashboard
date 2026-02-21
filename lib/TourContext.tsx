@@ -3,21 +3,31 @@
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from "react";
 import Tour, { TourStep } from "@/components/Tour";
 import { getTourSteps } from "@/lib/tour-steps";
-import { useRouter } from "next/navigation";
 
 interface TourContextType {
   startTour: () => void;
   stopTour: () => void;
   isTourActive: boolean;
+  setNavigationHandler: (handler: (path: string) => void) => void;
 }
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
 
+// Store navigation handler outside component to avoid re-renders
+let navigationHandler: ((path: string) => void) | null = null;
+
 export function TourProvider({ children }: { children: ReactNode }) {
   const [isTourActive, setIsTourActive] = useState(false);
-  const router = useRouter();
+  
+  const setNavigationHandler = useCallback((handler: (path: string) => void) => {
+    navigationHandler = handler;
+  }, []);
 
   const startTour = useCallback(() => {
+    // Ensure navigation handler is set (should be set by app/page.tsx on mount)
+    if (!navigationHandler) {
+      console.warn("Tour: Navigation handler not set. Tour may not navigate correctly.");
+    }
     setIsTourActive(true);
   }, []);
 
@@ -41,73 +51,109 @@ export function TourProvider({ children }: { children: ReactNode }) {
     return steps.map((step) => {
       const enhancedStep = { ...step };
       
-      // Add navigation actions
+      // Add navigation actions using the app's navigation handler
       switch (step.id) {
         case "multi-agent":
-          enhancedStep.action = () => router.push("/multi-agent");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/multi-agent");
+          };
           break;
         case "rag":
-          enhancedStep.action = () => router.push("/rag");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/rag");
+          };
           break;
         case "tools":
-          enhancedStep.action = () => router.push("/tools");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/tools");
+          };
           break;
         case "analytics":
-          enhancedStep.action = () => router.push("/analytics");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/analytics");
+          };
           break;
         case "demo":
-          enhancedStep.action = () => router.push("/demo");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/demo");
+          };
           break;
         case "registry":
-          enhancedStep.action = () => router.push("/registry");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/registry");
+          };
           break;
         case "ab-testing":
-          enhancedStep.action = () => router.push("/ab-testing");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/ab-testing");
+          };
           break;
         case "experiments":
-          enhancedStep.action = () => router.push("/experiments");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/experiments");
+          };
           break;
         case "monitoring":
-          enhancedStep.action = () => router.push("/monitoring");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/monitoring");
+          };
           break;
         case "fine-tuning":
-          enhancedStep.action = () => router.push("/fine-tuning");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/fine-tuning");
+          };
           break;
         case "datasets":
-          enhancedStep.action = () => router.push("/datasets");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/datasets");
+          };
           break;
         case "profiling":
-          enhancedStep.action = () => router.push("/profiling");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/profiling");
+          };
           break;
         case "statistics":
-          enhancedStep.action = () => router.push("/statistics");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/statistics");
+          };
           break;
         case "automl":
-          enhancedStep.action = () => router.push("/automl");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/automl");
+          };
           break;
         case "time-series":
-          enhancedStep.action = () => router.push("/time-series");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/time-series");
+          };
           break;
         case "ensembling":
-          enhancedStep.action = () => router.push("/ensembling");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/ensembling");
+          };
           break;
         case "langchain":
-          enhancedStep.action = () => router.push("/langchain");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/langchain");
+          };
           break;
         case "welcome":
         case "sidebar":
         case "welcome-page":
         case "complete":
-          enhancedStep.action = () => router.push("/");
+          enhancedStep.action = () => {
+            if (navigationHandler) navigationHandler("/");
+          };
           break;
       }
       
       return enhancedStep;
     });
-  }, [router]);
+  }, []);
 
   return (
-    <TourContext.Provider value={{ startTour, stopTour, isTourActive }}>
+    <TourContext.Provider value={{ startTour, stopTour, isTourActive, setNavigationHandler }}>
       {children}
       {isTourActive && (
         <Tour

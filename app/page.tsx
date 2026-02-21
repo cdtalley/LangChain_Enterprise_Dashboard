@@ -21,6 +21,7 @@ import AutoMLPage from "@/components/pages/AutoMLPage";
 import TimeSeriesPage from "@/components/pages/TimeSeriesPage";
 import EnsemblingPage from "@/components/pages/EnsemblingPage";
 import LangChainPage from "@/components/pages/LangChainPage";
+import { useTour } from "@/lib/TourContext";
 
 const pageComponents: Record<string, React.ComponentType> = {
   "/": WelcomePage,
@@ -46,10 +47,13 @@ const pageComponents: Record<string, React.ComponentType> = {
 export default function Home() {
   const [activePath, setActivePath] = useState("/");
   const [mounted, setMounted] = useState(false);
+  const { setNavigationHandler } = useTour();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Register navigation handler for tour
+    setNavigationHandler(setActivePath);
+  }, [setNavigationHandler]);
 
   const ActiveComponent = pageComponents[activePath] || WelcomePage;
 
