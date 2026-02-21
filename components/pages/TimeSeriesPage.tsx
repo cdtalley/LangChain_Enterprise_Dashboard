@@ -1,21 +1,10 @@
 "use client";
 
 import { TrendingUp, Calendar } from "lucide-react";
-import { motion } from "framer-motion";
 import { useData } from "@/lib/DataContext";
 import MetricCard from "@/components/MetricCard";
 import DataTable from "@/components/DataTable";
-import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import TimeSeriesChartCard from "@/components/charts/TimeSeriesChartCard";
 
 export default function TimeSeriesPage() {
   const { financeData, ecommerceData } = useData();
@@ -51,8 +40,8 @@ export default function TimeSeriesPage() {
   return (
     <div className="space-y-6" data-tour="time-series">
       <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">📈 Time Series</h1>
-        <p className="text-gray-600">Time series analysis and forecasting</p>
+        <h1 className="text-3xl font-bold tracking-tight text-[var(--foreground)] mb-1">Time Series</h1>
+        <p className="text-[var(--muted)]">Time series analysis and forecasting</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -60,48 +49,46 @@ export default function TimeSeriesPage() {
           title="Finance Trend"
           value="↑ 12.5%"
           icon={TrendingUp}
-          gradient="from-pink-500 to-rose-500"
+          gradient="from-indigo-500 to-violet-500"
           trend="up"
+          trendValue="12.5%"
         />
         <MetricCard
           title="E-commerce Trend"
           value="↑ 8.3%"
           icon={Calendar}
-          gradient="from-blue-500 to-cyan-500"
+          gradient="from-cyan-500 to-blue-500"
           trend="up"
+          trendValue="8.3%"
         />
         <MetricCard
           title="Data Points"
           value={financeData.length.toLocaleString()}
+          gradient="from-violet-500 to-purple-500"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h3 className="text-lg font-bold mb-4">Finance Transaction Timeline</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={dailyFinanceData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Area type="monotone" dataKey="avgAmount" stroke="#667eea" fill="#667eea" fillOpacity={0.6} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h3 className="text-lg font-bold mb-4">E-commerce Revenue Timeline</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={ecommerceTimeSeries.slice(0, 30)}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="index" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="revenue" stroke="#4facfe" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <TimeSeriesChartCard
+          title="Finance Transaction Timeline"
+          subtitle="Daily average transaction amount"
+          data={dailyFinanceData}
+          valueKey="avgAmount"
+          xKey="date"
+          variant="area"
+          colorIndex={0}
+          formatValue={(v) => `$${v.toLocaleString()}`}
+        />
+        <TimeSeriesChartCard
+          title="E-commerce Revenue Timeline"
+          subtitle="Revenue over time"
+          data={ecommerceTimeSeries.slice(0, 30)}
+          valueKey="revenue"
+          xKey="date"
+          variant="line"
+          colorIndex={2}
+          formatValue={(v) => `$${v.toLocaleString()}`}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

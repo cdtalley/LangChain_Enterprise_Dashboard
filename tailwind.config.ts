@@ -12,13 +12,17 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {
-          DEFAULT: "#667eea",
+          DEFAULT: "var(--primary)",
+          dark: "var(--primary-dark)",
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#764ba2",
+          DEFAULT: "var(--secondary)",
           foreground: "#ffffff",
         },
+        accent: "var(--accent)",
+        muted: "var(--muted)",
+        border: "var(--border)",
       },
       animation: {
         "gradient": "gradient 8s ease infinite",

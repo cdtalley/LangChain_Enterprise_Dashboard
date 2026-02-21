@@ -97,14 +97,14 @@ export const getTourSteps = (): TourStep[] => {
       id: "datasets",
       target: "[data-tour='datasets']",
       title: "Datasets & Models",
-      content: "View all available datasets, generate custom datasets by industry, and preview data. Each dataset has thousands of realistic records.",
+      content: "View all available datasets, generate custom datasets by industry, and preview data. Each dataset has many records with realistic structure.",
       position: "bottom",
     },
     {
       id: "profiling",
       target: "[data-tour='profiling']",
       title: "Data Profiling",
-      content: "Comprehensive data quality analysis including completeness, uniqueness, validity, and consistency scores. Compare datasets side-by-side.",
+      content: "Data quality analysis: completeness, uniqueness, validity, consistency. Compare datasets side-by-side.",
       position: "bottom",
     },
     {

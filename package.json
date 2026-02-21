@@ -2,6 +2,7 @@
   "name": "langchain-enterprise-dashboard",
   "version": "1.0.0",
   "private": true,
+  "author": "Drake Talley",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

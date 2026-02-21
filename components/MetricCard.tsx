@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MetricCardProps {
   title: string;
@@ -20,28 +21,40 @@ export default function MetricCard({
   icon: Icon,
   trend,
   trendValue,
-  gradient = "from-purple-500 to-blue-500",
+  gradient = "from-indigo-500 to-violet-500",
 }: MetricCardProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.02, y: -4 }}
-      className={`bg-gradient-to-br ${gradient} text-white rounded-xl shadow-lg p-6`}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={cn(
+        "bg-gradient-to-br text-white rounded-xl shadow-[var(--shadow-md)] p-6",
+        "border border-white/10 transition-shadow duration-200 hover:shadow-[var(--shadow-lg)]",
+        gradient
+      )}
     >
-      <div className="flex items-center justify-between mb-4">
-        {Icon && <Icon className="w-8 h-8 opacity-90" />}
-        {trend && (
-          <div
-            className={`text-sm font-semibold ${
-              trend === "up" ? "text-green-200" : trend === "down" ? "text-red-200" : "text-gray-200"
-            }`}
-          >
-            {trend === "up" && "↑"} {trend === "down" && "↓"} {trendValue}
+      <div className="flex items-center justify-between mb-3">
+        {Icon && (
+          <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center">
+            <Icon className="w-5 h-5 opacity-95" />
           </div>
         )}
+        {trend && (
+          <span
+            className={cn(
+              "text-xs font-semibold px-2 py-1 rounded-md",
+              trend === "up" && "bg-emerald-400/25 text-emerald-100",
+              trend === "down" && "bg-red-400/25 text-red-100",
+              trend === "neutral" && "bg-white/15 text-white/90"
+            )}
+          >
+            {trend === "up" && "↑"} {trend === "down" && "↓"} {trendValue}
+          </span>
+        )}
       </div>
-      <div className="text-3xl font-bold mb-1">{value}</div>
-      <div className="text-sm opacity-90">{title}</div>
-      {subtitle && <div className="text-xs opacity-75 mt-1">{subtitle}</div>}
+      <div className="text-2xl md:text-3xl font-bold tracking-tight mb-0.5">{value}</div>
+      <div className="text-sm font-medium text-white/90">{title}</div>
+      {subtitle && <div className="text-xs text-white/75 mt-1">{subtitle}</div>}
     </motion.div>
   );
 }

@@ -1,21 +1,19 @@
-# 🏗️ Architecture Explanation Guide
+# Architecture Explanation Guide
 
-**How to Explain Your LangChain Enterprise Dashboard Project**
-
-This guide helps you articulate the technical depth and architectural decisions behind this project when explaining it to others.
+How to explain the LangChain Enterprise Dashboard: technical depth and architectural decisions.
 
 ---
 
-## 📋 Quick Elevator Pitch
+## Quick elevator pitch
 
-> "I built a full-stack enterprise AI platform that demonstrates production-ready MLOps capabilities. It started as a Python/Streamlit backend with comprehensive ML modules, then I migrated the frontend to a modern Next.js/TypeScript application. The architecture showcases how to port complex Python ML logic to TypeScript while maintaining statistical rigor, and demonstrates enterprise patterns like A/B testing frameworks, experiment tracking, and multi-agent AI systems."
+> "Full-stack enterprise AI platform with MLOps. Started as Python/Streamlit; frontend migrated to Next.js/TypeScript with core ML logic ported to TypeScript. Includes A/B testing, experiment tracking, multi-agent AI, and statistical rigor."
 
 ---
 
 ## 🎯 The Big Picture: Two-Layer Architecture
 
 ### **Layer 1: Python Backend Modules** (Original Foundation)
-The Python files represent a **production-ready backend** with enterprise ML capabilities:
+The Python files form the backend with ML capabilities:
 
 ```
 Python Backend (Original Streamlit App)
@@ -53,7 +51,7 @@ Python Backend (Original Streamlit App)
     └── gcp_vertex_ai_integration.py
 ```
 
-**Key Insight**: Each Python module is a **standalone, production-ready component** that could be deployed independently. They're designed with:
+Each Python module is a standalone component that could be deployed independently. Design:
 - **Separation of Concerns**: Each module has a single responsibility
 - **Dependency Injection**: Configuration via `config.py`
 - **Error Handling**: Robust fallbacks and logging
@@ -280,7 +278,7 @@ All Components (Reactive Updates)
 
 ---
 
-## 💡 Key Technical Decisions (What Makes This Impressive)
+## Key technical decisions
 
 ### **1. Statistical Rigor in A/B Testing**
 **What it shows**: Deep understanding of hypothesis testing

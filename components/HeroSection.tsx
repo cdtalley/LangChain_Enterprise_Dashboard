@@ -9,18 +9,15 @@ export default function HeroSection() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white mb-12"
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white mb-12 border border-white/5 shadow-[var(--shadow-xl)]"
     >
-      {/* Animated background pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.07]" style={{
+        backgroundImage: `linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)`,
+        backgroundSize: '48px 48px'
+      }} />
       
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       
       <div className="relative z-10 px-8 py-16 md:py-24">
         <motion.div
@@ -29,25 +26,23 @@ export default function HeroSection() {
           transition={{ delay: 0.2, duration: 0.8 }}
           className="max-w-5xl mx-auto text-center"
         >
-          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20"
           >
-            <Rocket className="w-4 h-4" />
+            <Rocket className="w-4 h-4 text-indigo-300" />
             <span className="text-sm font-semibold">Production-Ready Enterprise Platform</span>
           </motion.div>
 
-          {/* Main Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight"
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight tracking-tight"
           >
-            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-indigo-100 to-violet-200 bg-clip-text text-transparent">
               LangChain Enterprise
             </span>
             <br />
@@ -82,20 +77,20 @@ export default function HeroSection() {
             className="flex flex-wrap items-center justify-center gap-3 mt-8"
           >
             {[
-              { icon: Zap, text: "Real-Time Processing", color: "from-yellow-400 to-orange-500" },
-              { icon: Shield, text: "Enterprise Security", color: "from-green-400 to-emerald-500" },
-              { icon: TrendingUp, text: "Production MLOps", color: "from-blue-400 to-cyan-500" },
-              { icon: Sparkles, text: "18+ Features", color: "from-purple-400 to-pink-500" },
+              { icon: Zap, text: "Real-Time Processing", color: "from-amber-400 to-orange-500" },
+              { icon: Shield, text: "Enterprise Security", color: "from-emerald-400 to-teal-500" },
+              { icon: TrendingUp, text: "Production MLOps", color: "from-cyan-400 to-blue-500" },
+              { icon: Sparkles, text: "18+ Features", color: "from-violet-400 to-indigo-500" },
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 + idx * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-lg backdrop-blur-sm border border-white/20`}
+                  transition={{ delay: 0.8 + idx * 0.08 }}
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${item.color} rounded-xl shadow-lg backdrop-blur-sm border border-white/20`}
                 >
                   <Icon className="w-4 h-4" />
                   <span className="text-sm font-semibold">{item.text}</span>
@@ -104,7 +99,6 @@ export default function HeroSection() {
             })}
           </motion.div>
 
-          {/* Stats Row */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -118,8 +112,8 @@ export default function HeroSection() {
               { label: "Response", value: "<1.2s" },
             ].map((stat, idx) => (
               <div key={idx} className="text-center">
-                <div className="text-3xl font-bold mb-1">{stat.value}</div>
-                <div className="text-sm text-slate-400">{stat.label}</div>
+                <div className="text-2xl md:text-3xl font-bold tracking-tight mb-0.5">{stat.value}</div>
+                <div className="text-sm text-slate-400 font-medium">{stat.label}</div>
               </div>
             ))}
           </motion.div>
