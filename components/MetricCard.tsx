@@ -48,7 +48,7 @@ export default function MetricCard({
               trend === "neutral" && "bg-white/15 text-white/90"
             )}
           >
-            {trend === "up" && "↑"} {trend === "down" && "↓"} {trendValue}
+            {trend === "up" && "↑"} {trend === "down" && "↓"} {trendValue ?? "—"}
           </span>
         )}
       </div>

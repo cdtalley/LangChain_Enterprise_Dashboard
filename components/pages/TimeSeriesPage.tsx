@@ -65,6 +65,7 @@ export default function TimeSeriesPage() {
           title="Data Points"
           value={financeData.length.toLocaleString()}
           gradient="from-violet-500 to-purple-500"
+          trendValue="—"
         />
       </div>
 
