@@ -22,3 +22,20 @@ export const CHART_GRADIENTS = {
   accent: "url(#chartGradientAccent)",
   success: "url(#chartGradientSuccess)",
 } as const;
+
+/** Format for "Data as of" / "Last updated" copy. */
+export function formatDataAsOf(date: Date | null): string {
+  if (!date) return "—";
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

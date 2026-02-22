@@ -10,17 +10,15 @@ import MetricCard from "@/components/MetricCard";
 import DataTable from "@/components/DataTable";
 import BarChartCard from "@/components/charts/BarChartCard";
 import TimeSeriesChartCard from "@/components/charts/TimeSeriesChartCard";
-import { DollarSign, ShoppingCart, TrendingUp, Users, Briefcase, Target } from "lucide-react";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import { formatDataAsOf } from "@/lib/utils";
+import { DollarSign, ShoppingCart, TrendingUp, Users, Briefcase, Target, RefreshCw } from "lucide-react";
 
 export default function WelcomePage() {
-  const { financeData, ecommerceData, marketingData, hrData, isLoading } = useData();
+  const { financeData, ecommerceData, marketingData, hrData, isLoading, lastRefreshedAt, refreshData } = useData();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   // Calculate metrics
@@ -94,17 +92,28 @@ export default function WelcomePage() {
         transition={{ duration: 0.4 }}
         className="rounded-2xl border border-[var(--border)] bg-white/80 backdrop-blur-sm p-6 md:p-8 shadow-[var(--shadow-md)]"
       >
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <Briefcase className="w-6 h-6 text-[var(--primary)]" />
-          <h2 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-            Executive Summary
-          </h2>
-          <span className="text-xs font-medium text-[var(--muted)] bg-slate-100 px-2.5 py-1 rounded-full">
-            Live data
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <Briefcase className="w-6 h-6 text-[var(--primary)]" />
+            <h2 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+              Executive Summary
+            </h2>
+            <span className="text-xs font-medium text-[var(--muted)] bg-slate-100 px-2.5 py-1 rounded-full" title={lastRefreshedAt?.toISOString() ?? undefined}>
+              Data as of {formatDataAsOf(lastRefreshedAt)}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => refreshData()}
+            className="no-print flex items-center gap-2 px-3 py-2 text-sm font-medium text-[var(--primary)] hover:bg-indigo-50 rounded-xl border border-[var(--border)] transition-colors"
+            aria-label="Refresh data"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
         </div>
         <p className="text-[var(--muted)] max-w-2xl mb-6">
-          Key performance indicators and trends across finance, e‑commerce, marketing, and HR. Use the Analytics and Time Series views for deeper analysis.
+          Key performance indicators and trends across finance, e‑commerce, marketing, and HR. Use Analytics and Time Series for deeper analysis.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <MetricCard

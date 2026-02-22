@@ -41,7 +41,11 @@ const stats = [
 
 export default function StatsGrid() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+    <div>
+      <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-4">
+        Platform health
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
@@ -72,6 +76,7 @@ export default function StatsGrid() {
           </motion.div>
         );
       })}
+      </div>
     </div>
   );
 }

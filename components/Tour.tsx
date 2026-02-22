@@ -54,17 +54,12 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
         }
 
         if (element && element.offsetParent !== null) {
-          // Element exists and is visible
-          console.log(`Tour: Found element for selector: ${selector} (attempt ${attempts})`);
           resolve(element);
         } else if (attempts < retries) {
-          setTimeout(tryFind, 300); // Increased delay for GitHub Pages
+          setTimeout(tryFind, 300);
         } else {
-          console.warn(`Tour: Could not find element: ${selector} after ${retries} attempts`);
-          // Try to find any element with that selector even if not visible
           const fallback = document.querySelector(selector) as HTMLElement;
           if (fallback) {
-            console.log(`Tour: Found element but it may not be visible: ${selector}`);
             resolve(fallback);
           } else {
             resolve(null);
@@ -77,11 +72,7 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
 
   const updateTargetPosition = useCallback(async () => {
     const step = steps[currentStep];
-    if (!step) {
-      console.warn(`Tour: Step ${currentStep} not found`);
-      return;
-    }
-    console.log(`Tour: Updating position for step ${currentStep}: ${step.id}, target: ${step.target}`);
+    if (!step) return;
 
     // Execute action if provided (navigation)
     if (step.action) {
@@ -205,14 +196,11 @@ export default function Tour({ steps, onComplete, onSkip }: TourProps) {
     };
   }, [isVisible, updateTargetPosition]);
 
-  // Start tour when steps are provided
   useEffect(() => {
     if (steps.length > 0) {
-      console.log(`Tour: Initializing with ${steps.length} steps`);
       setIsVisible(true);
-      setCurrentStep(0); // Reset to first step when tour starts
+      setCurrentStep(0);
     } else {
-      console.warn("Tour: No steps provided");
       setIsVisible(false);
     }
   }, [steps.length]);

@@ -236,3 +236,22 @@ h3 {
     padding-left: 0;
   }
 }
+
+/* Print: executive-friendly summary */
+@media print {
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .chart-card,
+  .card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+  a[href]::after {
+    content: none;
+  }
+}

@@ -65,7 +65,7 @@ export default function Sidebar({ activePath, onNavigate }: SidebarProps) {
     <motion.div
       initial={{ x: -300 }}
       animate={{ x: isOpen ? 0 : -280 }}
-      className="fixed left-0 top-0 h-full bg-gradient-to-b from-slate-900 via-indigo-950/95 to-slate-900 text-white shadow-2xl z-50 w-64 overflow-y-auto border-r border-white/5"
+      className="fixed left-0 top-0 h-full bg-gradient-to-b from-slate-900 via-indigo-950/95 to-slate-900 text-white shadow-2xl z-50 w-64 overflow-y-auto border-r border-white/5 print:hidden"
       data-tour="sidebar"
     >
       <div className="p-5 border-b border-white/10">

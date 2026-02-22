@@ -10,6 +10,7 @@ interface DataContextType {
   hrData: any[];
   healthcareData: any[];
   isLoading: boolean;
+  lastRefreshedAt: Date | null;
   refreshData: () => void;
 }
 
@@ -22,18 +23,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [hrData, setHrData] = useState<any[]>([]);
   const [healthcareData, setHealthcareData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const generator = new DemoDataGenerator();
 
   const loadData = () => {
     setIsLoading(true);
-    // Generate larger, more impressive datasets
     setTimeout(() => {
       setFinanceData(generator.generateFinanceData(3000));
       setEcommerceData(generator.generateEcommerceData(2500));
       setMarketingData(generator.generateMarketingData(2000));
       setHrData(generator.generateHRData(2000));
       setHealthcareData(generator.generateHealthcareData(1500));
+      setLastRefreshedAt(new Date());
       setIsLoading(false);
     }, 500);
   };
@@ -52,6 +54,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         hrData,
         healthcareData,
         isLoading,
+        lastRefreshedAt,
         refreshData: loadData,
       }}
     >

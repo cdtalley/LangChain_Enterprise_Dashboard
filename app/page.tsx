@@ -44,6 +44,27 @@ const pageComponents: Record<string, React.ComponentType> = {
   "/langchain": LangChainPage,
 };
 
+const pageTitles: Record<string, string> = {
+  "/": "Dashboard",
+  "/multi-agent": "Multi-Agent",
+  "/rag": "Advanced RAG",
+  "/tools": "Tools",
+  "/analytics": "Analytics",
+  "/demo": "Enterprise Demo",
+  "/registry": "Model Registry",
+  "/ab-testing": "A/B Testing",
+  "/experiments": "Experiments",
+  "/monitoring": "Monitoring",
+  "/fine-tuning": "Fine-Tuning",
+  "/datasets": "Datasets",
+  "/profiling": "Data Profiling",
+  "/statistics": "Statistics",
+  "/automl": "AutoML",
+  "/time-series": "Time Series",
+  "/ensembling": "Ensembling",
+  "/langchain": "LangChain",
+};
+
 export default function Home() {
   const [activePath, setActivePath] = useState("/");
   const [mounted, setMounted] = useState(false);
@@ -51,14 +72,14 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    // Register navigation handler for tour
-    const handler = (path: string) => {
-      console.log(`Tour: Navigating to ${path}`);
-      setActivePath(path);
-    };
+    const handler = (path: string) => setActivePath(path);
     setNavigationHandler(handler);
-    console.log("Tour: Navigation handler registered");
   }, [setNavigationHandler]);
+
+  useEffect(() => {
+    const title = pageTitles[activePath] ?? "Dashboard";
+    document.title = `${title} | LangChain Enterprise`;
+  }, [activePath]);
 
   const ActiveComponent = pageComponents[activePath] || WelcomePage;
 
@@ -69,7 +90,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
       <Sidebar activePath={activePath} onNavigate={setActivePath} />
-      <main className="flex-1 ml-64 p-8 max-w-[1920px] mx-auto">
+      <main className="flex-1 ml-64 p-8 max-w-[1920px] mx-auto print:ml-0 print:p-0">
         <motion.div
           key={activePath}
           initial={{ opacity: 0, y: 20 }}

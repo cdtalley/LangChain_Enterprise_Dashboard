@@ -24,14 +24,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const startTour = useCallback(() => {
-    // Ensure navigation handler is set (should be set by app/page.tsx on mount)
-    if (!navigationHandler) {
-      console.warn("Tour: Navigation handler not set. Tour may not navigate correctly.");
-    } else {
-      console.log("Tour: Starting tour with navigation handler available");
-    }
-    console.log("Tour: Setting isTourActive to true");
-    
     // Small delay to ensure DOM is ready
     setTimeout(() => {
       setIsTourActive(true);
