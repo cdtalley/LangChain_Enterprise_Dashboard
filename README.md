@@ -6,6 +6,8 @@ Enterprise GenAI orchestration platform: multi-agent AI, RAG, local LLM support,
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+**Live:** [GitHub Pages](https://cdtalley.github.io/LangChain_Enterprise_Dashboard/)
+
 ---
 
 ## Key Features
